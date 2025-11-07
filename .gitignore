@@ -1,41 +1,73 @@
-# Prerequisites
-*.d
+# Build directories
+build/
+cmake-build-*/
+out/
+bin/
+lib/
+
+# IDE specific
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
 # Compiled Object files
-*.slo
-*.lo
 *.o
 *.obj
-
-# Precompiled Headers
-*.gch
 *.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+*.gch
 
 # Executables
 *.exe
 *.out
 *.app
 
-# debug information files
-*.dwo
+# Libraries
+*.lib
+*.a
+*.so
+*.dylib
+*.dll
+
+# vcpkg
+vcpkg_installed/
+.vcpkg/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+compile_commands.json
+Makefile
+*.cmake
+!CMakeLists.txt
+
+# Platform specific
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Profiling data
+*.tracy
+*.tracy.json
+
+# Assets (if large)
+# assets/models/*.fbx
+# assets/textures/*.psd
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates

@@ -1,0 +1,15 @@
+{
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+    "name": "krioengine",
+    "version-string": "0.1.0",
+    "description": "Modern C++ game engine with ECS architecture",
+    "homepage": "https://github.com/Krio/KrioEngine",
+    "license": "MIT",
+    "dependencies": [
+        {
+            "name": "sdl2",
+            "version>=": "2.0"
+        }
+    ],
+    "builtin-baseline": "latest"
+}
