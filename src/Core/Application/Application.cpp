@@ -1,5 +1,5 @@
 #include "Application.hpp"
-#include "Logger.hpp"
+#include "../Logger.hpp"
 
 namespace Krio {
     Application* Application::_instance = nullptr;
@@ -44,15 +44,11 @@ namespace Krio {
 
     void Application::run()
     {
-        this->_lastFrameTime = std::chrono::steady_clock::now();
-
         while (this->_running) {
-            auto now = std::chrono::steady_clock::now();
-            float deltaTime = std::chrono::duration<float>(now - this->_lastFrameTime).count();
-            this->_lastFrameTime = now;
+            this->_timeManager.update();
 
             handleEvents();
-            update(deltaTime);
+            update();
             render();
         }
     }
@@ -70,7 +66,9 @@ namespace Krio {
             this->_running = false;
     }
 
-    void Application::update(float deltaTime) {}
+    void Application::update() {
+        this->_timeManager.debugLogTimeInfo();
+    }
 
     void Application::render()
     {

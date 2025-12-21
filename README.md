@@ -29,35 +29,6 @@ This is a foundation project. Most features listed below are **planned** but not
 
 ---
 
-## ✨ Features
-
-### Currently Implemented ✅
-- 🪟 **Cross-platform Windowing** - SDL2 with native handle support (X11/Wayland/Win32/Cocoa)
-- 🎨 **Modern Rendering** - bgfx backend with auto-detection (OpenGL/Vulkan/DirectX/Metal)
-- ⏱️ **Game Loop** - Accurate delta time calculation
-- 📝 **Logging System** - Simple but effective logging
-- 🏗️ **Modular Architecture** - Clean separation of Core/Platform/Renderer
-
-### Planned 📋
-- 🚀 **Data-Oriented ECS** - EnTT integration (not started)
-- 🌳 **Spatial Partitioning** - Quadtree/Octree for culling (not started)
-- 🖥️ **Visual Editor** - ImGui-based interface (not started)
-- 📜 **Lua Scripting** - Gameplay prototyping (not started)
-- ⚡ **Physics Integration** - Jolt or Box2D (not started)
-- 🔊 **Audio System** - OpenAL (not started)
-
----
-
-## 🎯 Philosophy
-
-KrioEngine is built on three core principles:
-
-1. **Performance First** - Optimizations are designed in, not added later
-2. **Clean Architecture** - Maintainable, modular, and testable code
-3. **Developer Experience** - Intuitive API and comprehensive documentation
-
----
-
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -128,34 +99,6 @@ cmake --build build --config Release
 
 ---
 
-## 🎯 Roadmap
-
-### Version 0.1.0 (Current)
-- [x] Core engine foundation
-- [x] Cross-platform windowing
-- [x] Rendering backend integration
-- [x] Basic game loop
-- [x] Logging system
-- [ ] ECS integration (EnTT)
-- [ ] Basic rendering (triangle, quad)
-- [ ] Input system
-- [ ] Camera system
-
-### Version 0.2.0 (Next)
-- [ ] Model loading
-- [ ] Texture system
-- [ ] Basic lighting
-- [ ] Scene management
-- [ ] Serialization
-
-### Version 0.3.0 (Future)
-- [ ] ImGui editor
-- [ ] Physics integration
-- [ ] Audio system
-- [ ] Lua scripting
-
----
-
 **Design Patterns:**
 - **Modular Architecture**: Strict separation of concerns
 - **RAII**: Automatic resource management
@@ -167,23 +110,6 @@ cmake --build build --config Release
 ## 🤝 Contributing
 
 This is a personal learning project, but contributions are welcome!
-
-### Development Setup
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Follow the existing code style (camelCase methods, `_variable` for private members)
-4. Commit your changes (`git commit -m 'Add amazing feature'`)
-5. Push to the branch (`git push origin feature/amazing-feature`)
-6. Open a Pull Request
-
-### Code Conventions
-
-- **Classes**: PascalCase
-- **Methods**: camelCase
-- **Private members**: `_camelCase` (underscore prefix)
-- **No unnecessary comments** - Code should be self-documenting
-- **Use `this->` explicitly** in .cpp files
 
 ---
 
@@ -199,13 +125,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [SDL2](https://www.libsdl.org/) - Cross-platform windowing
 - [EnTT](https://github.com/skypjack/entt) (planned) by Michele Caini
 - [Dear ImGui](https://github.com/ocornut/imgui) (planned) by Omar Cornut
-
----
-
-## 📧 Contact
-
-Project Link: [KrioEngine](https://github.com/Krio/KrioEngine)
-
----
-
-**Note**: This README reflects the actual current state of the project. Features marked as "planned" are not yet implemented.

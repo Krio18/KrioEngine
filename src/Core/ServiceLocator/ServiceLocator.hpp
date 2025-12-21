@@ -1,0 +1,51 @@
+#pragma once
+
+#include <unordered_map>
+#include <typeindex>
+#include <memory>
+#include <stdexcept>
+
+#include "../Logger.hpp"
+
+class ServiceLocator {
+    public:
+        template<typename T, typename... Args>
+        void registerManager(Args&&... args) {
+            std::type_index typeId = std::type_index(typeid(T));
+            _managers[typeId] = std::make_unique<T>(std::forward<Args>(args)...);
+        }
+
+        template<typename T>
+        T& getManager() {
+            std::type_index typeId = std::type_index(typeid(T));
+            auto it = _managers.find(typeId);
+            if (it == _managers.end())
+                throw std::runtime_error("Manager not registered");
+            return *static_cast<T*>(it->second.get());
+        }
+
+        template<typename T>
+        bool hasManager() const {
+            std::type_index typeId = std::type_index(typeid(T));
+            return _managers.find(typeId) != _managers.end();
+        }
+
+        void shutdown();
+        void debugLogManagers() const;
+
+    private:
+        struct ManagerWrapper {
+            virtual ~ManagerWrapper() = default;
+        };
+
+        template<typename T>
+        struct TypedManagerWrapper : ManagerWrapper {
+            T instance;
+
+            template<typename... Args>
+            TypedManagerWrapper(Args&&... args) : instance(std::forward<Args>(args)...) {}
+        };
+
+        std::unordered_map<std::type_index, std::unique_ptr<ManagerWrapper>> _managers;
+
+};

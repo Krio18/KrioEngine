@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../Platform/WindowSDL.hpp"
-#include "../Renderer/BgfxContext.hpp"
-#include <chrono>
+#include "../../Platform/WindowSDL.hpp"
+#include "../../Renderer/BgfxContext.hpp"
+#include "../TimeManager/TimeManager.hpp"
 
 namespace Krio {
     class Application {
@@ -21,13 +21,13 @@ namespace Krio {
             WindowSDL _window;
             BgfxContext _renderer;
             bool _running;
-            std::chrono::steady_clock::time_point _lastFrameTime;
+            TimeManager _timeManager;
 
             static Application* _instance;
 
             static void onWindowResize(int width, int height);
             void handleEvents();
-            void update(float deltaTime);
+            void update();
             void render();
     };
 }

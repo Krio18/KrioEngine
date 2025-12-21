@@ -1,4 +1,4 @@
-#include "Core/Application.hpp"
+#include "Core/Application/Application.hpp"
 
 int main() {
     Krio::Application app;

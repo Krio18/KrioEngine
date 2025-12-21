@@ -48,7 +48,9 @@ include(cmake/Compiler.cmake OPTIONAL)
 
 set(KRIO_ENGINE_SOURCES
     src/main.cpp
-    src/Core/Application.cpp
+    src/Core/Application/Application.cpp
+    src/Core/ServiceLocator/ServiceLocator.cpp
+    src/Core/TimeManager/TimeManager.cpp
     src/Platform/WindowSDL.cpp
     src/Renderer/BgfxContext.cpp
 )
