@@ -2,30 +2,35 @@
 
 #include "../../Platform/WindowSDL.hpp"
 #include "../../Renderer/BgfxContext.hpp"
+#include "../ServiceLocator/ServiceLocator.hpp"
 #include "../TimeManager/TimeManager.hpp"
 
 namespace Krio {
     class Application {
         public:
             Application();
-            ~Application();
+            ~Application() = default;
 
             Application(const Application&) = delete;
             Application& operator=(const Application&) = delete;
 
+            bool shutdown();
             bool initialize();
-            void run();
-            void shutdown();
 
+            void run();
         private:
             WindowSDL _window;
             BgfxContext _renderer;
             bool _running;
-            TimeManager _timeManager;
 
-            static Application* _instance;
+            ServiceLocator _serviceLocator;
 
-            static void onWindowResize(int width, int height);
+            int _lastWindowWidth;
+            int _lastWindowHeight;
+
+            bool _initializeManagers();
+            bool _shutdownManagers();
+
             void handleEvents();
             void update();
             void render();

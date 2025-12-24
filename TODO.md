@@ -101,9 +101,9 @@
 ### 0.3 Refactor Application Class
 **Purpose:** Convert from monolithic Application to manager-orchestration pattern
 
-- [ ] Remove singleton pattern from `Application`
-- [ ] Create `initializeManagers()` method that registers all managers with ServiceLocator
-- [ ] Create `shutdownManagers()` method that destroys managers in reverse order
+- [x] Remove singleton pattern from `Application`
+- [x] Create `initializeManagers()` method that registers all managers with ServiceLocator
+- [x] Create `shutdownManagers()` method that destroys managers in reverse order
 - [ ] Refactor main loop to call managers in correct sequence:
   - Update TimeManager first
   - Poll input via InputManager

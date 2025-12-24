@@ -1,7 +1,10 @@
 #include "ServiceLocator.hpp"
 
 void ServiceLocator::shutdown() {
-    this->_managers.clear();
+    for (auto it = this->_registrationOrder.rbegin(); it != this->_registrationOrder.rend(); ++it)
+        this->_managers.erase(*it);
+
+    this->_registrationOrder.clear();
 }
 
 void ServiceLocator::debugLogManagers() const {
