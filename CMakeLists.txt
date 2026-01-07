@@ -51,6 +51,10 @@ set(KRIO_ENGINE_SOURCES
     src/Core/Application/Application.cpp
     src/Core/ServiceLocator/ServiceLocator.cpp
     src/Core/TimeManager/TimeManager.cpp
+    src/Core/InputManager/InputManager.cpp
+    src/Core/PhysicsManager/PhysicsManager.cpp
+    src/Core/SceneManager/SceneManager.cpp
+    src/Core/RenderManager/RenderManager.cpp
     src/Platform/WindowSDL.cpp
     src/Renderer/BgfxContext.cpp
 )

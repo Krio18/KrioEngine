@@ -104,14 +104,14 @@
 - [x] Remove singleton pattern from `Application`
 - [x] Create `initializeManagers()` method that registers all managers with ServiceLocator
 - [x] Create `shutdownManagers()` method that destroys managers in reverse order
-- [ ] Refactor main loop to call managers in correct sequence:
+- [x] Refactor main loop to call managers in correct sequence:
   - Update TimeManager first
   - Poll input via InputManager
   - Fixed timestep physics update via PhysicsManager
   - Variable timestep scene update via SceneManager
   - Render via RenderManager
-- [ ] Add exception handling around manager calls
-- [ ] Log manager initialization/shutdown for debugging
+- [x] Add exception handling around manager calls
+- [x] Log manager initialization/shutdown for debugging
 
 **Why this matters:** Clear separation of concerns. Each manager owns its domain. Application just orchestrates.
 

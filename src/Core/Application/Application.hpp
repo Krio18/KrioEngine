@@ -4,6 +4,10 @@
 #include "../../Renderer/BgfxContext.hpp"
 #include "../ServiceLocator/ServiceLocator.hpp"
 #include "../TimeManager/TimeManager.hpp"
+#include "../InputManager/InputManager.hpp"
+#include "../PhysicsManager/PhysicsManager.hpp"
+#include "../SceneManager/SceneManager.hpp"
+#include "../RenderManager/RenderManager.hpp"
 
 namespace Krio {
     class Application {
@@ -27,6 +31,7 @@ namespace Krio {
 
             int _lastWindowWidth;
             int _lastWindowHeight;
+            double _physicsAccumulator;
 
             bool _initializeManagers();
             bool _shutdownManagers();

@@ -6,6 +6,7 @@ namespace Krio {
         : _running(false)
         , _lastWindowWidth(0)
         , _lastWindowHeight(0)
+        , _physicsAccumulator(0.0)
     {}
 
     bool Application::initialize() {
@@ -43,10 +44,24 @@ namespace Krio {
     bool Application::_initializeManagers() {
         Logger::info("Initializing managers...");
 
-        this->_serviceLocator.registerManager<TimeManager>();
+        try {
+            this->_serviceLocator.registerManager<TimeManager>();
+            this->_serviceLocator.registerManager<InputManager>();
+            this->_serviceLocator.registerManager<PhysicsManager>();
+            this->_serviceLocator.registerManager<SceneManager>();
+            this->_serviceLocator.registerManager<RenderManager>();
 
-        Logger::info("Managers initialized successfully");
-        return true;
+            Logger::info("Managers initialized successfully");
+            return true;
+        }
+        catch (const std::exception& e) {
+            Logger::error("Exception during manager initialization: " + std::string(e.what()));
+            return false;
+        }
+        catch (...) {
+            Logger::error("Unknown exception during manager initialization");
+            return false;
+        }
     }
 
     bool Application::shutdown() {
@@ -63,19 +78,51 @@ namespace Krio {
     }
 
     bool Application::_shutdownManagers() {
-        this->_serviceLocator.shutdown();
-        Logger::info("Managers shutdown successfully");
-
-        return true;
+        try {
+            this->_serviceLocator.shutdown();
+            Logger::info("Managers shutdown successfully");
+            return true;
+        }
+        catch (const std::exception& e) {
+            Logger::error("Exception during manager shutdown: " + std::string(e.what()));
+            return false;
+        }
+        catch (...) {
+            Logger::error("Unknown exception during manager shutdown");
+            return false;
+        }
     }
 
     void Application::run() {
         while (this->_running) {
-            this->_serviceLocator.getManager<TimeManager>().update();
+            try {
+                this->_serviceLocator.getManager<TimeManager>().update();
+                double deltaTime = this->_serviceLocator.getManager<TimeManager>().getDeltaTime();
 
-            handleEvents();
-            update();
-            render();
+                handleEvents();
+
+                this->_serviceLocator.getManager<InputManager>().pollInput();
+
+                double fixedTimestep = this->_serviceLocator.getManager<PhysicsManager>().getFixedTimestep();
+                this->_physicsAccumulator += deltaTime;
+                while (_physicsAccumulator >= fixedTimestep) {
+                    this->_serviceLocator.getManager<PhysicsManager>().fixedUpdate(fixedTimestep);
+                    this->_physicsAccumulator -= fixedTimestep;
+                }
+
+                this->_serviceLocator.getManager<SceneManager>().update(deltaTime);
+
+                update();
+                render();
+            }
+            catch (const std::exception& e) {
+                Logger::error("Exception in main loop: " + std::string(e.what()));
+                this->_running = false;
+            }
+            catch (...) {
+                Logger::error("Unknown exception in main loop");
+                this->_running = false;
+            }
         }
     }
 
@@ -100,6 +147,7 @@ namespace Krio {
     }
 
     void Application::render() {
+        this->_serviceLocator.getManager<RenderManager>().render();
         this->_renderer.frame();
     }
 }

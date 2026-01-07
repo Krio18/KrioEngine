@@ -13,6 +13,7 @@ class ServiceLocator {
         template<typename T, typename... Args>
         void registerManager(Args&&... args) {
             std::type_index typeId = std::type_index(typeid(T));
+            Krio::Logger::info("Registering manager: " + std::string(typeId.name()));
             this->_managers[typeId] = std::make_unique<TypedManagerWrapper<T>>(std::forward<Args>(args)...);
             this->_registrationOrder.push_back(typeId);
         }
