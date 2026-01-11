@@ -118,8 +118,8 @@
 ### 0.4 Event System
 **Purpose:** Decouple systems via publish-subscribe messaging instead of direct calls
 
-- [ ] Create `src/Core/Event.hpp` base class
-- [ ] Define concrete event types:
+- [x] Create `src/Core/Event.hpp` base class
+- [x] Define concrete event types:
   - WindowResizeEvent (width, height)
   - WindowCloseEvent
   - KeyPressedEvent (keycode, repeat)
@@ -128,7 +128,7 @@
   - MouseButtonPressedEvent (button)
   - MouseButtonReleasedEvent (button)
   - MouseScrolledEvent (offsetX, offsetY)
-- [ ] Create `src/Core/EventBus.hpp`
+- [x] Create `src/Core/EventBus.hpp`
 - [ ] Implement subscribe: register callbacks for specific event types
 - [ ] Implement publish: broadcast events to all subscribers
 - [ ] Support lambda callbacks for convenience
