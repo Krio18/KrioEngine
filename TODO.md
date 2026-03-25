@@ -2,7 +2,7 @@
 
 **Architecture:** Manager-based with Service Locator pattern
 **Current Version:** 0.1.0-alpha
-**Last Updated:** 2025-12-18
+**Last Updated:** 2026-03-25
 
 ---
 
@@ -15,10 +15,13 @@
 6. [Phase 4: Asset Pipeline](#phase-4-asset-pipeline)
 7. [Phase 5: Advanced Systems](#phase-5-advanced-systems)
 8. [Phase 6: Editor & Tools](#phase-6-editor--tools)
-9. [Phase 7: Scripting](#phase-7-scripting-optional)
-10. [Phase 8: Optimization](#phase-8-optimization--polish)
-11. [Technical Decisions](#technical-decisions)
-12. [Priority Order](#priority-order-next-steps)
+9. [Phase 7: Build & Distribution](#phase-7-build--distribution)
+10. [Phase 8: Scripting](#phase-8-scripting-optional)
+11. [Phase 9: Networking](#phase-9-networking-optional)
+12. [Phase 10: Optimization & Polish](#phase-10-optimization--polish)
+13. [Testing Strategy](#testing-strategy)
+14. [Technical Decisions](#technical-decisions)
+15. [Priority Order](#priority-order-next-steps)
 
 ---
 
@@ -129,12 +132,12 @@
   - MouseButtonReleasedEvent (button)
   - MouseScrolledEvent (offsetX, offsetY)
 - [x] Create `src/Core/EventBus.hpp`
-- [ ] Implement subscribe: register callbacks for specific event types
-- [ ] Implement publish: broadcast events to all subscribers
-- [ ] Support lambda callbacks for convenience
-- [ ] Support member function callbacks for class methods
-- [ ] Automatic unsubscribe when subscriber is destroyed (use weak_ptr)
-- [ ] Event queuing: queue events and dispatch at safe point in frame
+- [x] Implement subscribe: register callbacks for specific event types
+- [x] Implement publish: broadcast events to all subscribers
+- [x] Support lambda callbacks for convenience
+- [x] Support member function callbacks for class methods
+- [x] Automatic unsubscribe when subscriber is destroyed (use weak_ptr)
+- [x] Event queuing: queue events and dispatch at safe point in frame
 
 **Why this matters:** WindowResize shouldn't directly call RenderManager. Publish event, RenderManager subscribes. Loose coupling.
 
@@ -956,6 +959,209 @@
 
 **Why this matters:** Empty black background looks unfinished. Skybox adds atmosphere and context.
 
+### 5.10 Animation System
+**Purpose:** Bring characters and objects to life with skeletal and property animation
+
+#### Animation Data Structures
+- [ ] Create `src/Animation/Skeleton.hpp`
+  - Bone hierarchy: parent-child relationships
+  - Bind pose: default bone transforms
+  - Inverse bind matrices: for skinning calculation
+  - Bone name to index mapping
+
+- [ ] Create `src/Animation/AnimationClip.hpp`
+  - Store keyframes: time + transform (position, rotation, scale)
+  - Support multiple interpolation modes: Step, Linear, Cubic (Bezier)
+  - Store animation duration and frame rate
+  - Loop mode: Once, Loop, PingPong
+
+- [ ] Create `src/Animation/AnimationTrack.hpp`
+  - Keyframes for a single property (position, rotation, or scale)
+  - Binary search for keyframe lookup by time
+  - Interpolate between keyframes
+
+#### Skeletal Animation
+- [ ] Create `src/Animation/SkinnedMesh.hpp`
+  - Vertex weights: up to 4 bones per vertex
+  - Bone indices: which bones affect each vertex
+  - Calculate final vertex position from bone transforms
+
+- [ ] Create `src/Animation/AnimationSampler.hpp`
+  - Sample animation clip at specific time
+  - Return bone transforms for that frame
+  - Handle looping and time wrapping
+
+- [ ] Create `src/Animation/AnimationBlender.hpp`
+  - Blend between two poses (crossfade)
+  - Additive blending: layer animations (walk + wave)
+  - Masked blending: different animations for upper/lower body
+
+#### Animation State Machine
+- [ ] Create `src/Animation/AnimatorController.hpp`
+  - States: each state plays an animation clip
+  - Transitions: conditions to switch states (parameters, time)
+  - Parameters: bool, int, float, trigger (for gameplay control)
+  - Blend trees: blend multiple animations based on parameters (walk/run by speed)
+
+- [ ] Create `src/Animation/AnimatorState.hpp`
+  - Reference to animation clip
+  - Speed multiplier
+  - Entry/exit events
+
+- [ ] Create `src/Animation/AnimatorTransition.hpp`
+  - Source and destination states
+  - Transition duration (blend time)
+  - Conditions: parameter comparisons
+  - Has exit time: wait for animation to finish
+
+#### Animator Component
+- [ ] Create `src/ECS/Components/Animator.hpp`
+  - Reference to AnimatorController asset
+  - Current state and time
+  - Parameter values
+  - Implement `setParameter(name, value)`
+  - Implement `trigger(name)`: set trigger parameter
+
+#### Animation System (ECS)
+- [ ] Create `src/ECS/Systems/AnimationSystem.hpp` and `.cpp`
+  - Query entities with Animator + SkinnedMeshRenderer
+  - Update animator state machine
+  - Sample current animation
+  - Apply bone transforms to skinned mesh
+  - Upload bone matrices to GPU (uniform buffer)
+
+#### Animation Events
+- [ ] Support animation events: trigger at specific frame
+  - Footstep sounds
+  - Spawn particle effects
+  - Enable/disable hitboxes
+- [ ] Integrate with EventBus: publish animation events
+
+**Why this matters:** Characters need to walk, run, attack. Without animation, games feel static and lifeless.
+
+### 5.11 Runtime UI System
+**Purpose:** In-game user interface for menus, HUD, dialogs (separate from editor ImGui)
+
+#### UI Architecture
+- [ ] Create `src/UI/UICanvas.hpp`
+  - Root container for UI elements
+  - Screen space vs world space rendering
+  - Sort order for layering multiple canvases
+  - Reference resolution for scaling (1920x1080 design resolution)
+  - Scale mode: ConstantPixelSize, ScaleWithScreenSize, ConstantPhysicalSize
+
+- [ ] Create `src/UI/UIElement.hpp` (base class)
+  - Anchor points: where element attaches to parent (top-left, center, stretch)
+  - Pivot point: element's own origin for rotation/scaling
+  - Position offset from anchor
+  - Size (width, height)
+  - Rotation and scale
+  - Enabled/visible flags
+  - Parent-child hierarchy
+
+#### Layout System
+- [ ] Create `src/UI/UILayoutGroup.hpp`
+  - Horizontal layout: children arranged left-to-right
+  - Vertical layout: children arranged top-to-bottom
+  - Grid layout: children in rows and columns
+  - Spacing between children
+  - Padding inside container
+  - Child alignment (start, center, end, stretch)
+
+- [ ] Create `src/UI/UIContentSizeFitter.hpp`
+  - Fit to content: resize element to fit children
+  - Horizontal/vertical fit modes: Unconstrained, MinSize, PreferredSize
+
+#### UI Widgets
+- [ ] Create `src/UI/Widgets/UIImage.hpp`
+  - Display texture or sprite
+  - Color tint
+  - Image type: Simple, Sliced (9-patch), Tiled, Filled
+  - Fill amount for progress bars (radial or linear)
+
+- [ ] Create `src/UI/Widgets/UIText.hpp`
+  - Display text string
+  - Font asset reference
+  - Font size, color
+  - Alignment: left, center, right, justified
+  - Overflow: truncate, ellipsis, overflow
+  - Rich text support: <b>bold</b>, <i>italic</i>, <color=#FF0000>colored</color>
+
+- [ ] Create `src/UI/Widgets/UIButton.hpp`
+  - Normal, hovered, pressed, disabled states
+  - Different sprites/colors per state
+  - OnClick event callback
+  - Transition type: ColorTint, SpriteSwap, Animation
+
+- [ ] Create `src/UI/Widgets/UISlider.hpp`
+  - Min/max value range
+  - Current value
+  - Fill image for progress visualization
+  - Handle dragging
+  - OnValueChanged callback
+
+- [ ] Create `src/UI/Widgets/UIToggle.hpp`
+  - Checkbox or radio button behavior
+  - IsOn boolean state
+  - Toggle group (for radio buttons)
+  - OnValueChanged callback
+
+- [ ] Create `src/UI/Widgets/UIInputField.hpp`
+  - Text input with cursor
+  - Placeholder text
+  - Character limit
+  - Content type: Standard, Integer, Decimal, Password
+  - OnValueChanged, OnSubmit callbacks
+
+- [ ] Create `src/UI/Widgets/UIScrollView.hpp`
+  - Scrollable content area
+  - Horizontal/vertical scrollbars
+  - Scroll sensitivity
+  - Elastic bounce at edges
+
+#### UI Event System
+- [ ] Create `src/UI/UIEventSystem.hpp`
+  - Raycast against UI elements
+  - Determine which element is under mouse/touch
+  - Event propagation: bubble up through hierarchy
+  - Pointer events: Enter, Exit, Down, Up, Click, Drag
+  - Block game input when UI is focused
+
+- [ ] Create `src/UI/UIRaycaster.hpp`
+  - Screen-space raycast for screen-space canvases
+  - World-space raycast for world-space canvases (VR menus, in-game screens)
+
+#### Font Rendering
+- [ ] Create `src/UI/Font.hpp`
+  - Load font file (TTF/OTF) using stb_truetype or FreeType
+  - Generate font atlas: texture containing all glyphs
+  - Store glyph metrics: advance, bearing, size
+  - Support multiple font sizes (or SDF fonts for any size)
+
+- [ ] Create `src/UI/TextRenderer.hpp`
+  - Generate mesh from text string
+  - Kerning: adjust spacing between specific character pairs
+  - Line breaking and word wrapping
+  - Batch text rendering for performance
+
+#### UI Rendering
+- [ ] Create `src/UI/UIRenderer.hpp`
+  - Render UI after scene (on top)
+  - Batch UI draw calls by texture
+  - Support transparency and blending
+  - Render order: back-to-front within canvas
+  - Separate render pass for UI
+
+#### UI Animation
+- [ ] Create `src/UI/UITween.hpp`
+  - Animate UI properties over time
+  - Properties: position, scale, rotation, alpha, color
+  - Easing functions: Linear, EaseIn, EaseOut, EaseInOut, Bounce, Elastic
+  - Sequence multiple tweens
+  - OnComplete callback
+
+**Why this matters:** Every game needs menus, health bars, inventory screens. ImGui is for developers, runtime UI is for players.
+
 ---
 
 ## Phase 6: Editor & Tools
@@ -1124,11 +1330,127 @@
 
 ---
 
-## Phase 7: Scripting (Optional)
+## Phase 7: Build & Distribution
+
+**Goal:** Package and distribute standalone game builds
+
+### 7.1 Build Configuration
+**Purpose:** Define different build types for development and release
+
+- [ ] Create build presets in CMake:
+  - Debug: full symbols, no optimization, asserts enabled
+  - Development: optimized with symbols, asserts enabled, hot-reload
+  - Release: full optimization, no symbols, asserts disabled
+  - Shipping: release + additional stripping, no editor code
+
+- [ ] Conditional compilation flags:
+  - `KRIO_EDITOR`: include editor code (ImGui, gizmos)
+  - `KRIO_DEBUG`: enable debug features (profiling, visualization)
+  - `KRIO_HOT_RELOAD`: enable asset hot-reload
+  - Strip editor-only code from shipping builds
+
+**Why this matters:** Development builds need debugging. Shipping builds need performance and small size.
+
+### 7.2 Asset Packaging
+**Purpose:** Bundle assets into optimized archives for distribution
+
+- [ ] Create `src/Build/AssetPacker.hpp` and `.cpp`
+- [ ] Package assets into archive files (.pak):
+  - Single file contains multiple assets
+  - Compressed using LZ4 or Zstd
+  - Table of contents for fast lookup
+  - Optional encryption for asset protection
+
+- [ ] Asset cooking:
+  - Convert all assets to platform-optimized format
+  - Generate final texture mipmaps
+  - Bake lighting if applicable
+  - Validate all asset references
+
+- [ ] Create `src/Assets/PackedAssetLoader.hpp`
+  - Load assets from .pak files at runtime
+  - Memory-mapped file access for performance
+  - Seamless switch between loose files (dev) and packed (shipping)
+
+- [ ] Asset bundles:
+  - Group related assets (level1.pak, characters.pak)
+  - Support downloadable content (DLC) as separate bundles
+  - Dependency tracking between bundles
+
+**Why this matters:** Shipping thousands of loose files is slow and unprofessional. Packed assets load faster.
+
+### 7.3 Platform Export
+**Purpose:** Generate standalone executables for target platforms
+
+#### Desktop Builds
+- [ ] Create `src/Build/BuildPipeline.hpp`
+- [ ] Linux export:
+  - Bundle executable + shared libraries
+  - AppImage or Flatpak packaging (optional)
+  - Steam runtime compatibility
+
+- [ ] Windows export:
+  - Bundle executable + DLLs
+  - Generate installer (NSIS or WiX)
+  - Code signing for Windows SmartScreen
+
+- [ ] macOS export:
+  - Create .app bundle structure
+  - Code signing and notarization
+  - Universal binary (Intel + Apple Silicon)
+
+#### Build Automation
+- [ ] Create build scripts:
+  - One-click build for each platform
+  - Version number injection
+  - Build timestamp and git commit hash
+  - Automated testing before build
+
+- [ ] Output organization:
+  - `builds/windows/KrioGame.exe`
+  - `builds/linux/KrioGame`
+  - `builds/macos/KrioGame.app`
+
+**Why this matters:** Users don't have development environments. They need a double-clickable executable.
+
+### 7.4 Editor Build Interface
+**Purpose:** Expose build functionality in editor
+
+- [ ] Build Settings window in editor:
+  - Select target platform
+  - Choose build configuration (Development/Release/Shipping)
+  - Select scenes to include
+  - Set player settings (resolution, fullscreen, company name)
+
+- [ ] Build progress:
+  - Progress bar during build
+  - Log build steps
+  - Error reporting with actionable messages
+
+- [ ] Build and Run:
+  - Build then immediately launch game
+  - Useful for quick testing
+
+**Why this matters:** Artists and designers should build without touching command line.
+
+### 7.5 Version Management
+**Purpose:** Track versions and manage updates
+
+- [ ] Semantic versioning: MAJOR.MINOR.PATCH
+- [ ] Build numbers: auto-increment on each build
+- [ ] Version displayed in game (settings/about screen)
+- [ ] Changelog generation from git commits (optional)
+- [ ] Update checking: compare local version with server (optional)
+
+**Why this matters:** Users need to know what version they have. Bug reports need version info.
+
+---
+
+## Phase 8: Scripting (Optional)
 
 **Goal:** Enable gameplay logic in Lua instead of C++
 
-### 7.1 Lua Integration
+### 8.1 Lua Integration
 **Purpose:** Embed Lua VM for runtime scripting
 
 - [ ] Add sol2 (C++ Lua binding library) to `vcpkg.json`
@@ -1141,7 +1463,7 @@
 
 **Why this matters:** C++ requires recompilation. Lua scripts hot-reload instantly.
 
-### 7.2 C++ to Lua Bindings
+### 8.2 C++ to Lua Bindings
 **Purpose:** Expose engine API to Lua scripts
 
 - [ ] Bind core types:
@@ -1161,7 +1483,7 @@
 
 **Why this matters:** Lua code needs to interact with engine. Bindings provide the API.
 
-### 7.3 LuaScript Component
+### 8.3 LuaScript Component
 **Purpose:** Attach Lua behavior to entities
 
 - [ ] Create `src/ECS/Components/LuaScript.hpp`
@@ -1177,7 +1499,7 @@
 
 **Why this matters:** Designers write Lua scripts. Programmers write C++ engine.
 
-### 7.4 Lua API Documentation
+### 8.4 Lua API Documentation
 **Purpose:** Document Lua API for script writers
 
 - [ ] Generate API docs from C++ bindings using Doxygen or custom tool
@@ -1194,11 +1516,199 @@
 
 ---
 
-## Phase 8: Optimization & Polish
+## Phase 9: Networking (Optional)
+
+**Goal:** Enable multiplayer gameplay with client-server architecture
+
+### 9.1 Network Architecture
+**Purpose:** Foundation for networked multiplayer games
+
+#### Architecture Choice
+- [ ] Evaluate architectures:
+  - **Client-Server**: authoritative server, clients send inputs (recommended)
+  - **Peer-to-Peer**: simpler but harder to secure, prone to cheating
+  - **Relay Server**: P2P through server for NAT traversal
+- [ ] **Recommendation:** Client-Server for competitive games, P2P acceptable for co-op
+
+#### Network Library
+- [ ] Evaluate options:
+  - **ENet**: simple, reliable UDP, battle-tested
+  - **GameNetworkingSockets** (Valve): robust, NAT traversal, encryption
+  - **yojimbo**: modern, designed for game networking
+- [ ] **Recommendation:** ENet for simplicity, GameNetworkingSockets for production
+- [ ] Add chosen library to dependencies
+
+**Why this matters:** Architecture choice affects security, latency, and complexity.
+
+### 9.2 NetworkManager
+**Purpose:** Handle connections and message routing
+
+- [ ] Create `src/Network/NetworkManager.hpp` and `.cpp`
+- [ ] Connection management:
+  - Host game (create server)
+  - Join game (connect to server)
+  - Disconnect handling
+  - Connection timeout detection
+
+- [ ] Message system:
+  - Define message types (enum or ID)
+  - Serialize messages to bytes
+  - Deserialize bytes to messages
+  - Message queuing and batching
+
+- [ ] Reliability modes:
+  - Unreliable: fire and forget (position updates)
+  - Reliable: guaranteed delivery with ordering (chat, events)
+  - Reliable unordered: guaranteed but can arrive out of order
+
+- [ ] Network statistics:
+  - Ping/latency measurement
+  - Packet loss detection
+  - Bandwidth usage
+
+**Why this matters:** All network features depend on reliable connection management.
+
+### 9.3 State Synchronization
+**Purpose:** Keep game state consistent across clients
+
+#### Entity Replication
+- [ ] Create `src/Network/NetworkIdentity.hpp` component
+  - Unique network ID for each networked entity
+  - Owner: which client controls this entity
+  - Authority: server or client authoritative
+
+- [ ] Create `src/Network/NetworkTransform.hpp` component
+  - Sync position, rotation, scale
+  - Configurable sync rate (10-60 Hz)
+  - Interpolation for smooth movement
+  - Extrapolation for lag compensation
+
+- [ ] Create `src/Network/ReplicationManager.hpp`
+  - Track which entities need syncing
+  - Determine what changed (dirty flags)
+  - Prioritize updates by importance/distance
+  - Delta compression: only send changes
+
+#### Snapshot System
+- [ ] Server sends world snapshots at fixed rate
+- [ ] Clients interpolate between received snapshots
+- [ ] Snapshot buffer: store recent snapshots for interpolation
+- [ ] Jitter buffer: smooth out network timing variations
+
+**Why this matters:** Players need to see consistent game state despite network latency.
+
+### 9.4 Client-Side Prediction
+**Purpose:** Make controls feel responsive despite latency
+
+- [ ] Input prediction:
+  - Client applies input immediately (don't wait for server)
+  - Store input history with timestamps
+  - Send inputs to server
+
+- [ ] Server reconciliation:
+  - Server processes input, sends authoritative state
+  - Client compares predicted state to server state
+  - If mismatch: replay inputs from correction point
+
+- [ ] Smooth correction:
+  - Don't snap to corrected position (jarring)
+  - Smoothly interpolate to correct position
+  - Threshold: only correct if error exceeds limit
+
+**Why this matters:** Without prediction, 100ms latency means 100ms input delay. Unplayable.
+
+### 9.5 Lag Compensation
+**Purpose:** Fair hit detection despite latency
+
+- [ ] Server-side rewind:
+  - Store world state history (positions at each tick)
+  - When processing shot, rewind to shooter's view time
+  - Check hit against historical positions
+  - Apply damage in current time
+
+- [ ] Client hit markers:
+  - Client predicts hits for immediate feedback
+  - Server confirms or denies hits
+  - Display feedback accordingly
+
+**Why this matters:** Players shoot where they see enemies, not where enemies actually are.
+
+### 9.6 Networked Components
+**Purpose:** Network-aware versions of game components
+
+- [ ] Create `src/ECS/Components/NetworkRigidbody.hpp`
+  - Sync physics state (velocity, angular velocity)
+  - Server authoritative physics
+  - Client interpolation
+
+- [ ] Create `src/ECS/Components/NetworkAnimator.hpp`
+  - Sync animation state and parameters
+  - Trigger animations across network
+  - Animation events replicated
+
+- [ ] Create `src/Network/NetworkSpawner.hpp`
+  - Spawn networked entities
+  - Assign network IDs
+  - Sync spawn across clients
+
+- [ ] Create `src/Network/NetworkDestroy.hpp`
+  - Destroy entities across network
+  - Handle pending references gracefully
+
+**Why this matters:** Game systems need network-aware versions to work in multiplayer.
+
+### 9.7 Remote Procedure Calls (RPC)
+**Purpose:** Call functions across network boundary
+
+- [ ] Create `src/Network/RPC.hpp`
+- [ ] RPC types:
+  - ClientRPC: server calls function on specific client
+  - ServerRPC: client calls function on server
+  - MulticastRPC: server calls function on all clients
+
+- [ ] RPC parameters:
+  - Serialize parameters automatically
+  - Support basic types and custom serializable types
+
+- [ ] RPC reliability:
+  - Choose reliable or unreliable per RPC
+  - Buffering for late joiners (optional)
+
+**Why this matters:** Events like "player scored" need to trigger UI on all clients.
+
+### 9.8 Lobby & Matchmaking
+**Purpose:** Connect players before game starts
+
+- [ ] Lobby system:
+  - Create lobby (host)
+  - Browse/search lobbies
+  - Join lobby
+  - Ready state per player
+  - Start game when all ready
+
+- [ ] Player info:
+  - Player name
+  - Team assignment
+  - Character/loadout selection
+
+- [ ] Chat:
+  - Text chat in lobby
+  - In-game chat (team/all)
+
+- [ ] Matchmaking (optional, requires backend):
+  - Skill-based matchmaking
+  - Queue system
+  - Match found notification
+
+**Why this matters:** Players need a way to find and join games.
+
+---
+
+## Phase 10: Optimization & Polish
 
 **Goal:** Performance improvements and developer experience enhancements
 
-### 8.1 Profiling
+### 10.1 Profiling
 **Purpose:** Measure performance to identify bottlenecks
 
 - [ ] Integrate Tracy profiler (real-time profiling tool)
@@ -1220,7 +1730,7 @@
 
 **Why this matters:** Can't optimize what you don't measure. Tracy shows exactly where time is spent.
 
-### 8.2 Frustum Culling
+### 10.2 Frustum Culling
 **Purpose:** Skip rendering objects outside camera view
 
 - [ ] Extract camera frustum planes from view-projection matrix
@@ -1233,7 +1743,7 @@
 
 **Why this matters:** Rendering invisible objects wastes GPU. Frustum culling can save 50%+ draw calls.
 
-### 8.3 Spatial Partitioning
+### 10.3 Spatial Partitioning
 **Purpose:** Accelerate spatial queries (culling, physics, raycasts)
 
 #### Quadtree (2D)
@@ -1257,7 +1767,7 @@
 
 **Why this matters:** Testing 10,000 entities against frustum is slow. Octree reduces to ~100 tests.
 
-### 8.4 Render Batching
+### 10.4 Render Batching
 **Purpose:** Reduce draw calls by grouping similar objects
 
 - [ ] Sort draw calls by material: group objects with same shader/textures
@@ -1270,7 +1780,7 @@
 
 **Why this matters:** Each draw call has CPU overhead. 1000 draw calls → 10 batched = huge speedup.
 
-### 8.5 Multi-threading
+### 10.5 Multi-threading
 **Purpose:** Utilize multiple CPU cores for parallel work
 
 - [ ] Job system:
@@ -1290,7 +1800,7 @@
 
 **Why this matters:** Modern CPUs have 8+ cores. Single-threaded code wastes 7 cores.
 
-### 8.6 Memory Management
+### 10.6 Memory Management
 **Purpose:** Reduce allocations, improve cache performance, track memory usage
 
 #### Custom Allocators
@@ -1319,6 +1829,151 @@
   - Report leaks on shutdown
 
 **Why this matters:** Memory allocations are slow. Custom allocators 10x faster. Tracking prevents leaks.
+
+---
+
+## Testing Strategy
+
+**Goal:** Ensure engine reliability through automated testing
+
+### Unit Testing
+**Purpose:** Verify individual components work correctly in isolation
+
+- [ ] Add Google Test (gtest) to `vcpkg.json`
+- [ ] Create `tests/` directory structure:
+  - `tests/Core/` - Core system tests
+  - `tests/ECS/` - Entity component tests
+  - `tests/Math/` - Math utility tests
+  - `tests/Assets/` - Asset loading tests
+
+#### Core Tests
+- [ ] `tests/Core/TestServiceLocator.cpp`
+  - Register and retrieve services
+  - Null service behavior
+  - Shutdown cleanup
+
+- [ ] `tests/Core/TestEventBus.cpp`
+  - Subscribe and publish events
+  - Multiple subscribers
+  - Unsubscribe behavior
+  - Event queuing
+
+- [ ] `tests/Core/TestTimeManager.cpp`
+  - Delta time calculation
+  - Time scale modification
+  - Frame counting
+
+#### Math Tests
+- [ ] `tests/Math/TestTransform.cpp`
+  - Matrix composition (TRS)
+  - Quaternion operations
+  - Parent-child transforms
+
+- [ ] `tests/Math/TestVector.cpp`
+  - Vector operations (add, subtract, dot, cross)
+  - Normalization
+  - Distance calculations
+
+#### ECS Tests
+- [ ] `tests/ECS/TestRegistry.cpp`
+  - Entity creation/destruction
+  - Component add/remove/get
+  - Entity iteration (views)
+
+- [ ] `tests/ECS/TestScene.cpp`
+  - Scene hierarchy
+  - Parent-child relationships
+  - Scene serialization/deserialization
+
+**Why this matters:** Unit tests catch bugs early. Refactoring without tests is dangerous.
+
+### Integration Testing
+**Purpose:** Verify systems work together correctly
+
+- [ ] `tests/Integration/TestRenderPipeline.cpp`
+  - Shader loading + mesh rendering
+  - Material system integration
+  - Camera rendering
+
+- [ ] `tests/Integration/TestPhysicsScene.cpp`
+  - Physics + ECS integration
+  - Collision callbacks
+  - Transform synchronization
+
+- [ ] `tests/Integration/TestAssetPipeline.cpp`
+  - Asset import + load + hot-reload
+  - Reference counting
+  - GUID resolution
+
+**Why this matters:** Individual components might work but fail together.
+
+### Performance Testing
+**Purpose:** Prevent performance regressions
+
+- [ ] Create `tests/Performance/` directory
+- [ ] Benchmark critical paths:
+  - ECS iteration speed (10,000+ entities)
+  - Render submission throughput
+  - Asset loading time
+  - Physics step duration
+
+- [ ] Performance baselines:
+  - Store baseline metrics
+  - Compare against baselines in CI
+  - Alert on significant regressions (>10%)
+
+**Why this matters:** Performance can degrade silently. Benchmarks catch it.
+
+### Test Infrastructure
+**Purpose:** Make testing easy and automatic
+
+- [ ] CMake test targets:
+  - `make test` runs all tests
+  - `make test_core` runs core tests only
+  - `make test_performance` runs benchmarks
+
+- [ ] Continuous Integration:
+  - GitHub Actions workflow
+  - Run tests on every commit
+  - Run on multiple platforms (Linux, Windows, macOS)
+  - Block merge if tests fail
+
+- [ ] Test coverage:
+  - Generate coverage reports (gcov/lcov)
+  - Track coverage percentage
+  - Identify untested code paths
+
+- [ ] Test fixtures:
+  - Shared setup/teardown for common scenarios
+  - Mock services for isolated testing
+  - Test assets in `tests/fixtures/`
+
+**Why this matters:** Tests only help if they run automatically.
+
+### Manual Testing Checklist
+**Purpose:** Things that are hard to automate
+
+- [ ] Visual verification:
+  - Rendering looks correct
+  - No visual artifacts
+  - UI displays properly
+
+- [ ] Input testing:
+  - Keyboard/mouse responsive
+  - Gamepad support (if applicable)
+  - Input rebinding works
+
+- [ ] Platform testing:
+  - Test on each target platform
+  - Different GPU vendors (NVIDIA, AMD, Intel)
+  - Different screen resolutions
+
+- [ ] Stress testing:
+  - Many entities (10,000+)
+  - Long play sessions (memory leaks)
+  - Rapid scene switching
+
+**Why this matters:** Some things require human judgment.
 
 ---
 
@@ -1408,10 +2063,10 @@
 **If you're ready to start coding, follow this exact order:**
 
 ### Immediate Priority (v0.1.0 - Core Foundation)
-1. **ServiceLocator** - Foundation for all managers, must be first
-2. **TimeManager** - Delta time needed by all systems
-3. **Refactor Application** - Implement manager lifecycle
-4. **Event System** - Decouple systems early
+1. **ServiceLocator** - Foundation for all managers, must be first ✅
+2. **TimeManager** - Delta time needed by all systems ✅
+3. **Refactor Application** - Implement manager lifecycle ✅
+4. **Event System** - Decouple systems early ✅
 5. **Shader basics** - Get triangle on screen (motivation!)
 6. **Transform matrices (GLM)** - Enable 3D positioning
 
@@ -1437,27 +2092,53 @@
 21. **Asset base class** - Polymorphic asset interface
 22. **AssetManager** - Unified loading and caching
 23. **TextureAsset** - Load images
-24. **MeshAsset** - Load models
+24. **MeshAsset** - Load models (Assimp)
 25. **MaterialAsset** - Load materials
 26. **Scene serialization** - Save/load scenes
+27. **Unit Tests** - Core and math tests (start early!)
 
-### Feature Complete (v0.3.0 - Advanced)
-27. **ImGui integration** - Editor foundation
-28. **Editor windows** - Hierarchy, Inspector, Console, Asset Browser
-29. **Gizmos** - Transform manipulation
-30. **Physics (Jolt)** - Collision and simulation
-31. **Audio (OpenAL)** - Sound effects and music
-32. **Lighting** - Blinn-Phong or PBR
-33. **Shadows** - Shadow mapping
-34. **Post-processing** - Bloom, tone mapping, AA
+### Feature Complete (v0.3.0 - Advanced Systems)
+28. **Textures & Model loading** - Complete asset pipeline
+29. **Lighting** - Blinn-Phong or PBR
+30. **Shadows** - Shadow mapping
+31. **Particle System** - Visual effects
+32. **Animation System** - Skeletal animation basics
+33. **Physics (Jolt)** - Collision and simulation
+34. **Audio (OpenAL)** - Sound effects and music
+35. **Post-processing** - Bloom, tone mapping, AA
+36. **Skybox** - Environment background
 
-### Polish (v0.4.0+)
-35. **Scripting (Lua)** - Gameplay logic
-36. **Profiling (Tracy)** - Performance measurement
-37. **Frustum culling** - Visibility optimization
-38. **Spatial partitioning** - Octree for queries
-39. **Render batching** - Draw call reduction
-40. **Multi-threading** - Parallel ECS systems
+### Editor & Tools (v0.4.0)
+37. **ImGui integration** - Editor foundation
+38. **Editor windows** - Hierarchy, Inspector, Console, Asset Browser
+39. **Gizmos** - Transform manipulation
+40. **Editor Camera** - Scene navigation
+41. **Play Mode** - Test without recompile
+42. **Prefab System** - Reusable entity templates
+43. **Integration Tests** - System integration verification
+
+### Production Ready (v0.5.0)
+44. **Runtime UI System** - In-game menus and HUD
+45. **Animation State Machine** - Animator controller
+46. **Build Pipeline** - Asset packaging
+47. **Platform Export** - Standalone builds (Linux, Windows, macOS)
+48. **Scripting (Lua)** - Gameplay logic (optional)
+
+### Multiplayer (v0.6.0 - Optional)
+49. **NetworkManager** - Connection handling
+50. **State Synchronization** - Entity replication
+51. **Client-Side Prediction** - Responsive controls
+52. **Lag Compensation** - Fair hit detection
+53. **Lobby System** - Player matchmaking
+
+### Optimization (v0.7.0+)
+54. **Profiling (Tracy)** - Performance measurement
+55. **Frustum culling** - Visibility optimization
+56. **Spatial partitioning** - Octree for queries
+57. **Render batching** - Draw call reduction
+58. **Multi-threading** - Parallel ECS systems
+59. **Memory allocators** - Custom allocation strategies
+60. **Performance Tests** - Regression prevention
 
 ---
 
@@ -1474,7 +2155,7 @@
 **Phase 0-1 (v0.1.0 - Foundation):**
 - [ ] GLM - Vector/matrix math
 
-**Phase 2-3 (v0.1.0 - ECS):**
+**Phase 2-3 (v0.2.0 - ECS):**
 - [ ] EnTT - Entity-component system
 
 **Phase 4 (v0.2.0 - Assets):**
@@ -1483,18 +2164,32 @@
 - [ ] nlohmann-json - JSON parsing/serialization
 
 **Phase 5 (v0.3.0 - Advanced Systems):**
-- [ ] Dear ImGui - Editor UI
-- [ ] ImGuizmo - Transform gizmos
 - [ ] Jolt Physics - 3D physics simulation
 - [ ] OpenAL - 3D audio
+- [ ] stb_truetype - Font rendering (header-only) OR FreeType
 
-**Phase 7 (v0.4.0 - Scripting):**
+**Phase 6 (v0.4.0 - Editor):**
+- [ ] Dear ImGui - Editor UI
+- [ ] ImGuizmo - Transform gizmos
+
+**Phase 7 (v0.5.0 - Build Pipeline):**
+- [ ] LZ4 or Zstd - Asset compression
+
+**Phase 8 (v0.5.0 - Scripting):**
 - [ ] sol2 - Lua binding library
 - [ ] Lua - Scripting language
 
-**Phase 8 (v0.4.0 - Optimization):**
+**Phase 9 (v0.6.0 - Networking):**
+- [ ] ENet - Simple reliable UDP OR
+- [ ] GameNetworkingSockets - Valve's networking library (more robust)
+
+**Phase 10 (v0.7.0 - Optimization):**
 - [ ] Tracy - Profiler
 - [ ] meshoptimizer - Mesh optimization (optional)
+
+**Testing (Start at v0.2.0):**
+- [ ] Google Test (gtest) - Unit testing framework
+- [ ] Google Benchmark - Performance testing (optional)
 
 ---
 
@@ -1503,9 +2198,11 @@
 ### Development Workflow
 - **Commit often** - Small, atomic commits for each feature
 - **Test incrementally** - Compile and test after each task
+- **Write tests early** - Add unit tests as you implement features
 - **Profile early** - Don't optimize prematurely, but measure performance
 - **Document as you go** - Add comments for complex logic
 - **Code review yourself** - Read your code before committing
+- **CI from the start** - Set up GitHub Actions early, run tests on every push
 
 ### Architecture Guidelines
 - **RAII everywhere** - No manual resource management
