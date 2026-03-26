@@ -58,6 +58,7 @@ set(KRIO_ENGINE_SOURCES
     src/Platform/WindowSDL.cpp
     src/Renderer/BgfxContext.cpp
     src/Renderer/Shader.cpp
+    src/Renderer/Mesh.cpp
 )
 
 add_executable(KrioEngine ${KRIO_ENGINE_SOURCES})
