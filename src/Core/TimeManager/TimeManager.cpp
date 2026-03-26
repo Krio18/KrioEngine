@@ -1,6 +1,7 @@
 #include "TimeManager.hpp"
 
-TimeManager::TimeManager() :
+namespace Krio {
+    TimeManager::TimeManager() :
     _FPS(0),
     _deltaTime(0.0),
     _unscaledDeltaTime(0.0),
@@ -58,10 +59,11 @@ double TimeManager::getTimeScale() const {
 }
 
 void TimeManager::debugLogTimeInfo() const {
-    Krio::Logger::info("Time Info :");
-    Krio::Logger::info(" - FPS : " + std::to_string(this->getFPS()));
-    Krio::Logger::info(" - Delta Time : " + std::to_string(this->getDeltaTime()));
-    Krio::Logger::info(" - Unscaled Delta Time : " + std::to_string(this->getUnscaledDeltaTime()));
-    Krio::Logger::info(" - Elapsed Time : " + std::to_string(this->getElapsedTime()));
-    Krio::Logger::info(" - Time Scale : " + std::to_string(this->getTimeScale()));
+        Logger::info("Time Info :");
+        Logger::info(" - FPS : " + std::to_string(this->getFPS()));
+        Logger::info(" - Delta Time : " + std::to_string(this->getDeltaTime()));
+        Logger::info(" - Unscaled Delta Time : " + std::to_string(this->getUnscaledDeltaTime()));
+        Logger::info(" - Elapsed Time : " + std::to_string(this->getElapsedTime()));
+        Logger::info(" - Time Scale : " + std::to_string(this->getTimeScale()));
+    }
 }

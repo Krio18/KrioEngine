@@ -2,12 +2,14 @@
 
 #include "../Logger.hpp"
 
-class SceneManager {
-    public:
-        SceneManager();
-        ~SceneManager() = default;
+namespace Krio {
+    class SceneManager {
+        public:
+            SceneManager();
+            ~SceneManager() = default;
 
-        void update(double deltaTime);
+            void update(double deltaTime);
 
-    private:
-};
+        private:
+    };
+}

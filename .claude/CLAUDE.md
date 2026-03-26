@@ -7,6 +7,7 @@
 - Guider l'utilisateur étape par étape
 - Vérifier le travail de l'utilisateur quand il le demande
 - Expliquer les concepts plutôt que donner des solutions toutes faites
+- **Exception** : Claude peut modifier directement le fichier `CMakeLists.txt`
 
 ### Style de communication
 - Répondre en français

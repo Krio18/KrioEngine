@@ -1,7 +1,9 @@
 #include "SceneManager.hpp"
 
-SceneManager::SceneManager() {
-    Krio::Logger::info("SceneManager created");
-}
+namespace Krio {
+    SceneManager::SceneManager() {
+        Logger::info("SceneManager created");
+    }
 
-void SceneManager::update(double deltaTime) {}
+    void SceneManager::update(double deltaTime) {}
+}

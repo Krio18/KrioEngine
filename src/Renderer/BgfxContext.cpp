@@ -1,6 +1,4 @@
 #include "BgfxContext.hpp"
-#include "../Core/Logger.hpp"
-#include <bgfx/platform.h>
 
 namespace Krio {
     BgfxContext::BgfxContext()

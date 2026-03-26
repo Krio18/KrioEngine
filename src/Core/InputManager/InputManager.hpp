@@ -2,13 +2,15 @@
 
 #include "../Logger.hpp"
 
-class InputManager {
-    public:
-        InputManager();
-        ~InputManager() = default;
+namespace Krio {
+    class InputManager {
+        public:
+            InputManager();
+            ~InputManager() = default;
 
-        void pollInput();
-        void reset();
+            void pollInput();
+            void reset();
 
-    private:
-};
+        private:
+    };
+}
