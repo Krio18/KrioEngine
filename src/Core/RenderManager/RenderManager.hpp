@@ -1,13 +1,20 @@
 #pragma once
 
 #include "../Logger.hpp"
+#include "../../Renderer/Shader.hpp"
 
-class RenderManager {
-    public:
-        RenderManager();
-        ~RenderManager() = default;
+#include <memory>
 
-        void render();
+namespace Krio {
+    class RenderManager {
+        public:
+            RenderManager();
+            ~RenderManager() = default;
 
-    private:
-};
+            void init();
+            void render();
+
+        private:
+            std::unique_ptr<Shader> _shader;
+    };
+}

@@ -154,13 +154,13 @@
 - [x] Wrap bgfx shader handle for automatic cleanup (RAII)
 - [x] Load vertex shader from file
 - [x] Load fragment shader from file
-- [ ] Link vertex + fragment into shader program
-- [ ] Create simple shaders in `shaders/` directory:
+- [x] Link vertex + fragment into shader program
+- [x] Create simple shaders in `shaders/` directory:
   - `v_simple.sc` - Passthrough vertex shader with MVP transformation
   - `f_simple.sc` - Solid color output (hardcoded or uniform)
-- [ ] Use bgfx's shaderc tool to compile to platform-specific bytecode
-- [ ] Cache compiled shaders to avoid recompilation
-- [ ] Error handling for shader compilation failures
+- [x] Use bgfx's shaderc tool to compile to platform-specific bytecode
+- [x] Cache compiled shaders to avoid recompilation
+- [x] Error handling for shader compilation failures
 
 **Why this matters:** Can't render without shaders. Start simple, expand later.
 

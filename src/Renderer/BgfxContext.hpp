@@ -1,6 +1,9 @@
 #pragma once
 
+#include "../Core/Logger.hpp"
+
 #include <bgfx/bgfx.h>
+#include <bgfx/platform.h>
 #include <cstdint>
 
 namespace Krio {
