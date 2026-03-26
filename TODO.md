@@ -150,10 +150,10 @@
 ### 1.1 Shader System Foundation
 **Purpose:** Load, compile, and manage shader programs that run on GPU
 
-- [ ] Create `src/Renderer/Shader.hpp` and `.cpp`
-- [ ] Wrap bgfx shader handle for automatic cleanup (RAII)
-- [ ] Load vertex shader from file
-- [ ] Load fragment shader from file
+- [x] Create `src/Renderer/Shader.hpp` and `.cpp`
+- [x] Wrap bgfx shader handle for automatic cleanup (RAII)
+- [x] Load vertex shader from file
+- [x] Load fragment shader from file
 - [ ] Link vertex + fragment into shader program
 - [ ] Create simple shaders in `shaders/` directory:
   - `v_simple.sc` - Passthrough vertex shader with MVP transformation

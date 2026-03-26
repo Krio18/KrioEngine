@@ -14,21 +14,6 @@
 
 ---
 
-## ⚠️ Development Status
-
-**KrioEngine is in very early development (v0.1.0-alpha)**
-
-Currently implemented:
-- Cross-platform windowing (SDL2)
-- Modern rendering backend (bgfx)
-- Basic game loop with accurate delta time
-- Logging system
-- Clean modular architecture
-
-This is a foundation project. Most features listed below are **planned** but not yet implemented.
-
----
-
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -104,6 +89,13 @@ cmake --build build --config Release
 - **RAII**: Automatic resource management
 - **Data-Oriented Design**: Planned for ECS
 - **Cross-platform Abstraction**: Platform layer isolates OS-specific code
+
+---
+
+## ⚠️ Architecture logiciel
+
+![alt text](image.png)
+
 
 ---
 
