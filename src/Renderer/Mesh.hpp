@@ -14,7 +14,11 @@ struct Vertex {
 namespace Krio {
     class Mesh {
         public:
-            Mesh() = default;
+            Mesh();
+            Mesh(Mesh&& other) noexcept;
+            Mesh(const Mesh&) = delete;
+            Mesh& operator=(Mesh&& other) noexcept;
+
             ~Mesh();
 
             void draw(bgfx::ViewId viewId, bgfx::ProgramHandle program);

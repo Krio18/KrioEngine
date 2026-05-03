@@ -2,6 +2,29 @@
 
 namespace Krio
 {
+
+    Mesh& Mesh::operator=(Mesh&& other) noexcept {
+        if (bgfx::isValid(_vbh)) bgfx::destroy(_vbh);
+        if (bgfx::isValid(_ibh)) bgfx::destroy(_ibh);
+
+        _vbh = other._vbh;
+        _ibh = other._ibh;
+
+        other._vbh = BGFX_INVALID_HANDLE;
+        other._ibh = BGFX_INVALID_HANDLE;
+
+        return *this;
+    }
+
+    Mesh::Mesh() : _vbh(BGFX_INVALID_HANDLE), _ibh(BGFX_INVALID_HANDLE) {}
+
+    Mesh::Mesh(Mesh&& other) noexcept {
+        _vbh = other._vbh;
+        _ibh = other._ibh;
+        other._vbh = BGFX_INVALID_HANDLE;
+        other._ibh = BGFX_INVALID_HANDLE;
+    }
+
     Mesh::~Mesh() {
         if (bgfx::isValid(this->_vbh)) {
             bgfx::destroy(this->_vbh);

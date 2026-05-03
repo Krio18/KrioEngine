@@ -99,12 +99,6 @@ cmake --build build --config Release
 
 ---
 
-## 🤝 Contributing
-
-This is a personal learning project, but contributions are welcome!
-
----
-
 ## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
