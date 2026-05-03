@@ -52,6 +52,7 @@ namespace Krio {
             this->_serviceLocator.registerManager<RenderManager>();
 
             this->_serviceLocator.getManager<RenderManager>().init();
+            Mesh::init();
 
             Logger::info("Managers initialized successfully");
             return true;
@@ -68,12 +69,13 @@ namespace Krio {
 
     bool Application::shutdown() {
         this->_running = false;
-        this->_renderer.shutdown();
 
         if (!this->_shutdownManagers()) {
             Logger::error("Failed to shutdown managers");
             return false;
         }
+
+        this->_renderer.shutdown();
 
         Logger::info("KrioEngine shutdown successfully");
         return true;

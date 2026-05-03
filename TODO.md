@@ -167,15 +167,16 @@
 ### 1.2 Mesh Primitives
 **Purpose:** Define geometry data that can be sent to GPU
 
-- [ ] Create `src/Renderer/Mesh.hpp` and `.cpp`
-- [ ] Define vertex format structure: Position (vec3), Normal (vec3), UV (vec2), Color (uint32)
-- [ ] Wrap bgfx vertex buffer handle
-- [ ] Wrap bgfx index buffer handle
-- [ ] Implement static factory: `createTriangle()` - returns hardcoded triangle vertices
-- [ ] Implement static factory: `createQuad()` - returns two triangles forming rectangle
-- [ ] Implement static factory: `createCube()` - returns 36 vertices (6 faces × 2 triangles × 3 verts)
-- [ ] Implement `draw()` method to submit mesh to bgfx
-- [ ] Calculate and store bounding box for culling (later)
+- [x] Create `src/Renderer/Mesh.hpp` and `.cpp`
+- [x] Define vertex format structure: Position (vec3), Normal (vec3), UV (vec2), Color (uint32)
+  > **Note technique:** Utiliser des `float` séparés (x,y,z) et non `std::tuple` car bgfx envoie les données directement au GPU et s'attend à un layout mémoire contigu et prévisible. `std::tuple` ne garantit pas ce layout et peut avoir du padding. Vérifier avec `static_assert(sizeof(Vertex) == 36)`.
+- [x] Wrap bgfx vertex buffer handle
+- [x] Wrap bgfx index buffer handle
+- [x] Implement static factory: `createTriangle()` - returns hardcoded triangle vertices
+- [x] Implement static factory: `createQuad()` - returns two triangles forming rectangle
+- [x] Implement static factory: `createCube()` - returns 36 vertices (6 faces × 2 triangles × 3 verts)
+- [x] Implement `draw()` method to submit mesh to bgfx
+- [x] Calculate and store bounding box for culling (later)
 
 **Why this matters:** Need geometry to see anything. Primitives are easiest to verify rendering works.
 

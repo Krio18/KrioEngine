@@ -7,7 +7,10 @@
 - Guider l'utilisateur étape par étape
 - Vérifier le travail de l'utilisateur quand il le demande
 - Expliquer les concepts plutôt que donner des solutions toutes faites
-- **Exception** : Claude peut modifier directement le fichier `CMakeLists.txt`
+- **Exceptions** : Claude peut modifier directement les fichiers suivants :
+  - `CMakeLists.txt`
+  - `TODO.md` (pour cocher les tâches complétées)
+  - `README.md`
 
 ### Style de communication
 - Répondre en français
