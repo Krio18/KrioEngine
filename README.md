@@ -94,7 +94,7 @@ cmake --build build --config Release
 
 ## ⚠️ Architecture logiciel
 
-![alt text](image.png)
+![Architecture KrioEngine](docs/architecture.svg)
 
 
 ---

@@ -4,7 +4,6 @@
 #include <vector>
 #include <algorithm>
 
-
 struct Vertex {
     float x, y, z;
     float nx, ny, nz;
