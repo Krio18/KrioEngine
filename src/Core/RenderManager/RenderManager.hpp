@@ -2,6 +2,7 @@
 
 #include "../Logger.hpp"
 #include "../../Renderer/Shader.hpp"
+#include "../../Renderer/Mesh.hpp"
 
 #include <memory>
 
@@ -16,5 +17,6 @@ namespace Krio {
 
         private:
             std::unique_ptr<Shader> _shader;
+            Mesh _triangleMesh;
     };
 }

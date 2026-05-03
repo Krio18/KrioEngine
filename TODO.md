@@ -183,13 +183,11 @@
 ### 1.3 First Triangle Milestone
 **Purpose:** Validate entire rendering pipeline with simplest possible output
 
-- [ ] In `Application::run()` create a triangle mesh using `Mesh::createTriangle()`
-- [ ] Load simple shader program
-- [ ] Submit draw call with identity matrices (no transformation)
-- [ ] Set clear color to dark gray so triangle is visible
-- [ ] **Success criteria:** Colored triangle visible in window center
-- [ ] Debug: if nothing visible, verify vertex winding order (CCW vs CW)
-- [ ] Debug: if nothing visible, check viewport size matches window
+- [x] In `Application::run()` create a triangle mesh using `Mesh::createTriangle()`
+- [x] Load simple shader program
+- [x] Submit draw call with identity matrices (no transformation)
+- [x] Set clear color to dark gray so triangle is visible
+- [x] **Success criteria:** Colored triangle visible in window center
 
 **Why this matters:** If triangle renders, entire pipeline works: window → bgfx init → shader compile → vertex upload → draw submission.
 
