@@ -150,61 +150,60 @@
 ### 1.1 Shader System Foundation
 **Purpose:** Load, compile, and manage shader programs that run on GPU
 
-- [ ] Create `src/Renderer/Shader.hpp` and `.cpp`
-- [ ] Wrap bgfx shader handle for automatic cleanup (RAII)
-- [ ] Load vertex shader from file
-- [ ] Load fragment shader from file
-- [ ] Link vertex + fragment into shader program
-- [ ] Create simple shaders in `shaders/` directory:
+- [x] Create `src/Renderer/Shader.hpp` and `.cpp`
+- [x] Wrap bgfx shader handle for automatic cleanup (RAII)
+- [x] Load vertex shader from file
+- [x] Load fragment shader from file
+- [x] Link vertex + fragment into shader program
+- [x] Create simple shaders in `shaders/` directory:
   - `v_simple.sc` - Passthrough vertex shader with MVP transformation
   - `f_simple.sc` - Solid color output (hardcoded or uniform)
-- [ ] Use bgfx's shaderc tool to compile to platform-specific bytecode
-- [ ] Cache compiled shaders to avoid recompilation
-- [ ] Error handling for shader compilation failures
+- [x] Use bgfx's shaderc tool to compile to platform-specific bytecode
+- [x] Cache compiled shaders to avoid recompilation
+- [x] Error handling for shader compilation failures
 
 **Why this matters:** Can't render without shaders. Start simple, expand later.
 
 ### 1.2 Mesh Primitives
 **Purpose:** Define geometry data that can be sent to GPU
 
-- [ ] Create `src/Renderer/Mesh.hpp` and `.cpp`
-- [ ] Define vertex format structure: Position (vec3), Normal (vec3), UV (vec2), Color (uint32)
-- [ ] Wrap bgfx vertex buffer handle
-- [ ] Wrap bgfx index buffer handle
-- [ ] Implement static factory: `createTriangle()` - returns hardcoded triangle vertices
-- [ ] Implement static factory: `createQuad()` - returns two triangles forming rectangle
-- [ ] Implement static factory: `createCube()` - returns 36 vertices (6 faces × 2 triangles × 3 verts)
-- [ ] Implement `draw()` method to submit mesh to bgfx
-- [ ] Calculate and store bounding box for culling (later)
+- [x] Create `src/Renderer/Mesh.hpp` and `.cpp`
+- [x] Define vertex format structure: Position (vec3), Normal (vec3), UV (vec2), Color (uint32)
+  > **Note technique:** Utiliser des `float` séparés (x,y,z) et non `std::tuple` car bgfx envoie les données directement au GPU et s'attend à un layout mémoire contigu et prévisible. `std::tuple` ne garantit pas ce layout et peut avoir du padding. Vérifier avec `static_assert(sizeof(Vertex) == 36)`.
+- [x] Wrap bgfx vertex buffer handle
+- [x] Wrap bgfx index buffer handle
+- [x] Implement static factory: `createTriangle()` - returns hardcoded triangle vertices
+- [x] Implement static factory: `createQuad()` - returns two triangles forming rectangle
+- [x] Implement static factory: `createCube()` - returns 36 vertices (6 faces × 2 triangles × 3 verts)
+- [x] Implement `draw()` method to submit mesh to bgfx
+- [x] Calculate and store bounding box for culling (later)
 
 **Why this matters:** Need geometry to see anything. Primitives are easiest to verify rendering works.
 
 ### 1.3 First Triangle Milestone
 **Purpose:** Validate entire rendering pipeline with simplest possible output
 
-- [ ] In `Application::run()` create a triangle mesh using `Mesh::createTriangle()`
-- [ ] Load simple shader program
-- [ ] Submit draw call with identity matrices (no transformation)
-- [ ] Set clear color to dark gray so triangle is visible
-- [ ] **Success criteria:** Colored triangle visible in window center
-- [ ] Debug: if nothing visible, verify vertex winding order (CCW vs CW)
-- [ ] Debug: if nothing visible, check viewport size matches window
+- [x] In `Application::run()` create a triangle mesh using `Mesh::createTriangle()`
+- [x] Load simple shader program
+- [x] Submit draw call with identity matrices (no transformation)
+- [x] Set clear color to dark gray so triangle is visible
+- [x] **Success criteria:** Colored triangle visible in window center
 
 **Why this matters:** If triangle renders, entire pipeline works: window → bgfx init → shader compile → vertex upload → draw submission.
 
 ### 1.4 Transform Matrices (MVP Pipeline)
 **Purpose:** Enable 3D positioning and camera control via matrix math
 
-- [ ] Add GLM library to `vcpkg.json` for matrix math
-- [ ] Create `src/Math/Transform.hpp` utility
-- [ ] Implement Model matrix creation from position, rotation (quaternion), scale
-- [ ] Implement View matrix creation from camera position and look direction
-- [ ] Implement Projection matrix for perspective (FOV, aspect, near, far)
-- [ ] Implement Projection matrix for orthographic (left, right, bottom, top, near, far)
-- [ ] Create uniform buffer to pass MVP matrix to shaders
-- [ ] Update vertex shader to multiply position by MVP
-- [ ] Test with rotating cube: create cube, apply rotation each frame, submit with updated Model matrix
-- [ ] **Success criteria:** Spinning cube visible on screen
+- [x] Add GLM library to `vcpkg.json` for matrix math
+- [x] Create `src/Math/Transform.hpp` utility
+- [x] Implement Model matrix creation from position, rotation (quaternion), scale
+- [x] Implement View matrix creation from camera position and look direction
+- [x] Implement Projection matrix for perspective (FOV, aspect, near, far)
+- [x] Implement Projection matrix for orthographic (left, right, bottom, top, near, far)
+- [x] Create uniform buffer to pass MVP matrix to shaders
+- [x] Update vertex shader to multiply position by MVP
+- [x] Test with rotating cube: create cube, apply rotation each frame, submit with updated Model matrix
+- [x] **Success criteria:** Spinning cube visible on screen
 
 **Why this matters:** 3D rendering requires transforming vertices from object space → world space → view space → clip space.
 

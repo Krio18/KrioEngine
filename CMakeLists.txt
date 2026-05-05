@@ -57,6 +57,9 @@ set(KRIO_ENGINE_SOURCES
     src/Core/RenderManager/RenderManager.cpp
     src/Platform/WindowSDL.cpp
     src/Renderer/BgfxContext.cpp
+    src/Renderer/Shader.cpp
+    src/Renderer/Mesh.cpp
+    src/Math/Transform.cpp
 )
 
 add_executable(KrioEngine ${KRIO_ENGINE_SOURCES})
@@ -113,6 +116,36 @@ endif()
 
 # BGFX via bgfx.cmake wrapper (contient bx, bimg)
 add_subdirectory(extern/bgfx.cmake)
+
+# =============================================================================
+# Shader Compilation
+# =============================================================================
+
+include(${CMAKE_SOURCE_DIR}/extern/bgfx.cmake/cmake/bgfxToolUtils.cmake)
+
+set(SHADER_SRC_DIR ${CMAKE_SOURCE_DIR}/shaders/src)
+set(SHADER_OUT_DIR ${CMAKE_BINARY_DIR}/shaders)
+
+bgfx_compile_shaders(
+    TYPE VERTEX
+    SHADERS ${SHADER_SRC_DIR}/v_simple.sc
+    VARYING_DEF ${SHADER_SRC_DIR}/varying.def.sc
+    OUTPUT_DIR ${SHADER_OUT_DIR}
+    INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/extern/bgfx.cmake/bgfx/src
+    OUT_FILES_VAR VERTEX_SHADER_OUTPUTS
+)
+
+bgfx_compile_shaders(
+    TYPE FRAGMENT
+    SHADERS ${SHADER_SRC_DIR}/f_simple.sc
+    VARYING_DEF ${SHADER_SRC_DIR}/varying.def.sc
+    OUTPUT_DIR ${SHADER_OUT_DIR}
+    INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/extern/bgfx.cmake/bgfx/src
+    OUT_FILES_VAR FRAGMENT_SHADER_OUTPUTS
+)
+
+add_custom_target(Shaders ALL DEPENDS ${VERTEX_SHADER_OUTPUTS} ${FRAGMENT_SHADER_OUTPUTS})
+add_dependencies(KrioEngine Shaders)
 
 # =============================================================================
 # Include Directories

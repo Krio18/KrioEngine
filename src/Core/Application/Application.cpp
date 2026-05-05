@@ -51,6 +51,10 @@ namespace Krio {
             this->_serviceLocator.registerManager<SceneManager>();
             this->_serviceLocator.registerManager<RenderManager>();
 
+            Mesh::init();
+
+            this->_serviceLocator.getManager<RenderManager>().init();
+
             Logger::info("Managers initialized successfully");
             return true;
         }
@@ -66,12 +70,13 @@ namespace Krio {
 
     bool Application::shutdown() {
         this->_running = false;
-        this->_renderer.shutdown();
 
         if (!this->_shutdownManagers()) {
             Logger::error("Failed to shutdown managers");
             return false;
         }
+
+        this->_renderer.shutdown();
 
         Logger::info("KrioEngine shutdown successfully");
         return true;
@@ -147,7 +152,8 @@ namespace Krio {
     }
 
     void Application::render() {
-        this->_serviceLocator.getManager<RenderManager>().render();
+        double deltaTime = this->_serviceLocator.getManager<TimeManager>().getDeltaTime();
+        this->_serviceLocator.getManager<RenderManager>().render(deltaTime);
         this->_renderer.frame();
     }
 }

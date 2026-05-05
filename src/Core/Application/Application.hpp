@@ -8,6 +8,7 @@
 #include "../PhysicsManager/PhysicsManager.hpp"
 #include "../SceneManager/SceneManager.hpp"
 #include "../RenderManager/RenderManager.hpp"
+#include "../../Renderer/Mesh.hpp"
 
 namespace Krio {
     class Application {

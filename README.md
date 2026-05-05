@@ -14,21 +14,6 @@
 
 ---
 
-## ⚠️ Development Status
-
-**KrioEngine is in very early development (v0.1.0-alpha)**
-
-Currently implemented:
-- Cross-platform windowing (SDL2)
-- Modern rendering backend (bgfx)
-- Basic game loop with accurate delta time
-- Logging system
-- Clean modular architecture
-
-This is a foundation project. Most features listed below are **planned** but not yet implemented.
-
----
-
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -107,9 +92,10 @@ cmake --build build --config Release
 
 ---
 
-## 🤝 Contributing
+## ⚠️ Architecture logiciel
 
-This is a personal learning project, but contributions are welcome!
+![Architecture KrioEngine](docs/architecture.svg)
+
 
 ---
 
