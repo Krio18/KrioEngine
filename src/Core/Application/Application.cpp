@@ -152,7 +152,8 @@ namespace Krio {
     }
 
     void Application::render() {
-        this->_serviceLocator.getManager<RenderManager>().render();
+        double deltaTime = this->_serviceLocator.getManager<TimeManager>().getDeltaTime();
+        this->_serviceLocator.getManager<RenderManager>().render(deltaTime);
         this->_renderer.frame();
     }
 }
