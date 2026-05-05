@@ -28,3 +28,4 @@
 - Quand l'utilisateur fait une erreur, expliquer POURQUOI c'est une erreur
 - Donner des analogies simples pour les concepts complexes
 - L'utilisateur peut dire "vérifie" pour demander une review de son code
+- Pour chaque fin de phase de la TODO.md, crée une battrie de question pour savoir si l'utilisateur a bien compris les element et le fonctionnement de se qu'il a vue et écrit

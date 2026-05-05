@@ -194,16 +194,16 @@
 ### 1.4 Transform Matrices (MVP Pipeline)
 **Purpose:** Enable 3D positioning and camera control via matrix math
 
-- [ ] Add GLM library to `vcpkg.json` for matrix math
-- [ ] Create `src/Math/Transform.hpp` utility
-- [ ] Implement Model matrix creation from position, rotation (quaternion), scale
-- [ ] Implement View matrix creation from camera position and look direction
-- [ ] Implement Projection matrix for perspective (FOV, aspect, near, far)
-- [ ] Implement Projection matrix for orthographic (left, right, bottom, top, near, far)
-- [ ] Create uniform buffer to pass MVP matrix to shaders
-- [ ] Update vertex shader to multiply position by MVP
-- [ ] Test with rotating cube: create cube, apply rotation each frame, submit with updated Model matrix
-- [ ] **Success criteria:** Spinning cube visible on screen
+- [x] Add GLM library to `vcpkg.json` for matrix math
+- [x] Create `src/Math/Transform.hpp` utility
+- [x] Implement Model matrix creation from position, rotation (quaternion), scale
+- [x] Implement View matrix creation from camera position and look direction
+- [x] Implement Projection matrix for perspective (FOV, aspect, near, far)
+- [x] Implement Projection matrix for orthographic (left, right, bottom, top, near, far)
+- [x] Create uniform buffer to pass MVP matrix to shaders
+- [x] Update vertex shader to multiply position by MVP
+- [x] Test with rotating cube: create cube, apply rotation each frame, submit with updated Model matrix
+- [x] **Success criteria:** Spinning cube visible on screen
 
 **Why this matters:** 3D rendering requires transforming vertices from object space → world space → view space → clip space.
 

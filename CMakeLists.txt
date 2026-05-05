@@ -59,6 +59,7 @@ set(KRIO_ENGINE_SOURCES
     src/Renderer/BgfxContext.cpp
     src/Renderer/Shader.cpp
     src/Renderer/Mesh.cpp
+    src/Math/Transform.cpp
 )
 
 add_executable(KrioEngine ${KRIO_ENGINE_SOURCES})
