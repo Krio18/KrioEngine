@@ -4,6 +4,8 @@
 #include "../../Renderer/Shader.hpp"
 #include "../../Renderer/Mesh.hpp"
 #include "../../Math/Transform.hpp"
+#include "../../Renderer/ShaderManager.hpp"
+#include "../ServiceLocator/ServiceLocator.hpp"
 
 #include <memory>
 
@@ -13,11 +15,12 @@ namespace Krio {
             RenderManager();
             ~RenderManager();
 
-            void init();
+            void init(ShaderManager& shaderManager);
             void render(double deltaTime);
 
         private:
-            std::unique_ptr<Shader> _shader;
+            const Shader* _shader;
+
             Mesh _cubeMesh;
             float _angle;
     };

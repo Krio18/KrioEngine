@@ -14,7 +14,7 @@ namespace Krio {
             Shader(const std::string& vertexPath, const std::string& fragmentPath);
             ~Shader();
 
-            bgfx::ProgramHandle getProgramHandle();
+            bgfx::ProgramHandle getProgramHandle() const;
 
             Shader(const Shader&) = delete;
             Shader& operator=(const Shader&) = delete;

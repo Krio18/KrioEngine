@@ -29,7 +29,7 @@ namespace Krio {
         }
     }
 
-    bgfx::ProgramHandle Shader::getProgramHandle() {
+    bgfx::ProgramHandle Shader::getProgramHandle() const {
         return this->_programHandle;
     }
 

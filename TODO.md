@@ -226,6 +226,8 @@
 - [x] Track shader usage count for debugging
 - [ ] Implement shader variants: same shader with different #defines (e.g., WITH_SHADOWS) *(reporté à 5.3 Lighting)*
 
+- [x] **Intégration** : Enregistrer `ShaderManager` dans `ServiceLocator` (`Application::_initializeManagers`), et remplacer la création directe de `Shader` dans `RenderManager` par `ShaderManager::load/get`
+
 **Why this matters:** Avoids duplicate shader loads. Hot-reload enables edit-while-running workflow.
 
 ### 2.2 MaterialManager
@@ -239,6 +241,8 @@
 - [ ] Implement `instantiate(baseHandle)`: clone material for per-object customization
 - [ ] Track base material → instance relationship for efficient updates
 - [ ] Implement material sorting: group by shader to minimize state changes
+
+- [ ] **Intégration** : Enregistrer `MaterialManager` dans `ServiceLocator`, et l'utiliser depuis `RenderManager::submitMesh` pour récupérer le shader du matériau
 
 **Why this matters:** Material instancing allows shared shader but unique colors/textures per object.
 
@@ -254,6 +258,8 @@
 - [ ] Support loading from primitive names: "triangle", "cube", "sphere"
 - [ ] Calculate mesh bounds (AABB) for frustum culling
 - [ ] Async loading: load meshes on background thread (optional for now)
+
+- [ ] **Intégration** : Enregistrer `MeshManager` dans `ServiceLocator`, remplacer `Mesh::createCube()` direct dans `RenderManager` par `MeshManager::load("cube")`
 
 **Why this matters:** Multiple entities can share same mesh. Reference counting prevents memory leaks.
 
@@ -286,6 +292,8 @@
 - [ ] Handle camera priority: higher priority cameras render later (overlay UI)
 - [ ] Validate camera settings: ensure valid FOV, aspect ratio
 
+- [ ] **Intégration** : Enregistrer `CameraManager` dans `ServiceLocator`, l'appeler depuis `RenderManager::render()` pour récupérer la caméra principale et appliquer son `ViewProjectionMatrix`
+
 **Why this matters:** Supports split-screen, mini-map, render-to-texture. Main camera is most common case.
 
 ### 2.6 Camera Component
@@ -302,6 +310,8 @@
 - [ ] Implement `getViewMatrix()`: calculate from camera's transform component
 - [ ] Implement `getProjectionMatrix()`: calculate from stored parameters
 - [ ] Implement `getViewProjectionMatrix()`: cached multiplication of View × Projection
+
+- [ ] **Intégration** : `Camera` est utilisée par `CameraManager` pour fournir `getViewMatrix()` et `getProjectionMatrix()` au `RenderManager`
 
 **Why this matters:** Camera is just data. Separate from Camera Controller which provides behavior.
 
@@ -332,6 +342,8 @@
 - [ ] Offset from target (e.g., behind and above player)
 - [ ] Optional look-ahead: predict target movement
 - [ ] Collision detection: move camera forward if occluded (advanced)
+
+- [ ] **Intégration** : Les controllers sont mis à jour dans `Application::update(deltaTime)` via le `ServiceLocator`, ils lisent l'`InputManager` et modifient la `Camera` associée
 
 **Why this matters:** Controllers implement behavior. Swap controller = change camera feel. Reusable across projects.
 
@@ -366,6 +378,8 @@
 - [ ] Load action mappings from JSON config file
 - [ ] Support action modifiers: require Ctrl+S for "Save" action
 - [ ] Support axis bindings: map W/S to "MoveForward" axis with +1/-1 values
+
+- [ ] **Intégration** : Enregistrer `InputManager` dans `ServiceLocator`, appeler `pollInput()` dans `Application::run()` à chaque frame avant les updates
 
 **Why this matters:** Rebindable controls. Same code works with keyboard, gamepad, or touchscreen if you swap InputManager.
 
@@ -467,6 +481,8 @@
 - [ ] Unregister cameras when entities destroyed
 - [ ] Handle main camera switching (check Tag for "MainCamera")
 
+- [ ] **Intégration** : `RenderSystem` et `CameraSystem` sont enregistrés et appelés dans `Scene::update(deltaTime)`
+
 **Why this matters:** Systems provide behavior. Adding RenderSystem makes entities with MeshRenderer automatically render.
 
 ### 3.5 Scene
@@ -486,6 +502,8 @@
 - [ ] Implement `update(deltaTime)`: execute all scene systems
 - [ ] Store scene-level settings: ambient light color, fog, skybox
 
+- [ ] **Intégration** : `Scene` est créée et gérée par `SceneManager`, son `update()` est appelé depuis `SceneManager::update()` qui lui-même est appelé depuis `Application::run()`
+
 **Why this matters:** Scene owns all entities. Switching scenes = load different set of entities.
 
 ### 3.6 SceneManager
@@ -501,6 +519,8 @@
 - [ ] Implement `update(deltaTime)`: call update on all active scenes
 - [ ] Support async scene loading: load in background, switch when ready
 - [ ] Scene transition callbacks: onSceneUnload, onSceneLoaded
+
+- [ ] **Intégration** : Enregistrer `SceneManager` dans `ServiceLocator`, appeler `SceneManager::update(deltaTime)` depuis `Application::run()`
 
 **Why this matters:** Games have menus, levels, cutscenes. SceneManager handles transitions.
 
@@ -690,6 +710,8 @@
 - [ ] Compress textures for GPU (BC7 on desktop, ASTC on mobile)
 - [ ] Streaming: load low-res mip first, stream high-res later
 
+- [ ] **Intégration** : `Texture` est utilisée par `Material` pour ses texture slots, et par `Skybox` pour le cubemap
+
 **Why this matters:** Textures are largest memory consumers. Proper management critical for performance.
 
 ### 5.2 Model Loading
@@ -709,6 +731,8 @@
   - Texture coordinates if missing
 - [ ] Optimize mesh: reorder vertices for GPU cache efficiency
 - [ ] Generate LODs (Levels of Detail): simplified meshes for distance rendering (optional)
+
+- [ ] **Intégration** : `ModelImporter` est appelé par `MeshManager::load(path)` pour les fichiers 3D, les meshes/matériaux extraits sont enregistrés dans `MeshManager` et `MaterialManager`
 
 **Why this matters:** Can't manually create complex models. Assimp handles 40+ formats.
 
@@ -747,6 +771,8 @@
   - Roughness/metallic workflow
   - Cook-Torrance BRDF
   - Image-based lighting (IBL)
+
+- [ ] **Intégration** : `LightingSystem` est appelé dans `Scene::update()`, il collecte les lumières et les envoie au `RenderManager` via UBO avant chaque `render()`
 
 **Why this matters:** Lighting defines visual quality. Blinn-Phong is fast, PBR is realistic.
 
@@ -879,6 +905,8 @@
 - [ ] Implement `setVolume(volume)`: set master volume
 - [ ] Implement `setGroupVolume(group, volume)`: set group volume
 
+- [ ] **Intégration** : Enregistrer `AudioManager` dans `ServiceLocator`, appeler `AudioManager::update()` chaque frame depuis `Application::run()`, synchroniser la position du listener avec la caméra principale
+
 **Why this matters:** Audio is 50% of game feel. Footsteps, gunshots, music set mood.
 
 ### 5.7 Particle System
@@ -904,6 +932,8 @@
   - Particle pooling: reuse dead particles instead of allocating
   - Particle sorting: sort back-to-front for correct transparency
 - [ ] Presets: fire, smoke, explosion, sparks, rain, snow
+
+- [ ] **Intégration** : Créer un `ParticleSystem` ECS appelé dans `Scene::update()`, soumettre les particules visibles au `RenderManager` comme une passe transparente
 
 **Why this matters:** Particles add life to world. Explosions, magic effects, environmental ambience.
 
@@ -941,6 +971,8 @@
 - [ ] Allow enabling/disabling individual effects
 - [ ] Expose effect parameters in editor
 
+- [ ] **Intégration** : La Post-Process Stack est exécutée dans `RenderManager::render()` après la passe scène, avant le blit final vers l'écran
+
 **Why this matters:** Post-processing is final polish. Bloom adds dreaminess, tone mapping prevents washed out colors.
 
 ### 5.9 Skybox
@@ -957,6 +989,8 @@
   - Gradient from horizon to zenith
   - Time of day: sunrise/sunset colors
   - Atmospheric scattering (Rayleigh/Mie)
+
+- [ ] **Intégration** : `Skybox` est rendu en première passe dans `RenderManager::render()` avant les objets de la scène, configuré depuis les settings de la `Scene`
 
 **Why this matters:** Empty black background looks unfinished. Skybox adds atmosphere and context.
 
@@ -1037,6 +1071,8 @@
   - Spawn particle effects
   - Enable/disable hitboxes
 - [ ] Integrate with EventBus: publish animation events
+
+- [ ] **Intégration** : `AnimationSystem` est appelé dans `Scene::update()` avant `RenderSystem`, les bone matrices sont uploadées au GPU via uniform buffer avant chaque draw call du `SkinnedMeshRenderer`
 
 **Why this matters:** Characters need to walk, run, attack. Without animation, games feel static and lifeless.
 
@@ -1160,6 +1196,8 @@
   - Easing functions: Linear, EaseIn, EaseOut, EaseInOut, Bounce, Elastic
   - Sequence multiple tweens
   - OnComplete callback
+
+- [ ] **Intégration** : `UIRenderer` est appelé dans `RenderManager::render()` en dernière passe (après post-process), `UIEventSystem` est mis à jour depuis `Application::run()` après `InputManager::pollInput()`
 
 **Why this matters:** Every game needs menus, health bars, inventory screens. ImGui is for developers, runtime UI is for players.
 

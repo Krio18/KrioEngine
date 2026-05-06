@@ -50,10 +50,11 @@ namespace Krio {
             this->_serviceLocator.registerManager<PhysicsManager>();
             this->_serviceLocator.registerManager<SceneManager>();
             this->_serviceLocator.registerManager<RenderManager>();
+            this->_serviceLocator.registerManager<ShaderManager>();
 
             Mesh::init();
 
-            this->_serviceLocator.getManager<RenderManager>().init();
+            this->_serviceLocator.getManager<RenderManager>().init(this->_serviceLocator.getManager<ShaderManager>());
 
             Logger::info("Managers initialized successfully");
             return true;
