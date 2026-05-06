@@ -9,6 +9,7 @@
 #include "../SceneManager/SceneManager.hpp"
 #include "../RenderManager/RenderManager.hpp"
 #include "../../Renderer/Mesh.hpp"
+#include "../../Renderer/ShaderManager.hpp"
 
 namespace Krio {
     class Application {

@@ -3,6 +3,7 @@
 namespace Krio {
     RenderManager::RenderManager() {
         this->_angle = 0.0f;
+        this->_shader = nullptr;
 
         Logger::info("RenderManager created");
     }
@@ -11,11 +12,9 @@ namespace Krio {
         Logger::info("RenderManager destroyed");
     }
 
-    void RenderManager::init() {
-        this->_shader = std::make_unique<Shader>(
-            "build/shaders/spirv/v_simple.sc.bin",
-            "build/shaders/spirv/f_simple.sc.bin"
-        );
+    void RenderManager::init(ShaderManager& shaderManager) {
+        shaderManager.load("simple");
+        this->_shader = &shaderManager.get("simple");
 
         this->_cubeMesh = Mesh::createCube();
     }
