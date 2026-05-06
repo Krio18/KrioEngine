@@ -1,10 +1,3 @@
-/*
-** EPITECH PROJECT, 2026
-** KrioEngine
-** File description:
-** ShaderManager
-*/
-
 #include "ShaderManager.hpp"
 
 namespace Krio {
