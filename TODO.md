@@ -216,14 +216,15 @@
 ### 2.1 ShaderManager
 **Purpose:** Centralized loading, caching, and hot-reload of shaders
 
-- [ ] Create `src/Renderer/ShaderManager.hpp` and `.cpp`
-- [ ] Maintain map of shader name → Shader object
-- [ ] Implement `load(name)`: load shader from disk, compile, cache, return handle
-- [ ] Implement `get(handle)`: retrieve cached shader by handle
-- [ ] Implement `reload(handle)`: recompile shader from disk (for hot-reload)
-- [ ] Handle compilation errors gracefully: log error, return fallback shader
-- [ ] Track shader usage count for debugging
-- [ ] Implement shader variants: same shader with different #defines (e.g., WITH_SHADOWS)
+- [x] Create `src/Renderer/ShaderManager.hpp` and `.cpp`
+- [x] Maintain map of shader name → Shader object
+- [x] Implement `load(name)`: load shader from disk, compile, cache, return handle
+  > **Convention:** `load("simple")` cherche automatiquement `v_simple.sc.bin` (vertex) et `f_simple.sc.bin` (fragment) dans `build/shaders/spirv/`. Les préfixes `v_` et `f_` sont ajoutés par le manager.
+- [x] Implement `get(handle)`: retrieve cached shader by handle
+- [x] Implement `reload(handle)`: recompile shader from disk (for hot-reload)
+- [x] Handle compilation errors gracefully: log error, return fallback shader
+- [x] Track shader usage count for debugging
+- [ ] Implement shader variants: same shader with different #defines (e.g., WITH_SHADOWS) *(reporté à 5.3 Lighting)*
 
 **Why this matters:** Avoids duplicate shader loads. Hot-reload enables edit-while-running workflow.
 
@@ -731,6 +732,7 @@
   - Used for flashlights, car headlights, stage lights
 
 #### Lighting System
+- [ ] Implement shader variants dans `ShaderManager`: même shader compilé avec différents `#defines` (ex: `WITH_SHADOWS`, `WITH_NORMALS`) — reporté depuis 2.1
 - [ ] Create `src/Renderer/LightingSystem.hpp` and `.cpp`
 - [ ] Query all entities with light components
 - [ ] Collect light data into array
