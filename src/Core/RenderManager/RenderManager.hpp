@@ -1,10 +1,10 @@
 #pragma once
 
 #include "../Logger/Logger.hpp"
-#include "../../Renderer/Shader.hpp"
-#include "../../Renderer/Mesh.hpp"
+#include "../../Renderer/Shader/Shader.hpp"
+#include "../../Renderer/Mesh/Mesh.hpp"
 #include "../../Math/Transform.hpp"
-#include "../../Renderer/ShaderManager.hpp"
+#include "../../Renderer/ShaderManager/ShaderManager.hpp"
 #include "../ServiceLocator/ServiceLocator.hpp"
 
 #include <memory>

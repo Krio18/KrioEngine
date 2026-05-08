@@ -56,13 +56,13 @@ set(KRIO_ENGINE_SOURCES
     src/Core/SceneManager/SceneManager.cpp
     src/Core/RenderManager/RenderManager.cpp
     src/Platform/WindowSDL.cpp
-    src/Renderer/BgfxContext.cpp
-    src/Renderer/Shader.cpp
-    src/Renderer/Mesh.cpp
+    src/Renderer/BgfxContext/BgfxContext.cpp
+    src/Renderer/Shader/Shader.cpp
+    src/Renderer/Mesh/Mesh.cpp
     src/Math/Transform.cpp
-    src/Renderer/ShaderManager.cpp
-    src/Renderer/Material.cpp
-    src/Renderer/MaterialManager.cpp
+    src/Renderer/ShaderManager/ShaderManager.cpp
+    src/Renderer/Material/Material.cpp
+    src/Renderer/MaterialManager/MaterialManager.cpp
     src/Core/Logger/Logger.cpp
 )
 

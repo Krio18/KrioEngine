@@ -5,8 +5,8 @@
 #include <memory>
 #include <stdexcept>
 
-#include "../Core/Logger/Logger.hpp"
-#include "Shader.hpp"
+#include "../../Core/Logger/Logger.hpp"
+#include "../Shader/Shader.hpp"
 
 namespace Krio {
     struct ShaderEntry {

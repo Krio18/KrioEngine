@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Core/Logger/Logger.hpp"
+#include "../../Core/Logger/Logger.hpp"
 
 #include <bgfx/bgfx.h>
 #include <bx/file.h>

@@ -4,10 +4,9 @@
 #include <string>
 #include <memory>
 
-#include "Material.hpp"
-#include "ShaderManager.hpp"
-#include "../Core/ServiceLocator/ServiceLocator.hpp"
-#include "../Core/Logger/Logger.hpp"
+#include "../Material/Material.hpp"
+#include "../ShaderManager/ShaderManager.hpp"
+#include "../../Core/Logger/Logger.hpp"
 
 namespace Krio {
     class MaterialManager {

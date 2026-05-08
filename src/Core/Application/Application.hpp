@@ -1,16 +1,16 @@
 #pragma once
 
 #include "../../Platform/WindowSDL.hpp"
-#include "../../Renderer/BgfxContext.hpp"
+#include "../../Renderer/BgfxContext/BgfxContext.hpp"
 #include "../ServiceLocator/ServiceLocator.hpp"
 #include "../TimeManager/TimeManager.hpp"
 #include "../InputManager/InputManager.hpp"
 #include "../PhysicsManager/PhysicsManager.hpp"
 #include "../SceneManager/SceneManager.hpp"
 #include "../RenderManager/RenderManager.hpp"
-#include "../../Renderer/Mesh.hpp"
-#include "../../Renderer/ShaderManager.hpp"
-#include "../../Renderer/MaterialManager.hpp"
+#include "../../Renderer/Mesh/Mesh.hpp"
+#include "../../Renderer/ShaderManager/ShaderManager.hpp"
+#include "../../Renderer/MaterialManager/MaterialManager.hpp"
 
 namespace Krio {
     class Application {
