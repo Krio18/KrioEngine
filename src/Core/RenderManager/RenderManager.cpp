@@ -33,4 +33,8 @@ namespace Krio {
 
         this->_cubeMesh.draw(0, this->_shader->getProgramHandle());
     }
+
+    void RenderManager::submitMesh(const Mesh& mesh, const Material& material, const Transform& transform) {
+        bgfx::ProgramHandle shaderHandle = material.getShaderHandle();
+    }
 }
