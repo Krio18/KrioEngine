@@ -1,8 +1,19 @@
 #include "ShaderManager.hpp"
 
 namespace Krio {
-    ShaderManager::ShaderManager() {}
-    ShaderManager::~ShaderManager() {}
+    ShaderManager::ShaderManager() : _errorProgramHandle(BGFX_INVALID_HANDLE) {}
+
+    void ShaderManager::init() {
+        this->load("error");
+
+        auto it = this->_shaders.find("error");
+        if (it != this->_shaders.end()) {
+            this->_errorProgramHandle = it->second.shader->getProgramHandle();
+            Logger::info("Error shader loaded successfully");
+        } else {
+            Logger::error("Critical: Error shader ('error') not found in build/shaders/spirv/");
+        }
+    }
 
     void ShaderManager::load(const std::string& name) {
         if (this->_shaders.contains(name)) {
@@ -29,9 +40,26 @@ namespace Krio {
             it->second.usageCount++;
             return *(it->second.shader);
         } else {
-            Logger::error("Shader not found: " + name);
-            throw std::runtime_error("Shader not found: " + name);
+            Logger::warning("Shader '" + name + "' not found. Using fallback 'error' shader.");
+
+            auto errorIt = this->_shaders.find("error");
+            if (errorIt != this->_shaders.end()) {
+                return *(errorIt->second.shader);
+            }
+            throw std::runtime_error("Shader not found and error shader is not loaded: " + name);
         }
+    }
+
+    bgfx::ProgramHandle ShaderManager::getHandle(const std::string& name) {
+        auto it = this->_shaders.find(name);
+
+        if (it != this->_shaders.end()) {
+            it->second.usageCount++;
+            return it->second.shader->getProgramHandle();
+        }
+
+        Logger::warning("Shader '" + name + "' not found. Using fallback 'error' shader.");
+        return this->_errorProgramHandle;
     }
 
     void ShaderManager::reload(const std::string& name) {

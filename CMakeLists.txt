@@ -61,6 +61,9 @@ set(KRIO_ENGINE_SOURCES
     src/Renderer/Mesh.cpp
     src/Math/Transform.cpp
     src/Renderer/ShaderManager.cpp
+    src/Renderer/Material.cpp
+    src/Renderer/MaterialManager.cpp
+    src/Core/Logger/Logger.cpp
 )
 
 add_executable(KrioEngine ${KRIO_ENGINE_SOURCES})
@@ -145,7 +148,25 @@ bgfx_compile_shaders(
     OUT_FILES_VAR FRAGMENT_SHADER_OUTPUTS
 )
 
-add_custom_target(Shaders ALL DEPENDS ${VERTEX_SHADER_OUTPUTS} ${FRAGMENT_SHADER_OUTPUTS})
+bgfx_compile_shaders(
+    TYPE VERTEX
+    SHADERS ${SHADER_SRC_DIR}/v_error.sc
+    VARYING_DEF ${SHADER_SRC_DIR}/varying.def.sc
+    OUTPUT_DIR ${SHADER_OUT_DIR}
+    INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/extern/bgfx.cmake/bgfx/src
+    OUT_FILES_VAR ERROR_VERTEX_SHADER_OUTPUTS
+)
+
+bgfx_compile_shaders(
+    TYPE FRAGMENT
+    SHADERS ${SHADER_SRC_DIR}/f_error.sc
+    VARYING_DEF ${SHADER_SRC_DIR}/varying.def.sc
+    OUTPUT_DIR ${SHADER_OUT_DIR}
+    INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/extern/bgfx.cmake/bgfx/src
+    OUT_FILES_VAR ERROR_FRAGMENT_SHADER_OUTPUTS
+)
+
+add_custom_target(Shaders ALL DEPENDS ${VERTEX_SHADER_OUTPUTS} ${FRAGMENT_SHADER_OUTPUTS} ${ERROR_VERTEX_SHADER_OUTPUTS} ${ERROR_FRAGMENT_SHADER_OUTPUTS})
 add_dependencies(KrioEngine Shaders)
 
 # =============================================================================

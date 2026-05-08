@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Logger.hpp"
+#include "../Logger/Logger.hpp"
 #include "../../Renderer/Shader.hpp"
 #include "../../Renderer/Mesh.hpp"
 #include "../../Math/Transform.hpp"

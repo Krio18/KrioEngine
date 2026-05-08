@@ -6,7 +6,7 @@
 #include <memory>
 #include <stdexcept>
 
-#include "../Logger.hpp"
+#include "../Logger/Logger.hpp"
 
 namespace Krio {
     class ServiceLocator {

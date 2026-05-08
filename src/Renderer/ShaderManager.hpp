@@ -5,7 +5,7 @@
 #include <memory>
 #include <stdexcept>
 
-#include "../Core/Logger.hpp"
+#include "../Core/Logger/Logger.hpp"
 #include "Shader.hpp"
 
 namespace Krio {
@@ -17,13 +17,16 @@ namespace Krio {
     class ShaderManager {
         public:
             ShaderManager();
-            ~ShaderManager();
+            ~ShaderManager() = default;
 
+            void init();
             void load(const std::string& name);
             const Shader& get(const std::string& name);
+            bgfx::ProgramHandle getHandle(const std::string& name);
             void reload(const std::string& name);
 
         private:
             std::unordered_map<std::string, ShaderEntry> _shaders;
+            bgfx::ProgramHandle _errorProgramHandle;
     };
 }

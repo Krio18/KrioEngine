@@ -1,5 +1,5 @@
 #include "WindowSDL.hpp"
-#include "../Core/Logger.hpp"
+#include "../Core/Logger/Logger.hpp"
 
 namespace Krio {
     WindowSDL::WindowSDL()
