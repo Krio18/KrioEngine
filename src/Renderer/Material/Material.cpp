@@ -13,14 +13,28 @@ namespace Krio {
         }
     }
 
-    Material::Material(const Material& other) : _shaderHandle(other._shaderHandle), _shaderName(other._shaderName), _uniformValue(other._uniformValue), _textures(other._textures) {}
+    Material::Material(const Material& other) : _shaderHandle(other._shaderHandle), _shaderName(other._shaderName), _uniformValue(other._uniformValue), _textures(other._textures) {
+        for (const auto& [name, handle] : this->_textures) {
+            this->_samplerUniforms[name] = bgfx::createUniform(name.c_str(), bgfx::UniformType::Sampler);
+        }
+    }
 
     Material::~Material() {
-        for (auto& texture : this->_textures) {
-            bgfx::destroy(texture.second);
-        }
         for (auto& sampler : this->_samplerUniforms) {
-            bgfx::destroy(sampler.second);
+            if (bgfx::isValid(sampler.second)) {
+                bgfx::destroy(sampler.second);
+            }
+        }
+    }
+
+    void Material::shutdown() {
+        if (bgfx::isValid(Material::_uColor)) {
+            bgfx::destroy(Material::_uColor);
+            Material::_uColor = BGFX_INVALID_HANDLE;
+        }
+        if (bgfx::isValid(Material::_uMaterialParams)) {
+            bgfx::destroy(Material::_uMaterialParams);
+            Material::_uMaterialParams = BGFX_INVALID_HANDLE;
         }
     }
 
@@ -37,7 +51,9 @@ namespace Krio {
 
     void Material::submit() const {
         bgfx::setUniform(this->_uColor, &this->_uniformValue.color);
-        bgfx::setUniform(this->_uMaterialParams, &this->_uniformValue.metallic);
+
+        const glm::vec4 materialParams = glm::vec4(this->_uniformValue.metallic, this->_uniformValue.roughness, 0.0f, 0.0f);
+        bgfx::setUniform(this->_uMaterialParams, &materialParams);
 
         uint8_t textureUnit = 0;
         for (const auto& [name, handle] : this->_textures) {

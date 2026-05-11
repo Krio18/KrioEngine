@@ -234,15 +234,15 @@
 **Purpose:** Manage material instances that reference shaders and define rendering properties
 
 - [x] Create `src/Renderer/Material.hpp` and `.cpp`
-- [ ] Material stores: ShaderHandle reference, uniform values (color, metallic, roughness), texture slots
+- [x] Material stores: ShaderHandle reference, uniform values (color, metallic, roughness), texture slots
 - [x] Create `src/Renderer/MaterialManager.hpp` and `.cpp`
-- [ ] Implement `create(shaderHandle)`: create new material with given shader
-- [ ] Implement `get(materialHandle)`: retrieve material by handle
-- [ ] Implement `instantiate(baseHandle)`: clone material for per-object customization
-- [ ] Track base material → instance relationship for efficient updates
-- [ ] Implement material sorting: group by shader to minimize state changes
+- [x] Implement `create(shaderHandle)`: create new material with given shader
+- [x] Implement `get(materialHandle)`: retrieve material by handle
+- [x] Implement `instantiate(baseHandle)`: clone material for per-object customization
+- [x] Track base material → instance relationship for efficient updates
+- [x] Implement material sorting: group by shader to minimize state changes
 
-- [ ] **Intégration** : Enregistrer `MaterialManager` dans `ServiceLocator`, et l'utiliser depuis `RenderManager::submitMesh` pour récupérer le shader du matériau
+- [x] **Intégration** : Enregistrer `MaterialManager` dans `ServiceLocator`, et l'utiliser depuis `RenderManager::submitMesh` pour récupérer le shader du matériau
 
 **Why this matters:** Material instancing allows shared shader but unique colors/textures per object.
 

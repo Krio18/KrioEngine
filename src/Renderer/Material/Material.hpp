@@ -23,6 +23,7 @@ namespace Krio {
             void setTexture(const std::string& name, bgfx::TextureHandle handle);
             void submit() const;
             bgfx::ProgramHandle getShaderHandle() const;
+            static void shutdown();
 
         private:
             bgfx::ProgramHandle _shaderHandle;

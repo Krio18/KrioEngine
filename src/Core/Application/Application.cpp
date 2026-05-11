@@ -49,9 +49,9 @@ namespace Krio {
             this->_serviceLocator.registerManager<InputManager>();
             this->_serviceLocator.registerManager<PhysicsManager>();
             this->_serviceLocator.registerManager<SceneManager>();
-            this->_serviceLocator.registerManager<RenderManager>();
             this->_serviceLocator.registerManager<ShaderManager>();
             this->_serviceLocator.registerManager<MaterialManager>();
+            this->_serviceLocator.registerManager<RenderManager>();
 
             this->_serviceLocator.getManager<ShaderManager>().init();
             this->_serviceLocator.getManager<MaterialManager>().init(this->_serviceLocator.getManager<ShaderManager>());

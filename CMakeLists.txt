@@ -48,6 +48,7 @@ include(cmake/Compiler.cmake OPTIONAL)
 
 set(KRIO_ENGINE_SOURCES
     src/main.cpp
+    src/Platform/WindowSDL.cpp
     src/Core/Application/Application.cpp
     src/Core/ServiceLocator/ServiceLocator.cpp
     src/Core/TimeManager/TimeManager.cpp
@@ -55,15 +56,15 @@ set(KRIO_ENGINE_SOURCES
     src/Core/PhysicsManager/PhysicsManager.cpp
     src/Core/SceneManager/SceneManager.cpp
     src/Core/RenderManager/RenderManager.cpp
-    src/Platform/WindowSDL.cpp
-    src/Renderer/BgfxContext/BgfxContext.cpp
+    src/Core/Logger/Logger.cpp
     src/Renderer/Shader/Shader.cpp
-    src/Renderer/Mesh/Mesh.cpp
-    src/Math/Transform.cpp
+    src/Renderer/BgfxContext/BgfxContext.cpp
     src/Renderer/ShaderManager/ShaderManager.cpp
+    src/Renderer/Mesh/Mesh.cpp
     src/Renderer/Material/Material.cpp
     src/Renderer/MaterialManager/MaterialManager.cpp
-    src/Core/Logger/Logger.cpp
+    src/Renderer/MeshManager/MeshManager.cpp
+    src/Math/Transform.cpp
 )
 
 add_executable(KrioEngine ${KRIO_ENGINE_SOURCES})

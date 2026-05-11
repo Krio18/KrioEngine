@@ -3,9 +3,8 @@
 namespace Krio {
     MaterialManager::MaterialManager() : _shaderManager(nullptr) {}
     MaterialManager::~MaterialManager() {
-        for (auto& [name, material] : this->_materials) {
-            material.reset();
-        }
+        this->_materials.clear();
+        Material::shutdown();
     }
 
     void MaterialManager::init(ShaderManager& shaderManager) {
@@ -26,7 +25,11 @@ namespace Krio {
     }
 
     std::shared_ptr<Material> MaterialManager::get(const std::string& materialName) {
-        return this->_materials[materialName];
+        const auto it = this->_materials.find(materialName);
+        if (it != this->_materials.end()) {
+            return it->second;
+        }
+        return nullptr;
     }
 
     std::shared_ptr<Material> MaterialManager::instantiate(const std::string& baseName) {
