@@ -233,16 +233,16 @@
 ### 2.2 MaterialManager
 **Purpose:** Manage material instances that reference shaders and define rendering properties
 
-- [ ] Create `src/Renderer/Material.hpp` and `.cpp`
-- [ ] Material stores: ShaderHandle reference, uniform values (color, metallic, roughness), texture slots
-- [ ] Create `src/Renderer/MaterialManager.hpp` and `.cpp`
-- [ ] Implement `create(shaderHandle)`: create new material with given shader
-- [ ] Implement `get(materialHandle)`: retrieve material by handle
-- [ ] Implement `instantiate(baseHandle)`: clone material for per-object customization
-- [ ] Track base material → instance relationship for efficient updates
-- [ ] Implement material sorting: group by shader to minimize state changes
+- [x] Create `src/Renderer/Material.hpp` and `.cpp`
+- [x] Material stores: ShaderHandle reference, uniform values (color, metallic, roughness), texture slots
+- [x] Create `src/Renderer/MaterialManager.hpp` and `.cpp`
+- [x] Implement `create(shaderHandle)`: create new material with given shader
+- [x] Implement `get(materialHandle)`: retrieve material by handle
+- [x] Implement `instantiate(baseHandle)`: clone material for per-object customization
+- [x] Track base material → instance relationship for efficient updates
+- [x] Implement material sorting: group by shader to minimize state changes
 
-- [ ] **Intégration** : Enregistrer `MaterialManager` dans `ServiceLocator`, et l'utiliser depuis `RenderManager::submitMesh` pour récupérer le shader du matériau
+- [x] **Intégration** : Enregistrer `MaterialManager` dans `ServiceLocator`, et l'utiliser depuis `RenderManager::submitMesh` pour récupérer le shader du matériau
 
 **Why this matters:** Material instancing allows shared shader but unique colors/textures per object.
 
@@ -2178,6 +2178,52 @@
 58. **Multi-threading** - Parallel ECS systems
 59. **Memory allocators** - Custom allocation strategies
 60. **Performance Tests** - Regression prevention
+
+### Developer Experience (v0.8.0)
+61. **Documentation API** - Doxygen + guides de démarrage
+62. **Projet démo** - Un petit jeu fonctionnel comme exemple
+63. **CMake consumer-friendly** - `find_package(KrioEngine)` ou submodule propre
+64. **GitHub Actions CI** - Build + tests automatiques sur chaque PR
+65. **Gestion d'erreurs user-friendly** - Messages clairs pour les devs qui utilisent le moteur
+
+---
+
+## Phase 11: Developer Experience
+
+**Goal:** Rendre KrioEngine utilisable par d'autres développeurs
+
+### 11.1 Documentation
+- [ ] Générer l'API reference avec Doxygen
+- [ ] Écrire un guide de démarrage (Getting Started)
+- [ ] Documenter chaque manager avec des exemples d'utilisation
+- [ ] Écrire un guide de contribution (CONTRIBUTING.md)
+- [ ] Documenter les conventions de code (namespace, préfixes, etc.)
+
+### 11.2 Projet Démo
+- [ ] Créer un petit jeu fonctionnel dans `demo/` (ex: cube qui se déplace avec WASD)
+- [ ] Le démo doit utiliser tous les systèmes principaux (ECS, Input, Render, Audio)
+- [ ] Documenter le code du démo comme exemple pour les nouveaux utilisateurs
+- [ ] Packager le démo comme release GitHub
+
+### 11.3 Intégration Facile
+- [ ] Support `find_package(KrioEngine CONFIG)` via CMake
+- [ ] Support ajout comme git submodule avec CMake minimal
+- [ ] Template de projet starter : structure de dossiers + CMakeLists.txt prêt à l'emploi
+- [ ] Script d'installation one-liner (Linux/macOS/Windows)
+
+### 11.4 CI/CD
+- [ ] GitHub Actions : build automatique sur Linux, Windows, macOS à chaque push
+- [ ] GitHub Actions : run des tests unitaires sur chaque PR
+- [ ] GitHub Actions : génération et déploiement de la doc sur GitHub Pages
+- [ ] Badges README : build status, test coverage, version
+
+### 11.5 Robustesse
+- [ ] Messages d'erreur explicites pour les erreurs courantes (shader manquant, handle invalide, etc.)
+- [ ] Mode debug verbose : logs détaillés activables avec `KRIO_VERBOSE`
+- [ ] Validation des paramètres aux frontières publiques de l'API
+- [ ] Guide de migration entre versions (breaking changes documentés)
+
+**Why this matters:** Un moteur sans doc ni exemples ne sera utilisé que par son créateur. La DX (Developer Experience) est ce qui fait la différence entre un projet personnel et un projet open-source viable.
 
 ---
 
