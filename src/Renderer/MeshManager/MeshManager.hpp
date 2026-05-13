@@ -16,8 +16,7 @@ namespace Krio {
 
     class MeshManager {
         public:
-            MeshManager();
-            ~MeshManager();
+            MeshManager() = default;
 
             void load(const std::string& path);
             Mesh& get(const std::string& name);

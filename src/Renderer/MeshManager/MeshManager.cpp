@@ -2,14 +2,6 @@
 #include <stdexcept>
 
 namespace Krio {
-    MeshManager::MeshManager()
-    {
-    }
-    
-    MeshManager::~MeshManager()
-    {
-    }
-
     void MeshManager::load(const std::string& path) {
         auto it = this->_meshMap.find(path);
         if (it != this->_meshMap.end()) {
