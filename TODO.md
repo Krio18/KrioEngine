@@ -249,17 +249,17 @@
 ### 2.3 MeshManager (Resource Management)
 **Purpose:** Load, cache, and manage mesh data with reference counting
 
-- [ ] Create `src/Renderer/MeshManager.hpp` and `.cpp`
-- [ ] Maintain map of mesh path → Mesh object
-- [ ] Implement reference counting: increment on load, decrement on unload
-- [ ] Implement `load(path)`: load OBJ file, parse vertices/indices, cache, return handle
-- [ ] Implement `get(handle)`: retrieve cached mesh
-- [ ] Implement `unload(handle)`: decrement ref count, destroy if zero
-- [ ] Support loading from primitive names: "triangle", "cube", "sphere"
-- [ ] Calculate mesh bounds (AABB) for frustum culling
-- [ ] Async loading: load meshes on background thread (optional for now)
+- [x] Create `src/Renderer/MeshManager.hpp` and `.cpp`
+- [x] Maintain map of mesh path → Mesh object
+- [x] Implement reference counting: increment on load, decrement on unload
+- [x] Implement `load(path)`: load OBJ file, parse vertices/indices, cache, return handle
+- [x] Implement `get(handle)`: retrieve cached mesh
+- [x] Implement `unload(handle)`: decrement ref count, destroy if zero
+- [x] Support loading from primitive names: "triangle", "cube", "sphere"
+- [x] Calculate mesh bounds (AABB) for frustum culling
+- [x] Async loading: load meshes on background thread (optional for now)
 
-- [ ] **Intégration** : Enregistrer `MeshManager` dans `ServiceLocator`, remplacer `Mesh::createCube()` direct dans `RenderManager` par `MeshManager::load("cube")`
+- [x] **Intégration** : Enregistrer `MeshManager` dans `ServiceLocator`, remplacer `Mesh::createCube()` direct dans `RenderManager` par `MeshManager::load("cube")`
 
 **Why this matters:** Multiple entities can share same mesh. Reference counting prevents memory leaks.
 

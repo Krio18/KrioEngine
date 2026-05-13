@@ -5,6 +5,7 @@
 #include "../../Renderer/Mesh/Mesh.hpp"
 #include "../../Math/Transform.hpp"
 #include "../../Renderer/ShaderManager/ShaderManager.hpp"
+#include "../../Renderer/MeshManager/MeshManager.hpp"
 #include "../../Renderer/Material/Material.hpp"
 #include "../ServiceLocator/ServiceLocator.hpp"
 
@@ -16,14 +17,14 @@ namespace Krio {
             RenderManager();
             ~RenderManager();
 
-            void init(ShaderManager& shaderManager);
+            void init(ShaderManager& shaderManager, MeshManager& meshManager);
             void render(double deltaTime);
             void submitMesh(const Mesh& mesh, const Material& material, const Transform& transform);
 
         private:
             const Shader* _shader;
 
-            Mesh _cubeMesh;
+            Mesh* _cubeMesh;
             float _angle;
     };
 }
