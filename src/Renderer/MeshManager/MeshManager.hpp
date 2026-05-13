@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
+#include <stdexcept>
 
 #include "../Mesh/Mesh.hpp"
 #include "../../Core/Logger/Logger.hpp"

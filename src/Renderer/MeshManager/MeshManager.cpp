@@ -1,5 +1,4 @@
 #include "MeshManager.hpp"
-#include <stdexcept>
 
 namespace Krio {
     void MeshManager::load(const std::string& path) {
