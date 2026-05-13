@@ -4,6 +4,7 @@ namespace Krio {
     RenderManager::RenderManager() {
         this->_angle = 0.0f;
         this->_shader = nullptr;
+        this->_cubeMesh = nullptr;
 
         Logger::info("RenderManager created");
     }
@@ -12,11 +13,12 @@ namespace Krio {
         Logger::info("RenderManager destroyed");
     }
 
-    void RenderManager::init(ShaderManager& shaderManager) {
+    void RenderManager::init(ShaderManager& shaderManager, MeshManager& meshManager) {
         shaderManager.load("simple");
         this->_shader = &shaderManager.get("simple");
 
-        this->_cubeMesh = Mesh::createCube();
+        meshManager.load("cube");
+        this->_cubeMesh = &meshManager.get("cube");
     }
 
     void RenderManager::render( double deltaTime) {
@@ -31,7 +33,7 @@ namespace Krio {
         bgfx::setViewTransform(0, &view, &proj);
         bgfx::setTransform(&model);
 
-        this->_cubeMesh.draw(0, this->_shader->getProgramHandle());
+        this->_cubeMesh->draw(0, this->_shader->getProgramHandle());
     }
 
     void RenderManager::submitMesh(const Mesh& mesh, const Material& material, const Transform& transform) {

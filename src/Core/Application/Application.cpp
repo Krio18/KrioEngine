@@ -1,5 +1,6 @@
 #include "Application.hpp"
 #include "../Logger/Logger.hpp"
+#include "../../Renderer/MeshManager/MeshManager.hpp"
 
 namespace Krio {
     Application::Application()
@@ -51,6 +52,7 @@ namespace Krio {
             this->_serviceLocator.registerManager<SceneManager>();
             this->_serviceLocator.registerManager<ShaderManager>();
             this->_serviceLocator.registerManager<MaterialManager>();
+            this->_serviceLocator.registerManager<MeshManager>();
             this->_serviceLocator.registerManager<RenderManager>();
 
             this->_serviceLocator.getManager<ShaderManager>().init();
@@ -58,7 +60,10 @@ namespace Krio {
 
             Mesh::init();
 
-            this->_serviceLocator.getManager<RenderManager>().init(this->_serviceLocator.getManager<ShaderManager>());
+            this->_serviceLocator.getManager<RenderManager>().init(
+                this->_serviceLocator.getManager<ShaderManager>(),
+                this->_serviceLocator.getManager<MeshManager>()
+            );
 
             Logger::info("Managers initialized successfully");
             return true;
