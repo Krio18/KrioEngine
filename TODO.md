@@ -277,7 +277,7 @@
 - [x] Support multiple render passes: opaque, transparent, post-process
 - [x] Track draw call count and triangle count for profiling
 
-- [ ] **Intégration** : Instancier `Renderer/RenderManager` dans `Core/RenderManager` et déléguer les draw calls — `Core/RenderManager::render()` appelle `Renderer/RenderManager::submitMesh()` puis `Renderer/RenderManager::render()`
+- [x] **Intégration** : Instancier `Renderer/RenderManager` dans `Core/RenderManager` et déléguer les draw calls — `Core/RenderManager::render()` appelle `Renderer/RenderManager::submitMesh()` puis `Renderer/RenderManager::render()`
 
 **Why this matters:** Decouples "what to render" from "how to render". Enables optimizations like sorting.
 
