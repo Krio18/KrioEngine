@@ -64,6 +64,7 @@ set(KRIO_ENGINE_SOURCES
     src/Renderer/Material/Material.cpp
     src/Renderer/MaterialManager/MaterialManager.cpp
     src/Renderer/MeshManager/MeshManager.cpp
+    src/Renderer/RendererManager/RendererManager.cpp
     src/Math/Transform.cpp
 )
 

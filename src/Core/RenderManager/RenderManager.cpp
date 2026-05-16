@@ -3,7 +3,6 @@
 namespace Krio {
     RenderManager::RenderManager() {
         this->_angle = 0.0f;
-        this->_shader = nullptr;
         this->_cubeMesh = nullptr;
 
         Logger::info("RenderManager created");
@@ -15,10 +14,12 @@ namespace Krio {
 
     void RenderManager::init(ShaderManager& shaderManager, MeshManager& meshManager) {
         shaderManager.load("simple");
-        this->_shader = &shaderManager.get("simple");
+        const Shader& shader = shaderManager.get("simple");
 
         meshManager.load("cube");
         this->_cubeMesh = &meshManager.get("cube");
+
+        this->_material = std::make_unique<Material>(shader.getProgramHandle(), "simple");
     }
 
     void RenderManager::render( double deltaTime) {
@@ -31,12 +32,11 @@ namespace Krio {
         glm::mat4 proj = Transform::createPerspectiveMatrix(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
         bgfx::setViewTransform(0, &view, &proj);
-        bgfx::setTransform(&model);
-
-        this->_cubeMesh->draw(0, this->_shader->getProgramHandle());
+        this->_rendererManager.submitMesh(this->_cubeMesh, this->_material.get(), model);
+        this->_rendererManager.render();
     }
 
     void RenderManager::submitMesh(const Mesh& mesh, const Material& material, const Transform& transform) {
-        bgfx::ProgramHandle shaderHandle = material.getShaderHandle();
+        this->_rendererManager.submitMesh(&mesh, &material, glm::mat4(1.0f));
     }
 }

@@ -266,16 +266,18 @@
 ### 2.4 RenderManager
 **Purpose:** High-level rendering coordinator that collects draw calls and submits to bgfx
 
-- [ ] Create `src/Renderer/RenderManager.hpp` and `.cpp`
-- [ ] Maintain list of submitted meshes for current frame
-- [ ] Implement `submitMesh(mesh, material, transform)`: add to render queue
-- [ ] Implement `submitCamera(camera)`: set active camera for this frame
-- [ ] Implement `render()`: process queue and submit to bgfx
-- [ ] Sort opaque meshes front-to-back (early depth rejection optimization)
-- [ ] Sort transparent meshes back-to-front (correct alpha blending)
-- [ ] Clear render queue after each frame
-- [ ] Support multiple render passes: opaque, transparent, post-process
-- [ ] Track draw call count and triangle count for profiling
+- [x] Create `src/Renderer/RenderManager.hpp` and `.cpp`
+- [x] Maintain list of submitted meshes for current frame
+- [x] Implement `submitMesh(mesh, material, transform)`: add to render queue
+- [x] Implement `submitCamera(camera)`: set active camera for this frame *(reporté après 2.5 CameraManager)*
+- [x] Implement `render()`: process queue and submit to bgfx
+- [ ] Sort opaque meshes front-to-back (early depth rejection optimization) *(reporté après 2.5)*
+- [ ] Sort transparent meshes back-to-front (correct alpha blending) *(reporté après 2.5)*
+- [x] Clear render queue after each frame
+- [x] Support multiple render passes: opaque, transparent, post-process
+- [x] Track draw call count and triangle count for profiling
+
+- [ ] **Intégration** : Instancier `Renderer/RenderManager` dans `Core/RenderManager` et déléguer les draw calls — `Core/RenderManager::render()` appelle `Renderer/RenderManager::submitMesh()` puis `Renderer/RenderManager::render()`
 
 **Why this matters:** Decouples "what to render" from "how to render". Enables optimizations like sorting.
 
@@ -291,8 +293,14 @@
 - [ ] Implement `getAllCameras()`: retrieve all cameras for multi-viewport rendering
 - [ ] Handle camera priority: higher priority cameras render later (overlay UI)
 - [ ] Validate camera settings: ensure valid FOV, aspect ratio
+- [ ] Implement `submitCamera(camera)`: set active camera for this frame (RenderManager)
 
 - [ ] **Intégration** : Enregistrer `CameraManager` dans `ServiceLocator`, l'appeler depuis `RenderManager::render()` pour récupérer la caméra principale et appliquer son `ViewProjectionMatrix`
+
+> **Reporté depuis 2.4 :** Une fois la caméra disponible, implémenter dans `src/Renderer/RenderManager` :
+> - Sort opaque meshes front-to-back (distance caméra → mesh, `std::sort`)
+> - Sort transparent meshes back-to-front (même principe, ordre inversé)
+> - `submitCamera()` : transmettre la position caméra au RenderManager pour les tris
 
 **Why this matters:** Supports split-screen, mini-map, render-to-texture. Main camera is most common case.
 
@@ -738,6 +746,8 @@
 
 ### 5.3 Lighting System
 **Purpose:** Simulate light sources for realistic shading
+
+> **Reporté depuis 2.4 :** Lors de la création des matériaux transparents (vitres, effets), appeler `material->setTransparent(true)` pour que le `RenderManager` les place dans la bonne queue de rendu.
 
 #### Light Components
 - [ ] Create `src/ECS/Components/DirectionalLight.hpp`
