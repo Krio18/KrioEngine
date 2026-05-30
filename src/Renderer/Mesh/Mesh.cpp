@@ -1,6 +1,6 @@
 #include "Mesh.hpp"
 
-namespace Krio
+namespace Voxel
 {
 
     Mesh& Mesh::operator=(Mesh&& other) noexcept {

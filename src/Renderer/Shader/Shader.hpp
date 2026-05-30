@@ -8,7 +8,7 @@
 #include <fstream>
 
 
-namespace Krio {
+namespace Voxel {
     class Shader {
         public:
             Shader(const std::string& vertexPath, const std::string& fragmentPath);

@@ -1,4 +1,4 @@
-# Instructions pour Claude - KrioEngine
+# Instructions pour Claude - VoxelEngine
 
 ## Règles de développement
 
@@ -19,9 +19,9 @@
 
 ### Projet
 - Game engine C++ utilisant bgfx pour le rendu
-- Namespace: `Krio`
+- Namespace: `Voxel` (en cours de renommage depuis `Krio`)
 - Convention: membres privés préfixés par `_` (ex: `_programHandle`)
-- Utiliser le Logger existant (`Krio::Logger::info/warning/error`)
+- Utiliser le Logger existant (`Voxel::Logger::info/warning/error`)
 
 ### Pédagogie
 - Poser des questions pour vérifier la compréhension plutôt que donner les réponses

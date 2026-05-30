@@ -1,7 +1,7 @@
 #include "WindowSDL.hpp"
 #include "../Core/Logger/Logger.hpp"
 
-namespace Krio {
+namespace Voxel {
     WindowSDL::WindowSDL()
         : _window(nullptr)
         , _shouldClose(false)

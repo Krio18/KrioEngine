@@ -2,17 +2,21 @@
 
 #include "../Mesh/Mesh.hpp"
 #include "../Material/Material.hpp"
+#include "../../Renderer/CameraManager/CameraManager.hpp"
 
+#include <algorithm>
 #include <glm/glm.hpp>
 #include <vector>
 #include <cstdint>
 
-namespace Krio {
+namespace Voxel {
     struct DrawCall {
         const Mesh* mesh;
         const Material* material;
         glm::mat4 transform;
     };
+
+    struct Camera;
 
     class RendererManager {
         public:
@@ -20,7 +24,7 @@ namespace Krio {
             ~RendererManager();
 
             void submitMesh(const Mesh* mesh, const Material* material, const glm::mat4& transform);
-            void submitCamera();
+            void submitCamera(const Camera* camera);
             void render();
             uint32_t getDrawCallCount() const;
             uint32_t getTriangleCount() const;
@@ -30,5 +34,6 @@ namespace Krio {
             std::vector<DrawCall> _transparentDrawCalls;
             uint32_t _drawCallCount = 0;
             uint32_t _triangleCount = 0;
+            const Camera* _activeCamera = nullptr;
     };
 }

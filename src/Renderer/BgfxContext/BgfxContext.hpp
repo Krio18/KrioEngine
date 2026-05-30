@@ -6,7 +6,7 @@
 #include <bgfx/platform.h>
 #include <cstdint>
 
-namespace Krio {
+namespace Voxel {
     class BgfxContext {
         public:
             BgfxContext();

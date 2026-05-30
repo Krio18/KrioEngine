@@ -8,17 +8,18 @@
 #include "../../Renderer/MeshManager/MeshManager.hpp"
 #include "../../Renderer/Material/Material.hpp"
 #include "../../Renderer/RendererManager/RendererManager.hpp"
-#include "../ServiceLocator/ServiceLocator.hpp"
+#include "../../Renderer/CameraManager/CameraManager.hpp"
 
 #include <memory>
 
-namespace Krio {
+namespace Voxel {
+    class CameraManager;
     class RenderManager {
         public:
             RenderManager();
             ~RenderManager();
 
-            void init(ShaderManager& shaderManager, MeshManager& meshManager);
+            void init(ShaderManager& shaderManager, MeshManager& meshManager, CameraManager& cameraManager);
             void render(double deltaTime);
             void submitMesh(const Mesh& mesh, const Material& material, const Transform& transform);
 
@@ -26,6 +27,7 @@ namespace Krio {
             RendererManager _rendererManager;
             std::unique_ptr<Material> _material;
             Mesh* _cubeMesh;
+            CameraManager* _cameraManager = nullptr;
             float _angle;
     };
 }

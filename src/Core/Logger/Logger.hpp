@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 
-namespace Krio {
+namespace Voxel {
     enum class LogLevel {
         Info,
         Warning,

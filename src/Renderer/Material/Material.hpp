@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <string>
 
-namespace Krio {
+namespace Voxel {
     struct UniformValue {
         glm::vec4 color;
         float metallic;

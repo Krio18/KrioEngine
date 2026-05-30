@@ -4,7 +4,7 @@
 #include <SDL2/SDL_syswm.h>
 #include <string>
 
-namespace Krio {
+namespace Voxel {
     class WindowSDL {
         public:
             WindowSDL();

@@ -5,7 +5,7 @@
 #include <vector>
 #include <algorithm>
 
-namespace Krio {
+namespace Voxel {
     struct Vertex {
         float x, y, z;
         float nx, ny, nz;

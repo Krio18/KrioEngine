@@ -1,12 +1,14 @@
-# KrioEngine
+# VoxelEngine
 
 <div align="center">
+
+  ![VoxelEngine](docs/VoxelEngine.png)
 
   **A Modern C++ Game Engine - Early Development**
 
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
   [![C++20](https://img.shields.io/badge/C++-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
-  [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://github.com/Krio/KrioEngine)
+  [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://github.com/Krio18/VOXEL)
 
   *Clean architecture from day one*
 
@@ -45,11 +47,11 @@ cd vcpkg
 $env:VCPKG_ROOT = $PWD
 ```
 
-#### 2. Clone KrioEngine
+#### 2. Clone VoxelEngine
 
 ```bash
-git clone --recursive https://github.com/Krio/KrioEngine.git
-cd KrioEngine
+git clone --recursive https://github.com/Krio18/VOXEL.git
+cd VOXEL
 ```
 
 #### 3. Build
@@ -94,7 +96,7 @@ cmake --build build --config Release
 
 ## ⚠️ Architecture logiciel
 
-![Architecture KrioEngine](docs/architecture.svg)
+![Architecture VoxelEngine](docs/architecture.svg)
 
 
 ---

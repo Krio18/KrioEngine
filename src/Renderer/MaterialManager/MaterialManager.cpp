@@ -1,6 +1,6 @@
 #include "MaterialManager.hpp"
 
-namespace Krio {
+namespace Voxel {
     MaterialManager::MaterialManager() : _shaderManager(nullptr) {}
     MaterialManager::~MaterialManager() {
         this->_materials.clear();
