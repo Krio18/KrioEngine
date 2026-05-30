@@ -271,8 +271,8 @@
 - [x] Implement `submitMesh(mesh, material, transform)`: add to render queue
 - [x] Implement `submitCamera(camera)`: set active camera for this frame *(reporté après 2.5 CameraManager)*
 - [x] Implement `render()`: process queue and submit to bgfx
-- [ ] Sort opaque meshes front-to-back (early depth rejection optimization) *(reporté après 2.5)*
-- [ ] Sort transparent meshes back-to-front (correct alpha blending) *(reporté après 2.5)*
+- [x] Sort opaque meshes front-to-back (early depth rejection optimization)
+- [x] Sort transparent meshes back-to-front (correct alpha blending)
 - [x] Clear render queue after each frame
 - [x] Support multiple render passes: opaque, transparent, post-process
 - [x] Track draw call count and triangle count for profiling
@@ -297,10 +297,10 @@
 
 - [x] **Intégration** : Enregistrer `CameraManager` dans `ServiceLocator`, l'appeler depuis `RenderManager::render()` pour récupérer la caméra principale et appliquer son `ViewProjectionMatrix`
 
-> **Reporté depuis 2.4 :** Une fois la caméra disponible, implémenter dans `src/Renderer/RenderManager` :
-> - Sort opaque meshes front-to-back (distance caméra → mesh, `std::sort`)
-> - Sort transparent meshes back-to-front (même principe, ordre inversé)
-> - `submitCamera()` : transmettre la position caméra au RenderManager pour les tris
+> **Reporté depuis 2.4 :** ✅ Implémenté dans `src/Renderer/RendererManager` :
+> - [x] Sort opaque meshes front-to-back (distance caméra → mesh, `std::sort`)
+> - [x] Sort transparent meshes back-to-front (même principe, ordre inversé)
+> - [x] `submitCamera()` : transmettre la position caméra au RenderManager pour les tris
 
 **Why this matters:** Supports split-screen, mini-map, render-to-texture. Main camera is most common case.
 
