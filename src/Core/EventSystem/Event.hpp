@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Krio {
+namespace Voxel {
     using KEYCODE = int;
 
     class Event {

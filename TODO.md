@@ -1,4 +1,4 @@
-# KrioEngine - Development Roadmap
+# VoxelEngine - Development Roadmap
 
 **Architecture:** Manager-based with Service Locator pattern
 **Current Version:** 0.1.0-alpha
@@ -216,96 +216,117 @@
 ### 2.1 ShaderManager
 **Purpose:** Centralized loading, caching, and hot-reload of shaders
 
-- [ ] Create `src/Renderer/ShaderManager.hpp` and `.cpp`
-- [ ] Maintain map of shader name → Shader object
-- [ ] Implement `load(name)`: load shader from disk, compile, cache, return handle
-- [ ] Implement `get(handle)`: retrieve cached shader by handle
-- [ ] Implement `reload(handle)`: recompile shader from disk (for hot-reload)
-- [ ] Handle compilation errors gracefully: log error, return fallback shader
-- [ ] Track shader usage count for debugging
-- [ ] Implement shader variants: same shader with different #defines (e.g., WITH_SHADOWS)
+- [x] Create `src/Renderer/ShaderManager.hpp` and `.cpp`
+- [x] Maintain map of shader name → Shader object
+- [x] Implement `load(name)`: load shader from disk, compile, cache, return handle
+  > **Convention:** `load("simple")` cherche automatiquement `v_simple.sc.bin` (vertex) et `f_simple.sc.bin` (fragment) dans `build/shaders/spirv/`. Les préfixes `v_` et `f_` sont ajoutés par le manager.
+- [x] Implement `get(handle)`: retrieve cached shader by handle
+- [x] Implement `reload(handle)`: recompile shader from disk (for hot-reload)
+- [x] Handle compilation errors gracefully: log error, return fallback shader
+- [x] Track shader usage count for debugging
+- [ ] Implement shader variants: same shader with different #defines (e.g., WITH_SHADOWS) *(reporté à 5.3 Lighting)*
+
+- [x] **Intégration** : Enregistrer `ShaderManager` dans `ServiceLocator` (`Application::_initializeManagers`), et remplacer la création directe de `Shader` dans `RenderManager` par `ShaderManager::load/get`
 
 **Why this matters:** Avoids duplicate shader loads. Hot-reload enables edit-while-running workflow.
 
 ### 2.2 MaterialManager
 **Purpose:** Manage material instances that reference shaders and define rendering properties
 
-- [ ] Create `src/Renderer/Material.hpp` and `.cpp`
-- [ ] Material stores: ShaderHandle reference, uniform values (color, metallic, roughness), texture slots
-- [ ] Create `src/Renderer/MaterialManager.hpp` and `.cpp`
-- [ ] Implement `create(shaderHandle)`: create new material with given shader
-- [ ] Implement `get(materialHandle)`: retrieve material by handle
-- [ ] Implement `instantiate(baseHandle)`: clone material for per-object customization
-- [ ] Track base material → instance relationship for efficient updates
-- [ ] Implement material sorting: group by shader to minimize state changes
+- [x] Create `src/Renderer/Material.hpp` and `.cpp`
+- [x] Material stores: ShaderHandle reference, uniform values (color, metallic, roughness), texture slots
+- [x] Create `src/Renderer/MaterialManager.hpp` and `.cpp`
+- [x] Implement `create(shaderHandle)`: create new material with given shader
+- [x] Implement `get(materialHandle)`: retrieve material by handle
+- [x] Implement `instantiate(baseHandle)`: clone material for per-object customization
+- [x] Track base material → instance relationship for efficient updates
+- [x] Implement material sorting: group by shader to minimize state changes
+
+- [x] **Intégration** : Enregistrer `MaterialManager` dans `ServiceLocator`, et l'utiliser depuis `RenderManager::submitMesh` pour récupérer le shader du matériau
 
 **Why this matters:** Material instancing allows shared shader but unique colors/textures per object.
 
 ### 2.3 MeshManager (Resource Management)
 **Purpose:** Load, cache, and manage mesh data with reference counting
 
-- [ ] Create `src/Renderer/MeshManager.hpp` and `.cpp`
-- [ ] Maintain map of mesh path → Mesh object
-- [ ] Implement reference counting: increment on load, decrement on unload
-- [ ] Implement `load(path)`: load OBJ file, parse vertices/indices, cache, return handle
-- [ ] Implement `get(handle)`: retrieve cached mesh
-- [ ] Implement `unload(handle)`: decrement ref count, destroy if zero
-- [ ] Support loading from primitive names: "triangle", "cube", "sphere"
-- [ ] Calculate mesh bounds (AABB) for frustum culling
-- [ ] Async loading: load meshes on background thread (optional for now)
+- [x] Create `src/Renderer/MeshManager.hpp` and `.cpp`
+- [x] Maintain map of mesh path → Mesh object
+- [x] Implement reference counting: increment on load, decrement on unload
+- [x] Implement `load(path)`: load OBJ file, parse vertices/indices, cache, return handle
+- [x] Implement `get(handle)`: retrieve cached mesh
+- [x] Implement `unload(handle)`: decrement ref count, destroy if zero
+- [x] Support loading from primitive names: "triangle", "cube", "sphere"
+- [x] Calculate mesh bounds (AABB) for frustum culling
+- [x] Async loading: load meshes on background thread (optional for now)
+
+- [x] **Intégration** : Enregistrer `MeshManager` dans `ServiceLocator`, remplacer `Mesh::createCube()` direct dans `RenderManager` par `MeshManager::load("cube")`
 
 **Why this matters:** Multiple entities can share same mesh. Reference counting prevents memory leaks.
 
 ### 2.4 RenderManager
 **Purpose:** High-level rendering coordinator that collects draw calls and submits to bgfx
 
-- [ ] Create `src/Renderer/RenderManager.hpp` and `.cpp`
-- [ ] Maintain list of submitted meshes for current frame
-- [ ] Implement `submitMesh(mesh, material, transform)`: add to render queue
-- [ ] Implement `submitCamera(camera)`: set active camera for this frame
-- [ ] Implement `render()`: process queue and submit to bgfx
-- [ ] Sort opaque meshes front-to-back (early depth rejection optimization)
-- [ ] Sort transparent meshes back-to-front (correct alpha blending)
-- [ ] Clear render queue after each frame
-- [ ] Support multiple render passes: opaque, transparent, post-process
-- [ ] Track draw call count and triangle count for profiling
+- [x] Create `src/Renderer/RenderManager.hpp` and `.cpp`
+- [x] Maintain list of submitted meshes for current frame
+- [x] Implement `submitMesh(mesh, material, transform)`: add to render queue
+- [x] Implement `submitCamera(camera)`: set active camera for this frame *(reporté après 2.5 CameraManager)*
+- [x] Implement `render()`: process queue and submit to bgfx
+- [x] Sort opaque meshes front-to-back (early depth rejection optimization)
+- [x] Sort transparent meshes back-to-front (correct alpha blending)
+- [x] Clear render queue after each frame
+- [x] Support multiple render passes: opaque, transparent, post-process
+- [x] Track draw call count and triangle count for profiling
+
+- [x] **Intégration** : Instancier `Renderer/RenderManager` dans `Core/RenderManager` et déléguer les draw calls — `Core/RenderManager::render()` appelle `Renderer/RenderManager::submitMesh()` puis `Renderer/RenderManager::render()`
 
 **Why this matters:** Decouples "what to render" from "how to render". Enables optimizations like sorting.
 
 ### 2.5 CameraManager
 **Purpose:** Manage multiple cameras and determine which camera renders to which viewport
 
-- [ ] Create `src/Renderer/CameraManager.hpp` and `.cpp`
-- [ ] Maintain list of active cameras in current scene
-- [ ] Implement `registerCamera(camera)`: add camera to active list
-- [ ] Implement `unregisterCamera(camera)`: remove camera from active list
-- [ ] Implement `setMainCamera(camera)`: designate primary camera
-- [ ] Implement `getMainCamera()`: retrieve primary camera
-- [ ] Implement `getAllCameras()`: retrieve all cameras for multi-viewport rendering
-- [ ] Handle camera priority: higher priority cameras render later (overlay UI)
-- [ ] Validate camera settings: ensure valid FOV, aspect ratio
+- [x] Create `src/Renderer/CameraManager.hpp` and `.cpp`
+- [x] Maintain list of active cameras in current scene
+- [x] Implement `registerCamera(camera)`: add camera to active list
+- [x] Implement `unregisterCamera(camera)`: remove camera from active list
+- [x] Implement `setMainCamera(camera)`: designate primary camera
+- [x] Implement `getMainCamera()`: retrieve primary camera
+- [x] Implement `getAllCameras()`: retrieve all cameras for multi-viewport rendering
+- [x] Handle camera priority: higher priority cameras render later (overlay UI)
+- [x] Validate camera settings: ensure valid FOV, aspect ratio
+- [x] Implement `submitCamera(camera)`: set active camera for this frame (RenderManager)
+
+- [x] **Intégration** : Enregistrer `CameraManager` dans `ServiceLocator`, l'appeler depuis `RenderManager::render()` pour récupérer la caméra principale et appliquer son `ViewProjectionMatrix`
+
+> **Reporté depuis 2.4 :** ✅ Implémenté dans `src/Renderer/RendererManager` :
+> - [x] Sort opaque meshes front-to-back (distance caméra → mesh, `std::sort`)
+> - [x] Sort transparent meshes back-to-front (même principe, ordre inversé)
+> - [x] `submitCamera()` : transmettre la position caméra au RenderManager pour les tris
 
 **Why this matters:** Supports split-screen, mini-map, render-to-texture. Main camera is most common case.
 
 ### 2.6 Camera Component
 **Purpose:** Data container for camera projection and viewport settings
 
-- [ ] Create `src/Renderer/Camera.hpp` and `.cpp`
-- [ ] Store projection type: Perspective or Orthographic
-- [ ] Store perspective params: FOV, aspect ratio, near plane, far plane
-- [ ] Store orthographic params: left, right, bottom, top, near, far
-- [ ] Store viewport rectangle: x, y, width, height (normalized 0-1 or pixel coordinates)
-- [ ] Store clear flags: Skybox, SolidColor, DepthOnly, Nothing
-- [ ] Store clear color if using SolidColor mode
-- [ ] Store render texture target (optional, for render-to-texture effects)
-- [ ] Implement `getViewMatrix()`: calculate from camera's transform component
-- [ ] Implement `getProjectionMatrix()`: calculate from stored parameters
-- [ ] Implement `getViewProjectionMatrix()`: cached multiplication of View × Projection
+- [x] Create `src/Renderer/Camera.hpp` and `.cpp`
+- [x] Store projection type: Perspective or Orthographic
+- [x] Store perspective params: FOV, aspect ratio, near plane, far plane
+- [x] Store orthographic params: left, right, bottom, top, near, far
+- [x] Implement `getViewMatrix()`: calculate from camera's transform component
+- [x] Implement `getProjectionMatrix()`: calculate from stored parameters
+- [x] Implement `getViewProjectionMatrix()`: cached multiplication of View × Projection
+
+- [x] **Intégration** : `Camera` est utilisée par `CameraManager` pour fournir `getViewMatrix()` et `getProjectionMatrix()` au `RenderManager`
 
 **Why this matters:** Camera is just data. Separate from Camera Controller which provides behavior.
 
 ### 2.7 Camera Controllers
 **Purpose:** Reusable camera movement behaviors for different game styles
+
+> **Reporté depuis 2.6 :**
+> - [ ] Store viewport rectangle: x, y, width, height (normalized 0-1 or pixel coordinates)
+> - [ ] Store clear flags: Skybox, SolidColor, DepthOnly, Nothing
+> - [ ] Store clear color if using SolidColor mode
+> - [ ] Store render texture target (optional, for render-to-texture effects)
 
 #### FPS Camera Controller
 - [ ] Create `src/Renderer/Controllers/FPSCameraController.hpp` and `.cpp`
@@ -331,6 +352,8 @@
 - [ ] Offset from target (e.g., behind and above player)
 - [ ] Optional look-ahead: predict target movement
 - [ ] Collision detection: move camera forward if occluded (advanced)
+
+- [ ] **Intégration** : Les controllers sont mis à jour dans `Application::update(deltaTime)` via le `ServiceLocator`, ils lisent l'`InputManager` et modifient la `Camera` associée
 
 **Why this matters:** Controllers implement behavior. Swap controller = change camera feel. Reusable across projects.
 
@@ -365,6 +388,8 @@
 - [ ] Load action mappings from JSON config file
 - [ ] Support action modifiers: require Ctrl+S for "Save" action
 - [ ] Support axis bindings: map W/S to "MoveForward" axis with +1/-1 values
+
+- [ ] **Intégration** : Enregistrer `InputManager` dans `ServiceLocator`, appeler `pollInput()` dans `Application::run()` à chaque frame avant les updates
 
 **Why this matters:** Rebindable controls. Same code works with keyboard, gamepad, or touchscreen if you swap InputManager.
 
@@ -466,6 +491,8 @@
 - [ ] Unregister cameras when entities destroyed
 - [ ] Handle main camera switching (check Tag for "MainCamera")
 
+- [ ] **Intégration** : `RenderSystem` et `CameraSystem` sont enregistrés et appelés dans `Scene::update(deltaTime)`
+
 **Why this matters:** Systems provide behavior. Adding RenderSystem makes entities with MeshRenderer automatically render.
 
 ### 3.5 Scene
@@ -485,6 +512,8 @@
 - [ ] Implement `update(deltaTime)`: execute all scene systems
 - [ ] Store scene-level settings: ambient light color, fog, skybox
 
+- [ ] **Intégration** : `Scene` est créée et gérée par `SceneManager`, son `update()` est appelé depuis `SceneManager::update()` qui lui-même est appelé depuis `Application::run()`
+
 **Why this matters:** Scene owns all entities. Switching scenes = load different set of entities.
 
 ### 3.6 SceneManager
@@ -500,6 +529,8 @@
 - [ ] Implement `update(deltaTime)`: call update on all active scenes
 - [ ] Support async scene loading: load in background, switch when ready
 - [ ] Scene transition callbacks: onSceneUnload, onSceneLoaded
+
+- [ ] **Intégration** : Enregistrer `SceneManager` dans `ServiceLocator`, appeler `SceneManager::update(deltaTime)` depuis `Application::run()`
 
 **Why this matters:** Games have menus, levels, cutscenes. SceneManager handles transitions.
 
@@ -689,6 +720,8 @@
 - [ ] Compress textures for GPU (BC7 on desktop, ASTC on mobile)
 - [ ] Streaming: load low-res mip first, stream high-res later
 
+- [ ] **Intégration** : `Texture` est utilisée par `Material` pour ses texture slots, et par `Skybox` pour le cubemap
+
 **Why this matters:** Textures are largest memory consumers. Proper management critical for performance.
 
 ### 5.2 Model Loading
@@ -709,10 +742,14 @@
 - [ ] Optimize mesh: reorder vertices for GPU cache efficiency
 - [ ] Generate LODs (Levels of Detail): simplified meshes for distance rendering (optional)
 
+- [ ] **Intégration** : `ModelImporter` est appelé par `MeshManager::load(path)` pour les fichiers 3D, les meshes/matériaux extraits sont enregistrés dans `MeshManager` et `MaterialManager`
+
 **Why this matters:** Can't manually create complex models. Assimp handles 40+ formats.
 
 ### 5.3 Lighting System
 **Purpose:** Simulate light sources for realistic shading
+
+> **Reporté depuis 2.4 :** Lors de la création des matériaux transparents (vitres, effets), appeler `material->setTransparent(true)` pour que le `RenderManager` les place dans la bonne queue de rendu.
 
 #### Light Components
 - [ ] Create `src/ECS/Components/DirectionalLight.hpp`
@@ -731,6 +768,7 @@
   - Used for flashlights, car headlights, stage lights
 
 #### Lighting System
+- [ ] Implement shader variants dans `ShaderManager`: même shader compilé avec différents `#defines` (ex: `WITH_SHADOWS`, `WITH_NORMALS`) — reporté depuis 2.1
 - [ ] Create `src/Renderer/LightingSystem.hpp` and `.cpp`
 - [ ] Query all entities with light components
 - [ ] Collect light data into array
@@ -745,6 +783,8 @@
   - Roughness/metallic workflow
   - Cook-Torrance BRDF
   - Image-based lighting (IBL)
+
+- [ ] **Intégration** : `LightingSystem` est appelé dans `Scene::update()`, il collecte les lumières et les envoie au `RenderManager` via UBO avant chaque `render()`
 
 **Why this matters:** Lighting defines visual quality. Blinn-Phong is fast, PBR is realistic.
 
@@ -877,6 +917,8 @@
 - [ ] Implement `setVolume(volume)`: set master volume
 - [ ] Implement `setGroupVolume(group, volume)`: set group volume
 
+- [ ] **Intégration** : Enregistrer `AudioManager` dans `ServiceLocator`, appeler `AudioManager::update()` chaque frame depuis `Application::run()`, synchroniser la position du listener avec la caméra principale
+
 **Why this matters:** Audio is 50% of game feel. Footsteps, gunshots, music set mood.
 
 ### 5.7 Particle System
@@ -902,6 +944,8 @@
   - Particle pooling: reuse dead particles instead of allocating
   - Particle sorting: sort back-to-front for correct transparency
 - [ ] Presets: fire, smoke, explosion, sparks, rain, snow
+
+- [ ] **Intégration** : Créer un `ParticleSystem` ECS appelé dans `Scene::update()`, soumettre les particules visibles au `RenderManager` comme une passe transparente
 
 **Why this matters:** Particles add life to world. Explosions, magic effects, environmental ambience.
 
@@ -939,6 +983,8 @@
 - [ ] Allow enabling/disabling individual effects
 - [ ] Expose effect parameters in editor
 
+- [ ] **Intégration** : La Post-Process Stack est exécutée dans `RenderManager::render()` après la passe scène, avant le blit final vers l'écran
+
 **Why this matters:** Post-processing is final polish. Bloom adds dreaminess, tone mapping prevents washed out colors.
 
 ### 5.9 Skybox
@@ -955,6 +1001,8 @@
   - Gradient from horizon to zenith
   - Time of day: sunrise/sunset colors
   - Atmospheric scattering (Rayleigh/Mie)
+
+- [ ] **Intégration** : `Skybox` est rendu en première passe dans `RenderManager::render()` avant les objets de la scène, configuré depuis les settings de la `Scene`
 
 **Why this matters:** Empty black background looks unfinished. Skybox adds atmosphere and context.
 
@@ -1035,6 +1083,8 @@
   - Spawn particle effects
   - Enable/disable hitboxes
 - [ ] Integrate with EventBus: publish animation events
+
+- [ ] **Intégration** : `AnimationSystem` est appelé dans `Scene::update()` avant `RenderSystem`, les bone matrices sont uploadées au GPU via uniform buffer avant chaque draw call du `SkinnedMeshRenderer`
 
 **Why this matters:** Characters need to walk, run, attack. Without animation, games feel static and lifeless.
 
@@ -1158,6 +1208,8 @@
   - Easing functions: Linear, EaseIn, EaseOut, EaseInOut, Bounce, Elastic
   - Sequence multiple tweens
   - OnComplete callback
+
+- [ ] **Intégration** : `UIRenderer` est appelé dans `RenderManager::render()` en dernière passe (après post-process), `UIEventSystem` est mis à jour depuis `Application::run()` après `InputManager::pollInput()`
 
 **Why this matters:** Every game needs menus, health bars, inventory screens. ImGui is for developers, runtime UI is for players.
 
@@ -1343,9 +1395,9 @@
   - Shipping: release + additional stripping, no editor code
 
 - [ ] Conditional compilation flags:
-  - `KRIO_EDITOR`: include editor code (ImGui, gizmos)
-  - `KRIO_DEBUG`: enable debug features (profiling, visualization)
-  - `KRIO_HOT_RELOAD`: enable asset hot-reload
+  - `VOXEL_EDITOR`: include editor code (ImGui, gizmos)
+  - `VOXEL_DEBUG`: enable debug features (profiling, visualization)
+  - `VOXEL_HOT_RELOAD`: enable asset hot-reload
   - Strip editor-only code from shipping builds
 
 **Why this matters:** Development builds need debugging. Shipping builds need performance and small size.
@@ -1406,9 +1458,9 @@
   - Automated testing before build
 
 - [ ] Output organization:
-  - `builds/windows/KrioGame.exe`
-  - `builds/linux/KrioGame`
-  - `builds/macos/KrioGame.app`
+  - `builds/windows/VoxelGame.exe`
+  - `builds/linux/VoxelGame`
+  - `builds/macos/VoxelGame.app`
 
 **Why this matters:** Users don't have development environments. They need a double-clickable executable.
 
@@ -1711,7 +1763,7 @@
 **Purpose:** Measure performance to identify bottlenecks
 
 - [ ] Integrate Tracy profiler (real-time profiling tool)
-- [ ] Add profiling macros: `KRIO_PROFILE_SCOPE("FunctionName")`
+- [ ] Add profiling macros: `VOXEL_PROFILE_SCOPE("FunctionName")`
 - [ ] Instrument key systems:
   - RenderSystem update time
   - PhysicsManager fixed update time
@@ -2139,6 +2191,52 @@
 59. **Memory allocators** - Custom allocation strategies
 60. **Performance Tests** - Regression prevention
 
+### Developer Experience (v0.8.0)
+61. **Documentation API** - Doxygen + guides de démarrage
+62. **Projet démo** - Un petit jeu fonctionnel comme exemple
+63. **CMake consumer-friendly** - `find_package(VoxelEngine)` ou submodule propre
+64. **GitHub Actions CI** - Build + tests automatiques sur chaque PR
+65. **Gestion d'erreurs user-friendly** - Messages clairs pour les devs qui utilisent le moteur
+
+---
+
+## Phase 11: Developer Experience
+
+**Goal:** Rendre VoxelEngine utilisable par d'autres développeurs
+
+### 11.1 Documentation
+- [ ] Générer l'API reference avec Doxygen
+- [ ] Écrire un guide de démarrage (Getting Started)
+- [ ] Documenter chaque manager avec des exemples d'utilisation
+- [ ] Écrire un guide de contribution (CONTRIBUTING.md)
+- [ ] Documenter les conventions de code (namespace, préfixes, etc.)
+
+### 11.2 Projet Démo
+- [ ] Créer un petit jeu fonctionnel dans `demo/` (ex: cube qui se déplace avec WASD)
+- [ ] Le démo doit utiliser tous les systèmes principaux (ECS, Input, Render, Audio)
+- [ ] Documenter le code du démo comme exemple pour les nouveaux utilisateurs
+- [ ] Packager le démo comme release GitHub
+
+### 11.3 Intégration Facile
+- [ ] Support `find_package(VoxelEngine CONFIG)` via CMake
+- [ ] Support ajout comme git submodule avec CMake minimal
+- [ ] Template de projet starter : structure de dossiers + CMakeLists.txt prêt à l'emploi
+- [ ] Script d'installation one-liner (Linux/macOS/Windows)
+
+### 11.4 CI/CD
+- [ ] GitHub Actions : build automatique sur Linux, Windows, macOS à chaque push
+- [ ] GitHub Actions : run des tests unitaires sur chaque PR
+- [ ] GitHub Actions : génération et déploiement de la doc sur GitHub Pages
+- [ ] Badges README : build status, test coverage, version
+
+### 11.5 Robustesse
+- [ ] Messages d'erreur explicites pour les erreurs courantes (shader manquant, handle invalide, etc.)
+- [ ] Mode debug verbose : logs détaillés activables avec `VOXEL_VERBOSE`
+- [ ] Validation des paramètres aux frontières publiques de l'API
+- [ ] Guide de migration entre versions (breaking changes documentés)
+
+**Why this matters:** Un moteur sans doc ni exemples ne sera utilisé que par son créateur. La DX (Developer Experience) est ce qui fait la différence entre un projet personnel et un projet open-source viable.
+
 ---
 
 ## Build System
@@ -2218,7 +2316,7 @@
 - **Multithreading** - Parallelize independent work
 
 ### Debugging Tips
-- **Assertions** - Add `KRIO_ASSERT()` macros for invariants
+- **Assertions** - Add `VOXEL_ASSERT()` macros for invariants
 - **Logging** - Log important events, not every frame
 - **Debug visualization** - Draw bounding boxes, frustums, etc.
 - **Hot-reload** - Edit without restarting engine
@@ -2234,4 +2332,4 @@
 
 ---
 
-**You now have a complete roadmap. Start with Phase 0, work through sequentially. Good luck building KrioEngine!**
+**You now have a complete roadmap. Start with Phase 0, work through sequentially. Good luck building VoxelEngine!**

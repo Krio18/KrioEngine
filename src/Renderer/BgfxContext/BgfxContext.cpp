@@ -1,6 +1,6 @@
 #include "BgfxContext.hpp"
 
-namespace Krio {
+namespace Voxel {
     BgfxContext::BgfxContext()
         : _initialized(false)
         , _width(0)

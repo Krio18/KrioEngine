@@ -1,6 +1,6 @@
 #include "ServiceLocator.hpp"
 
-namespace Krio {
+namespace Voxel {
     void ServiceLocator::shutdown() {
         Logger::info("Shutting down managers in reverse order...");
         for (auto it = this->_registrationOrder.rbegin(); it != this->_registrationOrder.rend(); ++it) {

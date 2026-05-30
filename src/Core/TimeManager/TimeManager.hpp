@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../Logger.hpp"
+#include "../Logger/Logger.hpp"
 
 #include <chrono>
 
-namespace Krio {
+namespace Voxel {
     class TimeManager {
         public:
             TimeManager();

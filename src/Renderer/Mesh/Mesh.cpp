@@ -1,6 +1,6 @@
 #include "Mesh.hpp"
 
-namespace Krio
+namespace Voxel
 {
 
     Mesh& Mesh::operator=(Mesh&& other) noexcept {
@@ -9,20 +9,24 @@ namespace Krio
 
         _vbh = other._vbh;
         _ibh = other._ibh;
+        _indexCount = other._indexCount;
 
         other._vbh = BGFX_INVALID_HANDLE;
         other._ibh = BGFX_INVALID_HANDLE;
+        other._indexCount = 0;
 
         return *this;
     }
 
-    Mesh::Mesh() : _vbh(BGFX_INVALID_HANDLE), _ibh(BGFX_INVALID_HANDLE) {}
+    Mesh::Mesh() : _vbh(BGFX_INVALID_HANDLE), _ibh(BGFX_INVALID_HANDLE), _indexCount(0) {}
 
     Mesh::Mesh(Mesh&& other) noexcept {
         _vbh = other._vbh;
         _ibh = other._ibh;
+        _indexCount = other._indexCount;
         other._vbh = BGFX_INVALID_HANDLE;
         other._ibh = BGFX_INVALID_HANDLE;
+        other._indexCount = 0;
     }
 
     Mesh::~Mesh() {
@@ -35,12 +39,16 @@ namespace Krio
         }
     }
 
-    void Mesh::draw(bgfx::ViewId viewId, bgfx::ProgramHandle program) {
+    void Mesh::draw(bgfx::ViewId viewId, bgfx::ProgramHandle program) const {
         bgfx::setVertexBuffer(0, _vbh);
         if (bgfx::isValid(_ibh))
             bgfx::setIndexBuffer(_ibh);
 
         bgfx::submit(viewId, program);
+    }
+
+    uint32_t Mesh::getIndexCount() const {
+        return _indexCount;
     }
 
     bgfx::VertexLayout Mesh::_vertexLayout;
@@ -82,6 +90,7 @@ namespace Krio
         const bgfx::Memory *refVertex = bgfx::copy(vertices.data(), vertices.size() * sizeof(Vertex));
         bgfx::VertexBufferHandle bufferVertex = bgfx::createVertexBuffer(refVertex, _vertexLayout);
         mesh._vbh = bufferVertex;
+        mesh._indexCount = 3;
         return mesh;
     }
 
@@ -123,6 +132,7 @@ namespace Krio
         const bgfx::Memory *refIndex = bgfx::copy(indices.data(), indices.size() * sizeof(uint16_t));
         bgfx::IndexBufferHandle bufferIndex = bgfx::createIndexBuffer(refIndex);
         mesh._ibh = bufferIndex;
+        mesh._indexCount = static_cast<uint32_t>(indices.size());
 
         return mesh;
     }
@@ -196,6 +206,7 @@ namespace Krio
         const bgfx::Memory *refIndex = bgfx::copy(indices.data(), indices.size() * sizeof(uint16_t));
         bgfx::IndexBufferHandle bufferIndex = bgfx::createIndexBuffer(refIndex);
         mesh._ibh = bufferIndex;
+        mesh._indexCount = static_cast<uint32_t>(indices.size());
 
         return mesh;
     }

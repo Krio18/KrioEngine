@@ -21,7 +21,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         -h|--help)
-            echo "KrioEngine Build Script"
+            echo "VoxelEngine Build Script"
             echo ""
             echo "Usage: ./build.sh [options]"
             echo ""
@@ -46,7 +46,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo -e "${BLUE}================================${NC}"
-echo -e "${BLUE}  KrioEngine Build Script${NC}"
+echo -e "${BLUE}  VoxelEngine Build Script${NC}"
 echo -e "${BLUE}================================${NC}"
 echo ""
 
@@ -70,12 +70,12 @@ echo ""
 echo -e "${GREEN}================================${NC}"
 echo -e "${GREEN}Build Summary:${NC}"
 echo -e "${GREEN}  Build Type: ${BUILD_TYPE}${NC}"
-echo -e "${GREEN}  Executable: build/bin/KrioEngine${NC}"
+echo -e "${GREEN}  Executable: build/bin/VoxelEngine${NC}"
 echo -e "${GREEN}================================${NC}"
 echo ""
 
 if [ "$RUN" = true ]; then
-    echo -e "${BLUE}Launching KrioEngine...${NC}"
+    echo -e "${BLUE}Launching VoxelEngine...${NC}"
     echo ""
-    ./build/bin/KrioEngine
+    ./build/bin/VoxelEngine
 fi

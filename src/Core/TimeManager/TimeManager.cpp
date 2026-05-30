@@ -1,6 +1,6 @@
 #include "TimeManager.hpp"
 
-namespace Krio {
+namespace Voxel {
     TimeManager::TimeManager() :
     _FPS(0),
     _deltaTime(0.0),

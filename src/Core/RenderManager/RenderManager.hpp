@@ -1,24 +1,33 @@
 #pragma once
 
-#include "../Logger.hpp"
-#include "../../Renderer/Shader.hpp"
-#include "../../Renderer/Mesh.hpp"
+#include "../Logger/Logger.hpp"
 #include "../../Math/Transform.hpp"
+#include "../../Renderer/Shader/Shader.hpp"
+#include "../../Renderer/Mesh/Mesh.hpp"
+#include "../../Renderer/ShaderManager/ShaderManager.hpp"
+#include "../../Renderer/MeshManager/MeshManager.hpp"
+#include "../../Renderer/Material/Material.hpp"
+#include "../../Renderer/RendererManager/RendererManager.hpp"
+#include "../../Renderer/CameraManager/CameraManager.hpp"
 
 #include <memory>
 
-namespace Krio {
+namespace Voxel {
+    class CameraManager;
     class RenderManager {
         public:
             RenderManager();
             ~RenderManager();
 
-            void init();
+            void init(ShaderManager& shaderManager, MeshManager& meshManager, CameraManager& cameraManager);
             void render(double deltaTime);
+            void submitMesh(const Mesh& mesh, const Material& material, const Transform& transform);
 
         private:
-            std::unique_ptr<Shader> _shader;
-            Mesh _cubeMesh;
+            RendererManager _rendererManager;
+            std::unique_ptr<Material> _material;
+            Mesh* _cubeMesh;
+            CameraManager* _cameraManager = nullptr;
             float _angle;
     };
 }

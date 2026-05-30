@@ -1,6 +1,6 @@
 #include "Shader.hpp"
 
-namespace Krio {
+namespace Voxel {
     Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
         this->_programHandle = BGFX_INVALID_HANDLE;
 
@@ -29,7 +29,7 @@ namespace Krio {
         }
     }
 
-    bgfx::ProgramHandle Shader::getProgramHandle() {
+    bgfx::ProgramHandle Shader::getProgramHandle() const {
         return this->_programHandle;
     }
 

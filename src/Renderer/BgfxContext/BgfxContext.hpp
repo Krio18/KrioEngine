@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../Core/Logger.hpp"
+#include "../../Core/Logger/Logger.hpp"
 
 #include <bgfx/bgfx.h>
 #include <bgfx/platform.h>
 #include <cstdint>
 
-namespace Krio {
+namespace Voxel {
     class BgfxContext {
         public:
             BgfxContext();

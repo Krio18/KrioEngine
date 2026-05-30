@@ -1,7 +1,7 @@
 #include "Application.hpp"
-#include "../Logger.hpp"
 
-namespace Krio {
+
+namespace Voxel {
     Application::Application()
         : _running(false)
         , _lastWindowWidth(0)
@@ -10,9 +10,9 @@ namespace Krio {
     {}
 
     bool Application::initialize() {
-        Logger::info("Initializing KrioEngine...");
+        Logger::info("Initializing VoxelEngine...");
 
-        if (!this->_window.create("KrioEngine", 1280, 720)) {
+        if (!this->_window.create("VoxelEngine", 1280, 720)) {
             Logger::error("Failed to create window");
             return false;
         }
@@ -37,7 +37,7 @@ namespace Krio {
 
         this->_running = true;
 
-        Logger::info("KrioEngine initialized successfully");
+        Logger::info("VoxelEngine initialized successfully");
         return true;
     }
 
@@ -49,11 +49,22 @@ namespace Krio {
             this->_serviceLocator.registerManager<InputManager>();
             this->_serviceLocator.registerManager<PhysicsManager>();
             this->_serviceLocator.registerManager<SceneManager>();
+            this->_serviceLocator.registerManager<ShaderManager>();
+            this->_serviceLocator.registerManager<MaterialManager>();
+            this->_serviceLocator.registerManager<MeshManager>();
+            this->_serviceLocator.registerManager<CameraManager>();
             this->_serviceLocator.registerManager<RenderManager>();
+
+            this->_serviceLocator.getManager<ShaderManager>().init();
+            this->_serviceLocator.getManager<MaterialManager>().init(this->_serviceLocator.getManager<ShaderManager>());
 
             Mesh::init();
 
-            this->_serviceLocator.getManager<RenderManager>().init();
+            this->_serviceLocator.getManager<RenderManager>().init(
+                this->_serviceLocator.getManager<ShaderManager>(),
+                this->_serviceLocator.getManager<MeshManager>(),
+                this->_serviceLocator.getManager<CameraManager>()
+            );
 
             Logger::info("Managers initialized successfully");
             return true;
@@ -78,7 +89,7 @@ namespace Krio {
 
         this->_renderer.shutdown();
 
-        Logger::info("KrioEngine shutdown successfully");
+        Logger::info("VoxelEngine shutdown successfully");
         return true;
     }
 

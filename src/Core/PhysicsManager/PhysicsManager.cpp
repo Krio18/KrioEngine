@@ -1,6 +1,6 @@
 #include "PhysicsManager.hpp"
 
-namespace Krio {
+namespace Voxel {
     PhysicsManager::PhysicsManager()
         : _fixedTimestep(DEFAULT_FIXED_TIMESTEP)
     {

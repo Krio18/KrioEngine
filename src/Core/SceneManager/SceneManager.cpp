@@ -1,6 +1,6 @@
 #include "SceneManager.hpp"
 
-namespace Krio {
+namespace Voxel {
     SceneManager::SceneManager() {
         Logger::info("SceneManager created");
     }

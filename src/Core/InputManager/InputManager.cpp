@@ -1,6 +1,6 @@
 #include "InputManager.hpp"
 
-namespace Krio {
+namespace Voxel {
     InputManager::InputManager() {
         Logger::info("InputManager created");
     }

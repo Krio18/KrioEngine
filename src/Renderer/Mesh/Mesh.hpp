@@ -1,17 +1,18 @@
 #pragma once
 
 #include <bgfx/bgfx.h>
+#include <cstdint>
 #include <vector>
 #include <algorithm>
 
-struct Vertex {
-    float x, y, z;
-    float nx, ny, nz;
-    float u, v;
-    uint32_t color;
-};
+namespace Voxel {
+    struct Vertex {
+        float x, y, z;
+        float nx, ny, nz;
+        float u, v;
+        uint32_t color;
+    };
 
-namespace Krio {
     class Mesh {
         public:
             Mesh();
@@ -21,7 +22,8 @@ namespace Krio {
 
             ~Mesh();
 
-            void draw(bgfx::ViewId viewId, bgfx::ProgramHandle program);
+            void draw(bgfx::ViewId viewId, bgfx::ProgramHandle program) const;
+            uint32_t getIndexCount() const;
 
             static void init();
             static Mesh createTriangle();
@@ -32,6 +34,7 @@ namespace Krio {
             static bgfx::VertexLayout _vertexLayout;
             bgfx::VertexBufferHandle _vbh;
             bgfx::IndexBufferHandle _ibh;
+            uint32_t _indexCount;
 
             float _minX, _minY, _minZ;
             float _maxX, _maxY, _maxZ;

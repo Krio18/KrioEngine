@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(KrioEngine VERSION 0.1.0 LANGUAGES CXX)
+project(VoxelEngine VERSION 0.1.0 LANGUAGES CXX)
 
 # =============================================================================
 # Project Configuration
@@ -18,12 +18,12 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # Build Options
 # =============================================================================
 
-option(KRIO_BUILD_TESTS "Build unit tests" ON)
-option(KRIO_BUILD_BENCHMARKS "Build benchmarks" OFF)
-option(KRIO_BUILD_EDITOR "Build editor application" ON)
-option(KRIO_BUILD_SANDBOX "Build sandbox demo" ON)
-option(KRIO_ENABLE_PROFILING "Enable Tracy profiler" ON)
-option(KRIO_ENABLE_ASAN "Enable AddressSanitizer (Debug only)" OFF)
+option(VOXEL_BUILD_TESTS "Build unit tests" ON)
+option(VOXEL_BUILD_BENCHMARKS "Build benchmarks" OFF)
+option(VOXEL_BUILD_EDITOR "Build editor application" ON)
+option(VOXEL_BUILD_SANDBOX "Build sandbox demo" ON)
+option(VOXEL_ENABLE_PROFILING "Enable Tracy profiler" ON)
+option(VOXEL_ENABLE_ASAN "Enable AddressSanitizer (Debug only)" OFF)
 
 # =============================================================================
 # vcpkg Integration
@@ -46,8 +46,9 @@ include(cmake/Compiler.cmake OPTIONAL)
 # Engine Source Files
 # =============================================================================
 
-set(KRIO_ENGINE_SOURCES
+set(VOXEL_ENGINE_SOURCES
     src/main.cpp
+    src/Platform/WindowSDL.cpp
     src/Core/Application/Application.cpp
     src/Core/ServiceLocator/ServiceLocator.cpp
     src/Core/TimeManager/TimeManager.cpp
@@ -55,35 +56,40 @@ set(KRIO_ENGINE_SOURCES
     src/Core/PhysicsManager/PhysicsManager.cpp
     src/Core/SceneManager/SceneManager.cpp
     src/Core/RenderManager/RenderManager.cpp
-    src/Platform/WindowSDL.cpp
-    src/Renderer/BgfxContext.cpp
-    src/Renderer/Shader.cpp
-    src/Renderer/Mesh.cpp
+    src/Core/Logger/Logger.cpp
+    src/Renderer/Shader/Shader.cpp
+    src/Renderer/BgfxContext/BgfxContext.cpp
+    src/Renderer/ShaderManager/ShaderManager.cpp
+    src/Renderer/Mesh/Mesh.cpp
+    src/Renderer/Material/Material.cpp
+    src/Renderer/MaterialManager/MaterialManager.cpp
+    src/Renderer/MeshManager/MeshManager.cpp
+    src/Renderer/RendererManager/RendererManager.cpp
     src/Math/Transform.cpp
 )
 
-add_executable(KrioEngine ${KRIO_ENGINE_SOURCES})
+add_executable(VoxelEngine ${VOXEL_ENGINE_SOURCES})
 
 # =============================================================================
 # Compiler Warnings & Optimizations
 # =============================================================================
 
 if(MSVC)
-    target_compile_options(KrioEngine PRIVATE /W4 /WX /MP)
-    target_compile_options(KrioEngine PRIVATE $<$<CONFIG:Release>:/O2 /Oi /Ot /GL>)
-    target_link_options(KrioEngine PRIVATE $<$<CONFIG:Release>:/LTCG>)
-    target_compile_options(KrioEngine PRIVATE /wd4251)
+    target_compile_options(VoxelEngine PRIVATE /W4 /WX /MP)
+    target_compile_options(VoxelEngine PRIVATE $<$<CONFIG:Release>:/O2 /Oi /Ot /GL>)
+    target_link_options(VoxelEngine PRIVATE $<$<CONFIG:Release>:/LTCG>)
+    target_compile_options(VoxelEngine PRIVATE /wd4251)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(KrioEngine PRIVATE -Wall -Wextra -Wpedantic)
-    target_compile_options(KrioEngine PRIVATE $<$<CONFIG:Release>:-O3 -march=native>)  # LTO désactivé pour Linux Makefile
-    target_compile_options(KrioEngine PRIVATE $<$<CONFIG:Debug>:-g3 -O0>)
+    target_compile_options(VoxelEngine PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(VoxelEngine PRIVATE $<$<CONFIG:Release>:-O3 -march=native>)  # LTO désactivé pour Linux Makefile
+    target_compile_options(VoxelEngine PRIVATE $<$<CONFIG:Debug>:-g3 -O0>)
 endif()
 
 # Address Sanitizer
-if(KRIO_ENABLE_ASAN AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(VOXEL_ENABLE_ASAN AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-        target_compile_options(KrioEngine PRIVATE -fsanitize=address -fno-omit-frame-pointer)
-        target_link_options(KrioEngine PRIVATE -fsanitize=address)
+        target_compile_options(VoxelEngine PRIVATE -fsanitize=address -fno-omit-frame-pointer)
+        target_link_options(VoxelEngine PRIVATE -fsanitize=address)
         message(STATUS "AddressSanitizer enabled")
     endif()
 endif()
@@ -93,21 +99,21 @@ endif()
 # =============================================================================
 
 if(WIN32)
-    add_compile_definitions(KRIO_PLATFORM_WINDOWS)
+    add_compile_definitions(VOXEL_PLATFORM_WINDOWS)
 elseif(APPLE)
-    add_compile_definitions(KRIO_PLATFORM_MACOS)
+    add_compile_definitions(VOXEL_PLATFORM_MACOS)
 elseif(UNIX)
-    add_compile_definitions(KRIO_PLATFORM_LINUX)
+    add_compile_definitions(VOXEL_PLATFORM_LINUX)
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_definitions(KRIO_DEBUG)
+    add_compile_definitions(VOXEL_DEBUG)
 else()
-    add_compile_definitions(KRIO_RELEASE)
+    add_compile_definitions(VOXEL_RELEASE)
 endif()
 
-if(KRIO_ENABLE_PROFILING)
-    add_compile_definitions(KRIO_ENABLE_PROFILING)
+if(VOXEL_ENABLE_PROFILING)
+    add_compile_definitions(VOXEL_ENABLE_PROFILING)
 endif()
 
 # =============================================================================
@@ -144,14 +150,32 @@ bgfx_compile_shaders(
     OUT_FILES_VAR FRAGMENT_SHADER_OUTPUTS
 )
 
-add_custom_target(Shaders ALL DEPENDS ${VERTEX_SHADER_OUTPUTS} ${FRAGMENT_SHADER_OUTPUTS})
-add_dependencies(KrioEngine Shaders)
+bgfx_compile_shaders(
+    TYPE VERTEX
+    SHADERS ${SHADER_SRC_DIR}/v_error.sc
+    VARYING_DEF ${SHADER_SRC_DIR}/varying.def.sc
+    OUTPUT_DIR ${SHADER_OUT_DIR}
+    INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/extern/bgfx.cmake/bgfx/src
+    OUT_FILES_VAR ERROR_VERTEX_SHADER_OUTPUTS
+)
+
+bgfx_compile_shaders(
+    TYPE FRAGMENT
+    SHADERS ${SHADER_SRC_DIR}/f_error.sc
+    VARYING_DEF ${SHADER_SRC_DIR}/varying.def.sc
+    OUTPUT_DIR ${SHADER_OUT_DIR}
+    INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/extern/bgfx.cmake/bgfx/src
+    OUT_FILES_VAR ERROR_FRAGMENT_SHADER_OUTPUTS
+)
+
+add_custom_target(Shaders ALL DEPENDS ${VERTEX_SHADER_OUTPUTS} ${FRAGMENT_SHADER_OUTPUTS} ${ERROR_VERTEX_SHADER_OUTPUTS} ${ERROR_FRAGMENT_SHADER_OUTPUTS})
+add_dependencies(VoxelEngine Shaders)
 
 # =============================================================================
 # Include Directories
 # =============================================================================
 
-target_include_directories(KrioEngine PRIVATE
+target_include_directories(VoxelEngine PRIVATE
     src
     extern/bgfx.cmake/bgfx/include
     extern/bgfx.cmake/bx/include
@@ -167,7 +191,7 @@ target_include_directories(KrioEngine PRIVATE
 # Libraries
 # =============================================================================
 
-target_link_libraries(KrioEngine PRIVATE
+target_link_libraries(VoxelEngine PRIVATE
     bgfx
     bx
     bimg
@@ -177,13 +201,13 @@ target_link_libraries(KrioEngine PRIVATE
 find_package(SDL2 CONFIG QUIET)
 
 if(SDL2_FOUND)
-    target_link_libraries(KrioEngine PRIVATE SDL2::SDL2 SDL2::SDL2main)
+    target_link_libraries(VoxelEngine PRIVATE SDL2::SDL2 SDL2::SDL2main)
 else()
     # Fallback for manual vcpkg installation
     set(SDL2_VCPKG_PATH "$ENV{HOME}/vcpkg/installed/x64-linux")
     if(EXISTS "${SDL2_VCPKG_PATH}")
-        target_include_directories(KrioEngine PRIVATE "${SDL2_VCPKG_PATH}/include")
-        target_link_libraries(KrioEngine PRIVATE
+        target_include_directories(VoxelEngine PRIVATE "${SDL2_VCPKG_PATH}/include")
+        target_link_libraries(VoxelEngine PRIVATE
             "${SDL2_VCPKG_PATH}/lib/libSDL2.a"
             "${SDL2_VCPKG_PATH}/lib/libSDL2main.a"
             pthread dl m X11
@@ -199,22 +223,22 @@ endif()
 
 include(GNUInstallDirs)
 
-install(TARGETS KrioEngine
-    EXPORT KrioEngineTargets
+install(TARGETS VoxelEngine
+    EXPORT VoxelEngineTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 install(DIRECTORY src/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/KrioEngine
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VoxelEngine
     FILES_MATCHING PATTERN "*.hpp"
 )
 
-install(EXPORT KrioEngineTargets
-    FILE KrioEngineTargets.cmake
-    NAMESPACE Krio::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/KrioEngine
+install(EXPORT VoxelEngineTargets
+    FILE VoxelEngineTargets.cmake
+    NAMESPACE Voxel::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/VoxelEngine
 )
 
 # =============================================================================
@@ -223,18 +247,18 @@ install(EXPORT KrioEngineTargets
 
 message(STATUS "")
 message(STATUS "=================================")
-message(STATUS "KrioEngine Configuration Summary")
+message(STATUS "VoxelEngine Configuration Summary")
 message(STATUS "=================================")
 message(STATUS "Version: ${PROJECT_VERSION}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "C++ Compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 message(STATUS "")
 message(STATUS "Build options:")
-message(STATUS "  Build Tests: ${KRIO_BUILD_TESTS}")
-message(STATUS "  Build Benchmarks: ${KRIO_BUILD_BENCHMARKS}")
-message(STATUS "  Build Editor: ${KRIO_BUILD_EDITOR}")
-message(STATUS "  Build Sandbox: ${KRIO_BUILD_SANDBOX}")
-message(STATUS "  Enable Profiling: ${KRIO_ENABLE_PROFILING}")
-message(STATUS "  Enable ASAN: ${KRIO_ENABLE_ASAN}")
+message(STATUS "  Build Tests: ${VOXEL_BUILD_TESTS}")
+message(STATUS "  Build Benchmarks: ${VOXEL_BUILD_BENCHMARKS}")
+message(STATUS "  Build Editor: ${VOXEL_BUILD_EDITOR}")
+message(STATUS "  Build Sandbox: ${VOXEL_BUILD_SANDBOX}")
+message(STATUS "  Enable Profiling: ${VOXEL_ENABLE_PROFILING}")
+message(STATUS "  Enable ASAN: ${VOXEL_ENABLE_ASAN}")
 message(STATUS "=================================")
 message(STATUS "")
