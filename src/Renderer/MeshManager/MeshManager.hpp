@@ -9,7 +9,7 @@
 #include "../Mesh/Mesh.hpp"
 #include "../../Core/Logger/Logger.hpp"
 
-namespace Krio {
+namespace Voxel {
     struct MeshEntry {
         Mesh mesh;
         int refCount = 0;

@@ -1,6 +1,6 @@
 #include "Material.hpp"
 
-namespace Krio {
+namespace Voxel {
     bgfx::UniformHandle Material::_uColor = BGFX_INVALID_HANDLE;
     bgfx::UniformHandle Material::_uMaterialParams = BGFX_INVALID_HANDLE;
 

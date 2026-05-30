@@ -8,7 +8,7 @@
 #include "../../Core/Logger/Logger.hpp"
 #include "../Shader/Shader.hpp"
 
-namespace Krio {
+namespace Voxel {
     struct ShaderEntry {
         std::unique_ptr<Shader> shader;
         unsigned int usageCount = 0;

@@ -1,6 +1,6 @@
 #include "Transform.hpp"
 
-namespace Krio {
+namespace Voxel {
     glm::mat4 Transform::createModelMatrix(glm::vec3 position, glm::quat rotation, glm::vec3 scale) {
         glm::mat4 mat(1.0f);
 

@@ -1,6 +1,6 @@
 #include "EventBus.hpp"
 
-namespace Krio {
+namespace Voxel {
     EventBus::EventBus() {}
 
     EventBus::~EventBus()

@@ -1,6 +1,6 @@
 #include "ShaderManager.hpp"
 
-namespace Krio {
+namespace Voxel {
     ShaderManager::ShaderManager() : _errorProgramHandle(BGFX_INVALID_HANDLE) {}
 
     void ShaderManager::init() {
@@ -24,7 +24,7 @@ namespace Krio {
         std::string vertexPath = "build/shaders/spirv/v_" + name + ".sc.bin";
         std::string fragmentPath = "build/shaders/spirv/f_" + name + ".sc.bin";
 
-        std::unique_ptr<Krio::Shader> shader = std::make_unique<Shader>(vertexPath, fragmentPath);
+        std::unique_ptr<Voxel::Shader> shader = std::make_unique<Shader>(vertexPath, fragmentPath);
 
         if (!bgfx::isValid(shader->getProgramHandle())) {
             Logger::error("invalid Shader : " + name);

@@ -1,4 +1,4 @@
-# KrioEngine - Development Roadmap
+# VoxelEngine - Development Roadmap
 
 **Architecture:** Manager-based with Service Locator pattern
 **Current Version:** 0.1.0-alpha
@@ -284,18 +284,18 @@
 ### 2.5 CameraManager
 **Purpose:** Manage multiple cameras and determine which camera renders to which viewport
 
-- [ ] Create `src/Renderer/CameraManager.hpp` and `.cpp`
-- [ ] Maintain list of active cameras in current scene
-- [ ] Implement `registerCamera(camera)`: add camera to active list
-- [ ] Implement `unregisterCamera(camera)`: remove camera from active list
-- [ ] Implement `setMainCamera(camera)`: designate primary camera
-- [ ] Implement `getMainCamera()`: retrieve primary camera
-- [ ] Implement `getAllCameras()`: retrieve all cameras for multi-viewport rendering
-- [ ] Handle camera priority: higher priority cameras render later (overlay UI)
-- [ ] Validate camera settings: ensure valid FOV, aspect ratio
-- [ ] Implement `submitCamera(camera)`: set active camera for this frame (RenderManager)
+- [x] Create `src/Renderer/CameraManager.hpp` and `.cpp`
+- [x] Maintain list of active cameras in current scene
+- [x] Implement `registerCamera(camera)`: add camera to active list
+- [x] Implement `unregisterCamera(camera)`: remove camera from active list
+- [x] Implement `setMainCamera(camera)`: designate primary camera
+- [x] Implement `getMainCamera()`: retrieve primary camera
+- [x] Implement `getAllCameras()`: retrieve all cameras for multi-viewport rendering
+- [x] Handle camera priority: higher priority cameras render later (overlay UI)
+- [x] Validate camera settings: ensure valid FOV, aspect ratio
+- [x] Implement `submitCamera(camera)`: set active camera for this frame (RenderManager)
 
-- [ ] **Intégration** : Enregistrer `CameraManager` dans `ServiceLocator`, l'appeler depuis `RenderManager::render()` pour récupérer la caméra principale et appliquer son `ViewProjectionMatrix`
+- [x] **Intégration** : Enregistrer `CameraManager` dans `ServiceLocator`, l'appeler depuis `RenderManager::render()` pour récupérer la caméra principale et appliquer son `ViewProjectionMatrix`
 
 > **Reporté depuis 2.4 :** Une fois la caméra disponible, implémenter dans `src/Renderer/RenderManager` :
 > - Sort opaque meshes front-to-back (distance caméra → mesh, `std::sort`)
@@ -307,24 +307,26 @@
 ### 2.6 Camera Component
 **Purpose:** Data container for camera projection and viewport settings
 
-- [ ] Create `src/Renderer/Camera.hpp` and `.cpp`
-- [ ] Store projection type: Perspective or Orthographic
-- [ ] Store perspective params: FOV, aspect ratio, near plane, far plane
-- [ ] Store orthographic params: left, right, bottom, top, near, far
-- [ ] Store viewport rectangle: x, y, width, height (normalized 0-1 or pixel coordinates)
-- [ ] Store clear flags: Skybox, SolidColor, DepthOnly, Nothing
-- [ ] Store clear color if using SolidColor mode
-- [ ] Store render texture target (optional, for render-to-texture effects)
-- [ ] Implement `getViewMatrix()`: calculate from camera's transform component
-- [ ] Implement `getProjectionMatrix()`: calculate from stored parameters
-- [ ] Implement `getViewProjectionMatrix()`: cached multiplication of View × Projection
+- [x] Create `src/Renderer/Camera.hpp` and `.cpp`
+- [x] Store projection type: Perspective or Orthographic
+- [x] Store perspective params: FOV, aspect ratio, near plane, far plane
+- [x] Store orthographic params: left, right, bottom, top, near, far
+- [x] Implement `getViewMatrix()`: calculate from camera's transform component
+- [x] Implement `getProjectionMatrix()`: calculate from stored parameters
+- [x] Implement `getViewProjectionMatrix()`: cached multiplication of View × Projection
 
-- [ ] **Intégration** : `Camera` est utilisée par `CameraManager` pour fournir `getViewMatrix()` et `getProjectionMatrix()` au `RenderManager`
+- [x] **Intégration** : `Camera` est utilisée par `CameraManager` pour fournir `getViewMatrix()` et `getProjectionMatrix()` au `RenderManager`
 
 **Why this matters:** Camera is just data. Separate from Camera Controller which provides behavior.
 
 ### 2.7 Camera Controllers
 **Purpose:** Reusable camera movement behaviors for different game styles
+
+> **Reporté depuis 2.6 :**
+> - [ ] Store viewport rectangle: x, y, width, height (normalized 0-1 or pixel coordinates)
+> - [ ] Store clear flags: Skybox, SolidColor, DepthOnly, Nothing
+> - [ ] Store clear color if using SolidColor mode
+> - [ ] Store render texture target (optional, for render-to-texture effects)
 
 #### FPS Camera Controller
 - [ ] Create `src/Renderer/Controllers/FPSCameraController.hpp` and `.cpp`
@@ -1393,9 +1395,9 @@
   - Shipping: release + additional stripping, no editor code
 
 - [ ] Conditional compilation flags:
-  - `KRIO_EDITOR`: include editor code (ImGui, gizmos)
-  - `KRIO_DEBUG`: enable debug features (profiling, visualization)
-  - `KRIO_HOT_RELOAD`: enable asset hot-reload
+  - `VOXEL_EDITOR`: include editor code (ImGui, gizmos)
+  - `VOXEL_DEBUG`: enable debug features (profiling, visualization)
+  - `VOXEL_HOT_RELOAD`: enable asset hot-reload
   - Strip editor-only code from shipping builds
 
 **Why this matters:** Development builds need debugging. Shipping builds need performance and small size.
@@ -1456,9 +1458,9 @@
   - Automated testing before build
 
 - [ ] Output organization:
-  - `builds/windows/KrioGame.exe`
-  - `builds/linux/KrioGame`
-  - `builds/macos/KrioGame.app`
+  - `builds/windows/VoxelGame.exe`
+  - `builds/linux/VoxelGame`
+  - `builds/macos/VoxelGame.app`
 
 **Why this matters:** Users don't have development environments. They need a double-clickable executable.
 
@@ -1761,7 +1763,7 @@
 **Purpose:** Measure performance to identify bottlenecks
 
 - [ ] Integrate Tracy profiler (real-time profiling tool)
-- [ ] Add profiling macros: `KRIO_PROFILE_SCOPE("FunctionName")`
+- [ ] Add profiling macros: `VOXEL_PROFILE_SCOPE("FunctionName")`
 - [ ] Instrument key systems:
   - RenderSystem update time
   - PhysicsManager fixed update time
@@ -2192,7 +2194,7 @@
 ### Developer Experience (v0.8.0)
 61. **Documentation API** - Doxygen + guides de démarrage
 62. **Projet démo** - Un petit jeu fonctionnel comme exemple
-63. **CMake consumer-friendly** - `find_package(KrioEngine)` ou submodule propre
+63. **CMake consumer-friendly** - `find_package(VoxelEngine)` ou submodule propre
 64. **GitHub Actions CI** - Build + tests automatiques sur chaque PR
 65. **Gestion d'erreurs user-friendly** - Messages clairs pour les devs qui utilisent le moteur
 
@@ -2200,7 +2202,7 @@
 
 ## Phase 11: Developer Experience
 
-**Goal:** Rendre KrioEngine utilisable par d'autres développeurs
+**Goal:** Rendre VoxelEngine utilisable par d'autres développeurs
 
 ### 11.1 Documentation
 - [ ] Générer l'API reference avec Doxygen
@@ -2216,7 +2218,7 @@
 - [ ] Packager le démo comme release GitHub
 
 ### 11.3 Intégration Facile
-- [ ] Support `find_package(KrioEngine CONFIG)` via CMake
+- [ ] Support `find_package(VoxelEngine CONFIG)` via CMake
 - [ ] Support ajout comme git submodule avec CMake minimal
 - [ ] Template de projet starter : structure de dossiers + CMakeLists.txt prêt à l'emploi
 - [ ] Script d'installation one-liner (Linux/macOS/Windows)
@@ -2229,7 +2231,7 @@
 
 ### 11.5 Robustesse
 - [ ] Messages d'erreur explicites pour les erreurs courantes (shader manquant, handle invalide, etc.)
-- [ ] Mode debug verbose : logs détaillés activables avec `KRIO_VERBOSE`
+- [ ] Mode debug verbose : logs détaillés activables avec `VOXEL_VERBOSE`
 - [ ] Validation des paramètres aux frontières publiques de l'API
 - [ ] Guide de migration entre versions (breaking changes documentés)
 
@@ -2314,7 +2316,7 @@
 - **Multithreading** - Parallelize independent work
 
 ### Debugging Tips
-- **Assertions** - Add `KRIO_ASSERT()` macros for invariants
+- **Assertions** - Add `VOXEL_ASSERT()` macros for invariants
 - **Logging** - Log important events, not every frame
 - **Debug visualization** - Draw bounding boxes, frustums, etc.
 - **Hot-reload** - Edit without restarting engine
@@ -2330,4 +2332,4 @@
 
 ---
 
-**You now have a complete roadmap. Start with Phase 0, work through sequentially. Good luck building KrioEngine!**
+**You now have a complete roadmap. Start with Phase 0, work through sequentially. Good luck building VoxelEngine!**

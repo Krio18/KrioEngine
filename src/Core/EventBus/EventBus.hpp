@@ -9,7 +9,7 @@
 #include <queue>
 #include <algorithm>
 
-namespace Krio {
+namespace Voxel {
     class EventBus {
         public:
             EventBus();

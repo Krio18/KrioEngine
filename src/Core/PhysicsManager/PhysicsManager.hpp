@@ -2,7 +2,7 @@
 
 #include "../Logger/Logger.hpp"
 
-namespace Krio {
+namespace Voxel {
     class PhysicsManager {
         public:
             PhysicsManager();

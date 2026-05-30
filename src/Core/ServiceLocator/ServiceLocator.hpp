@@ -8,7 +8,7 @@
 
 #include "../Logger/Logger.hpp"
 
-namespace Krio {
+namespace Voxel {
     class ServiceLocator {
         public:
             template<typename T, typename... Args>

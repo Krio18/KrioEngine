@@ -1,6 +1,6 @@
 #include "Logger.hpp"
 
-namespace Krio {
+namespace Voxel {
     void Logger::log(LogLevel level, const std::string& message) {
         const char* prefixes[] = {"[INFO]", "[WARN]", "[ERROR]"};
         std::cout << prefixes[static_cast<int>(level)] << " " << message << std::endl;

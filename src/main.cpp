@@ -1,7 +1,7 @@
 #include "Core/Application/Application.hpp"
 
 int main() {
-    Krio::Application app;
+    Voxel::Application app;
     if (!app.initialize())
         return 1;
 

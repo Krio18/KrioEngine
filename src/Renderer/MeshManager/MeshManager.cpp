@@ -1,6 +1,6 @@
 #include "MeshManager.hpp"
 
-namespace Krio {
+namespace Voxel {
     void MeshManager::load(const std::string& path) {
         auto it = this->_meshMap.find(path);
         if (it != this->_meshMap.end()) {

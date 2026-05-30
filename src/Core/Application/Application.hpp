@@ -11,8 +11,11 @@
 #include "../../Renderer/Mesh/Mesh.hpp"
 #include "../../Renderer/ShaderManager/ShaderManager.hpp"
 #include "../../Renderer/MaterialManager/MaterialManager.hpp"
+#include "../Logger/Logger.hpp"
+#include "../../Renderer/MeshManager/MeshManager.hpp"
+#include "../../Renderer/CameraManager/CameraManager.hpp"
 
-namespace Krio {
+namespace Voxel {
     class Application {
         public:
             Application();

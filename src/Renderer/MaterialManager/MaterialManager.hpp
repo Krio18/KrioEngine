@@ -8,7 +8,7 @@
 #include "../ShaderManager/ShaderManager.hpp"
 #include "../../Core/Logger/Logger.hpp"
 
-namespace Krio {
+namespace Voxel {
     class MaterialManager {
         public:
             MaterialManager();

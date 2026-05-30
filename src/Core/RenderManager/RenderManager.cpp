@@ -1,6 +1,6 @@
 #include "RenderManager.hpp"
 
-namespace Krio {
+namespace Voxel {
     RenderManager::RenderManager() {
         this->_angle = 0.0f;
         this->_cubeMesh = nullptr;
@@ -12,7 +12,7 @@ namespace Krio {
         Logger::info("RenderManager destroyed");
     }
 
-    void RenderManager::init(ShaderManager& shaderManager, MeshManager& meshManager) {
+    void RenderManager::init(ShaderManager& shaderManager, MeshManager& meshManager, CameraManager& cameraManager) {
         shaderManager.load("simple");
         const Shader& shader = shaderManager.get("simple");
 
@@ -20,6 +20,7 @@ namespace Krio {
         this->_cubeMesh = &meshManager.get("cube");
 
         this->_material = std::make_unique<Material>(shader.getProgramHandle(), "simple");
+        this->_cameraManager = &cameraManager;
     }
 
     void RenderManager::render( double deltaTime) {
@@ -28,10 +29,27 @@ namespace Krio {
 
         this->_angle += 1.0f * deltaTime;
         glm::mat4 model = Transform::createModelMatrix(glm::vec3(0.0f), glm::angleAxis(this->_angle, glm::vec3(0.0f, 1.0f, 0.0f)), glm::vec3(1.0f));
-        glm::mat4 view = Transform::createViewMatrix(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 proj = Transform::createPerspectiveMatrix(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+        glm::mat4 view;
+        glm::mat4 proj;
+        const Voxel::Camera* mainCamPtr = nullptr;
+
+        if (this->_cameraManager) {
+            auto mainCam = this->_cameraManager->getMainCamera();
+            if (mainCam) {
+                view = mainCam->getViewMatrix();
+                proj = mainCam->getProjectionMatrix();
+                mainCamPtr = mainCam.get();
+            }
+        }
+
+        if (!mainCamPtr) {
+            view = Transform::createViewMatrix(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            proj = Transform::createPerspectiveMatrix(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+        }
 
         bgfx::setViewTransform(0, &view, &proj);
+
+        this->_rendererManager.submitCamera(mainCamPtr);
         this->_rendererManager.submitMesh(this->_cubeMesh, this->_material.get(), model);
         this->_rendererManager.render();
     }
