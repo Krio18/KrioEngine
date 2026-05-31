@@ -21,6 +21,7 @@ namespace Voxel {
             SDL_SYSWM_TYPE getSubsystemType() const;
             int getWidth() const;
             int getHeight() const;
+            float getScrollDelta() const;
             void setResizeCallback(void (*callback)(int, int));
 
         private:
@@ -32,6 +33,7 @@ namespace Voxel {
             void* _nativeDisplayHandle;
             SDL_SYSWM_TYPE _subsystemType;
             void (*_resizeCallback)(int, int);
+            float _scrollDelta;
 
             bool retrieveNativeHandles();
     };

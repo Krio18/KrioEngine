@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../../Platform/WindowSDL.hpp"
+#include "../../Platform/WindowSDL/WindowSDL.hpp"
+#include "../../Platform/InputManager/InputManager.hpp"
 #include "../../Renderer/BgfxContext/BgfxContext.hpp"
 #include "../ServiceLocator/ServiceLocator.hpp"
 #include "../TimeManager/TimeManager.hpp"
-#include "../InputManager/InputManager.hpp"
 #include "../PhysicsManager/PhysicsManager.hpp"
 #include "../SceneManager/SceneManager.hpp"
 #include "../RenderManager/RenderManager.hpp"
@@ -14,6 +14,9 @@
 #include "../Logger/Logger.hpp"
 #include "../../Renderer/MeshManager/MeshManager.hpp"
 #include "../../Renderer/CameraManager/CameraManager.hpp"
+#include "../../Renderer/Controllers/FPSCameraController/FPSCameraController.hpp"
+
+#include <memory>
 
 namespace Voxel {
     class Application {
@@ -34,6 +37,10 @@ namespace Voxel {
             bool _running;
 
             ServiceLocator _serviceLocator;
+
+            std::shared_ptr<Camera> _camera;
+            std::unique_ptr<FPSCameraController> _fpsController;
+
 
             int _lastWindowWidth;
             int _lastWindowHeight;

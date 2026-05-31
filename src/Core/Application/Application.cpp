@@ -16,7 +16,8 @@ namespace Voxel {
             Logger::error("Failed to create window");
             return false;
         }
-
+        
+        SDL_SetRelativeMouseMode(SDL_TRUE);
         this->_lastWindowWidth = this->_window.getWidth();
         this->_lastWindowHeight = this->_window.getHeight();
 
@@ -54,7 +55,6 @@ namespace Voxel {
             this->_serviceLocator.registerManager<MeshManager>();
             this->_serviceLocator.registerManager<CameraManager>();
             this->_serviceLocator.registerManager<RenderManager>();
-
             this->_serviceLocator.getManager<ShaderManager>().init();
             this->_serviceLocator.getManager<MaterialManager>().init(this->_serviceLocator.getManager<ShaderManager>());
 
@@ -65,6 +65,13 @@ namespace Voxel {
                 this->_serviceLocator.getManager<MeshManager>(),
                 this->_serviceLocator.getManager<CameraManager>()
             );
+
+            this->_camera = std::make_shared<Camera>();
+            this->_camera->position = glm::vec3(0.0f, 0.0f, 5.0f);
+            this->_camera->aspect = static_cast<float>(this->_lastWindowWidth) / static_cast<float>(this->_lastWindowHeight);
+            this->_serviceLocator.getManager<CameraManager>().registerCamera(this->_camera);
+            this->_serviceLocator.getManager<CameraManager>().setMainCamera(this->_camera);
+            this->_fpsController = std::make_unique<FPSCameraController>(*(this->_camera));
 
             Logger::info("Managers initialized successfully");
             return true;
@@ -144,6 +151,9 @@ namespace Voxel {
 
     void Application::handleEvents() {
         this->_window.pollEvents();
+        float scroll = this->_window.getScrollDelta();
+        if (scroll != 0.0f)
+            this->_serviceLocator.getManager<InputManager>().addScrollDelta(scroll);
 
         if (this->_window.shouldClose())
             this->_running = false;
@@ -160,6 +170,10 @@ namespace Voxel {
 
     void Application::update() {
         this->_serviceLocator.getManager<TimeManager>().debugLogTimeInfo();
+        this->_fpsController->update(
+            static_cast<float>(this->_serviceLocator.getManager<TimeManager>().getDeltaTime()),
+            this->_serviceLocator.getManager<InputManager>()
+        );
     }
 
     void Application::render() {
