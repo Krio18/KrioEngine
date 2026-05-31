@@ -19,7 +19,8 @@
 
 ### Projet
 - Game engine C++ utilisant bgfx pour le rendu
-- Namespace: `Voxel` (en cours de renommage depuis `Krio`)
+- Namespace: `Voxel`
+- Aucun code cpp dans un fichier hpp
 - Convention: membres privés préfixés par `_` (ex: `_programHandle`)
 - Utiliser le Logger existant (`Voxel::Logger::info/warning/error`)
 

@@ -4,9 +4,9 @@ namespace Voxel {
     glm::mat4 Transform::createModelMatrix(glm::vec3 position, glm::quat rotation, glm::vec3 scale) {
         glm::mat4 mat(1.0f);
 
-        mat = glm::scale(mat, scale);
-        mat *= glm::mat4_cast(rotation);
         mat = glm::translate(mat, position);
+        mat *= glm::mat4_cast(rotation);
+        mat = glm::scale(mat, scale);
 
         return mat;
     }

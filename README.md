@@ -16,7 +16,42 @@
 
 ---
 
-## 🚀 Quick Start
+## What is VoxelEngine?
+
+VoxelEngine is a **C++ game engine SDK** — you write your game in C++ by linking against the engine library, similar to how Unreal Engine works. No scripting language required: the engine exposes a clean C++ API that you subclass and extend to build your game.
+
+```cpp
+#include <VoxelEngine/Application.hpp>
+
+class MyGame : public Voxel::Application {
+    void onInitialize() override { /* setup scene, load assets */ }
+    void onUpdate(float dt) override { /* game logic */ }
+};
+
+VOXEL_MAIN(MyGame)
+```
+
+> **Note:** The `VOXEL_MAIN` macro and public SDK headers are part of the planned Phase 11 work. The engine is currently in active development.
+
+---
+
+## Current State
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| Phase 0 | Core Architecture (ServiceLocator, TimeManager, EventBus, InputManager) | ✅ Done |
+| Phase 1 | Minimal Rendering (Shader, Mesh, Transform, MVP Pipeline) | ✅ Done |
+| Phase 2 | Manager Infrastructure (Camera, Material, Mesh, Render managers) | ✅ Done |
+| Phase 3 | Scene & ECS (EnTT integration, components, systems) | 📋 Planned |
+| Phase 4 | Asset Pipeline | 📋 Planned |
+| Phase 5 | Advanced Systems (Physics, Audio, Lighting, Animation) | 📋 Planned |
+| Phase 6 | Editor & Tools (ImGui editor) | 📋 Planned |
+| Phase 7 | Build & Distribution | 📋 Planned |
+| Phase 11 | SDK & Developer Experience (public API, CMake template, docs) | 📋 Planned |
+
+---
+
+## Quick Start
 
 ### Prerequisites
 
@@ -54,6 +89,8 @@ git clone --recursive https://github.com/Krio18/VOXEL.git
 cd VOXEL
 ```
 
+> The `--recursive` flag is required to fetch the bgfx submodule in `extern/`.
+
 #### 3. Build
 
 **Linux/macOS:**
@@ -70,44 +107,40 @@ cmake --build build --config Release
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Component | Library | Status |
 |-----------|---------|--------|
 | **Windowing** | SDL2 | ✅ Integrated |
-| **Rendering** | bgfx | ✅ Integrated |
+| **Rendering** | bgfx | ✅ Integrated (git submodule) |
 | **Build System** | CMake + vcpkg | ✅ Working |
-| **ECS** | EnTT | 📋 Planned |
-| **Math** | GLM | 📋 Planned |
-| **UI** | Dear ImGui | 📋 Planned |
-| **Physics** | Jolt/Box2D | 📋 Planned |
-| **Audio** | OpenAL | 📋 Planned |
-| **Scripting** | sol2 (Lua) | 📋 Planned |
+| **Math** | GLM | ✅ Integrated |
+| **ECS** | EnTT | 📋 Planned (Phase 3) |
+| **UI (Editor)** | Dear ImGui | 📋 Planned (Phase 6) |
+| **Physics** | Jolt Physics | 📋 Planned (Phase 5) |
+| **Audio** | OpenAL | 📋 Planned (Phase 5) |
+| **Scripting** | Lua / sol2 | 🔧 Optional (Phase 8) |
 
 ---
+
+## Architecture
 
 **Design Patterns:**
-- **Modular Architecture**: Strict separation of concerns
-- **RAII**: Automatic resource management
-- **Data-Oriented Design**: Planned for ECS
-- **Cross-platform Abstraction**: Platform layer isolates OS-specific code
+- **Manager-based architecture** — each major system has a dedicated Manager (RenderManager, InputManager, etc.)
+- **Service Locator** — global access to managers without singletons or tight coupling
+- **ECS (planned)** — EnTT library for entity-component relationships, cache-friendly
+- **RAII** — automatic resource management throughout
+- **Cross-platform** — bgfx abstracts Vulkan/D3D12/Metal/OpenGL
 
 ---
 
-## ⚠️ Architecture logiciel
-
-![Architecture VoxelEngine](docs/architecture.svg)
-
-
----
-
-## 📜 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [bgfx](https://github.com/bkaradzic/bgfx) by Branimir Karadzic - Amazing rendering abstraction
 - [SDL2](https://www.libsdl.org/) - Cross-platform windowing

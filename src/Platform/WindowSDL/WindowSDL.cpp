@@ -1,5 +1,5 @@
 #include "WindowSDL.hpp"
-#include "../Core/Logger/Logger.hpp"
+#include "../../Core/Logger/Logger.hpp"
 
 namespace Voxel {
     WindowSDL::WindowSDL()
@@ -11,6 +11,7 @@ namespace Voxel {
         , _nativeDisplayHandle(nullptr)
         , _subsystemType(SDL_SYSWM_UNKNOWN)
         , _resizeCallback(nullptr)
+        , _scrollDelta(0.0f)
     {}
 
     WindowSDL::~WindowSDL()
@@ -94,6 +95,7 @@ namespace Voxel {
 
     void WindowSDL::pollEvents()
     {
+        this->_scrollDelta = 0.0f;
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -114,6 +116,10 @@ namespace Voxel {
                 case SDL_KEYDOWN:
                     if (event.key.keysym.sym == SDLK_ESCAPE)
                         this->_shouldClose = true;
+                    break;
+
+                case SDL_MOUSEWHEEL:
+                    this->_scrollDelta += (float)event.wheel.y;
                     break;
             }
         }
@@ -147,6 +153,11 @@ namespace Voxel {
     int WindowSDL::getHeight() const
     {
         return this->_height;
+    }
+
+    float WindowSDL::getScrollDelta() const
+    {
+        return this->_scrollDelta;
     }
 
     void WindowSDL::setResizeCallback(void (*callback)(int, int))
