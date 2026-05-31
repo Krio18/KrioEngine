@@ -8,8 +8,6 @@
 #include "../../Core/Logger/Logger.hpp"
 
 namespace Voxel {
-    struct Camera;
-
     class CameraManager {
         public:
             CameraManager();

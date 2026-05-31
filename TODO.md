@@ -19,9 +19,10 @@
 10. [Phase 8: Scripting](#phase-8-scripting-optional)
 11. [Phase 9: Networking](#phase-9-networking-optional)
 12. [Phase 10: Optimization & Polish](#phase-10-optimization--polish)
-13. [Testing Strategy](#testing-strategy)
-14. [Technical Decisions](#technical-decisions)
-15. [Priority Order](#priority-order-next-steps)
+13. [Phase 11: SDK & Developer Experience](#phase-11-sdk--developer-experience)
+14. [Testing Strategy](#testing-strategy)
+15. [Technical Decisions](#technical-decisions)
+16. [Priority Order](#priority-order-next-steps)
 
 ---
 
@@ -322,20 +323,14 @@
 ### 2.7 Camera Controllers
 **Purpose:** Reusable camera movement behaviors for different game styles
 
-> **Reporté depuis 2.6 :**
-> - [ ] Store viewport rectangle: x, y, width, height (normalized 0-1 or pixel coordinates)
-> - [ ] Store clear flags: Skybox, SolidColor, DepthOnly, Nothing
-> - [ ] Store clear color if using SolidColor mode
-> - [ ] Store render texture target (optional, for render-to-texture effects)
-
 #### FPS Camera Controller
-- [ ] Create `src/Renderer/Controllers/FPSCameraController.hpp` and `.cpp`
-- [ ] WASD for forward/back/strafe movement
-- [ ] Mouse X axis for yaw rotation
-- [ ] Mouse Y axis for pitch rotation (clamp to avoid gimbal lock)
-- [ ] Configurable move speed
-- [ ] Configurable mouse sensitivity
-- [ ] Optional sprint modifier (Shift key)
+- [x] Create `src/Renderer/Controllers/FPSCameraController.hpp` and `.cpp`
+- [x] WASD for forward/back/strafe movement
+- [x] Mouse X axis for yaw rotation
+- [x] Mouse Y axis for pitch rotation (clamp to avoid gimbal lock)
+- [x] Configurable move speed
+- [x] Configurable mouse sensitivity
+- [x] Optional sprint modifier (Shift key)
 
 #### Orbit Camera Controller
 - [ ] Create `src/Renderer/Controllers/OrbitCameraController.hpp` and `.cpp`
@@ -353,7 +348,7 @@
 - [ ] Optional look-ahead: predict target movement
 - [ ] Collision detection: move camera forward if occluded (advanced)
 
-- [ ] **Intégration** : Les controllers sont mis à jour dans `Application::update(deltaTime)` via le `ServiceLocator`, ils lisent l'`InputManager` et modifient la `Camera` associée
+- [x] **Intégration** : Les controllers sont mis à jour dans `Application::update(deltaTime)` via le `ServiceLocator`, ils lisent l'`InputManager` et modifient la `Camera` associée
 
 **Why this matters:** Controllers implement behavior. Swap controller = change camera feel. Reusable across projects.
 
@@ -361,23 +356,23 @@
 **Purpose:** Abstract platform input and provide consistent API across systems
 
 #### Raw Input State
-- [ ] Create `src/Platform/InputManager.hpp` and `.cpp`
-- [ ] Track current keyboard state: map KeyCode → bool (pressed this frame)
-- [ ] Track previous keyboard state for detecting key up/down transitions
-- [ ] Implement `isKeyPressed(key)`: true while key held
-- [ ] Implement `isKeyDown(key)`: true only on press frame
-- [ ] Implement `isKeyUp(key)`: true only on release frame
-- [ ] Track current mouse button state
-- [ ] Implement `isMouseButtonPressed(button)`
+- [x] Create `src/Platform/InputManager.hpp` and `.cpp`
+- [x] Track current keyboard state: map KeyCode → bool (pressed this frame)
+- [x] Track previous keyboard state for detecting key up/down transitions
+- [x] Implement `isKeyPressed(key)`: true while key held
+- [x] Implement `isKeyDown(key)`: true only on press frame
+- [x] Implement `isKeyUp(key)`: true only on release frame
+- [x] Track current mouse button state
+- [x] Implement `isMouseButtonPressed(button)`
 - [ ] Implement `isMouseButtonDown(button)`
 - [ ] Implement `isMouseButtonUp(button)`
 - [ ] Track mouse position in screen coordinates
 - [ ] Implement `getMousePosition()`: current position
-- [ ] Implement `getMouseDelta()`: movement since last frame
-- [ ] Track mouse scroll offset
-- [ ] Implement `getMouseScroll()`: scroll amount this frame
+- [x] Implement `getMouseDelta()`: movement since last frame
+- [x] Track mouse scroll offset
+- [x] Implement `getMouseScroll()`: scroll amount this frame
 
-#### Input Action System
+#### Input Action System *(reporté à Phase 5)*
 - [ ] Create `src/Platform/InputAction.hpp`
 - [ ] Define Action: named input binding (e.g., "Jump")
 - [ ] Map action name to one or more KeyCodes
@@ -389,7 +384,7 @@
 - [ ] Support action modifiers: require Ctrl+S for "Save" action
 - [ ] Support axis bindings: map W/S to "MoveForward" axis with +1/-1 values
 
-- [ ] **Intégration** : Enregistrer `InputManager` dans `ServiceLocator`, appeler `pollInput()` dans `Application::run()` à chaque frame avant les updates
+- [x] **Intégration** : Enregistrer `InputManager` dans `ServiceLocator`, appeler `pollInput()` dans `Application::run()` à chaque frame avant les updates
 
 **Why this matters:** Rebindable controls. Same code works with keyboard, gamepad, or touchscreen if you swap InputManager.
 
@@ -700,6 +695,12 @@
 ## Phase 5: Advanced Systems
 
 **Goal:** Complete core engine features for production-ready games
+
+> **Reporté depuis 2.6 (Camera avancée) :**
+> - [ ] Store viewport rectangle: x, y, width, height (normalized 0-1 or pixel coordinates)
+> - [ ] Store clear flags: Skybox, SolidColor, DepthOnly, Nothing
+> - [ ] Store clear color if using SolidColor mode
+> - [ ] Store render texture target (optional, for render-to-texture effects)
 
 ### 5.1 Texture System
 **Purpose:** Load and manage 2D textures and cubemaps
@@ -1880,6 +1881,102 @@
   - Report leaks on shutdown
 
 **Why this matters:** Memory allocations are slow. Custom allocators 10x faster. Tracking prevents leaks.
+
+---
+
+## Phase 11: SDK & Developer Experience
+
+**Goal:** Permettre à des développeurs externes d'utiliser VoxelEngine comme bibliothèque C++ pour créer leurs propres jeux — c'est **l'objectif final du moteur**
+
+### 11.1 Engine as Library
+**Purpose:** Builder VoxelEngine comme bibliothèque statique que les projets externes peuvent linker
+
+- [ ] Configurer CMake pour produire deux targets distincts :
+  - `VoxelEngine` : bibliothèque statique (`libVoxelEngine.a` / `VoxelEngine.lib`)
+  - `VoxelEngineEditor` : exécutable éditeur qui link `VoxelEngine`
+- [ ] Séparer le code moteur du code éditeur avec `#ifdef VOXEL_EDITOR`
+- [ ] Créer `VoxelEngineConfig.cmake` pour le support de `find_package(VoxelEngine)`
+- [ ] Support FetchContent : utilisateurs ajoutent le moteur via CMake FetchContent depuis GitHub
+- [ ] Définir targets d'installation : headers → `include/`, lib → `lib/`, cmake config → `lib/cmake/`
+
+**Why this matters:** Sans build en bibliothèque, les utilisateurs ne peuvent pas linker le moteur dans leur propre projet.
+
+### 11.2 Public API Surface
+**Purpose:** Définir quels headers sont publics (accessibles au dev de jeu) vs internes (implémentation)
+
+- [ ] Créer répertoire `include/VoxelEngine/` : contient uniquement les headers publics
+- [ ] Headers publics à exposer :
+  - `include/VoxelEngine/Application.hpp` : classe de base pour le jeu
+  - `include/VoxelEngine/ECS/Entity.hpp` : manipulation des entités
+  - `include/VoxelEngine/ECS/Components/` : tous les composants
+  - `include/VoxelEngine/Core/InputManager.hpp` : lecture des inputs
+  - `include/VoxelEngine/Core/TimeManager.hpp` : accès au temps
+  - `include/VoxelEngine/Core/ServiceLocator.hpp` : accès aux managers
+  - `include/VoxelEngine/Math/Transform.hpp` : utilitaires mathématiques
+  - `include/VoxelEngine/Assets/AssetManager.hpp` : chargement d'assets
+- [ ] Headers internes restent dans `src/` uniquement (non installés)
+- [ ] Macro `VOXEL_API` pour DLL export/import sur Windows (`__declspec(dllexport/dllimport)`)
+- [ ] Documenter clairement dans chaque header public s'il fait partie de l'API stable
+
+**Why this matters:** L'API publique est le contrat avec les développeurs. Ce qui est dans `src/` peut changer librement.
+
+### 11.3 Application Entry Point
+**Purpose:** Définir comment un développeur de jeu démarre son jeu avec le moteur
+
+- [ ] Finaliser `Voxel::Application` comme classe de base avec méthodes virtuelles :
+  - `virtual void onInitialize()` : appelé une fois après l'init du moteur
+  - `virtual void onUpdate(float deltaTime)` : appelé chaque frame
+  - `virtual void onRender()` : appelé après update pour rendu custom
+  - `virtual void onShutdown()` : appelé avant l'arrêt du moteur
+- [ ] Créer macro `VOXEL_MAIN(GameClassName)` qui génère `main()` et instancie la classe jeu
+- [ ] Le moteur gère en interne : création fenêtre, init renderer, boucle principale
+- [ ] Créer struct `EngineConfig` pour configurer le moteur avant lancement :
+  - Titre fenêtre, largeur, hauteur
+  - Cap FPS cible
+  - Chemin de la scène initiale
+  - Chemin du répertoire assets
+- [ ] Surcharge optionnelle `configureEngine(EngineConfig&)` dans `Application` pour personnaliser
+
+**Why this matters:** Le dev de jeu doit pouvoir écrire son jeu en 20 lignes sans comprendre les internals du moteur.
+
+### 11.4 Game Project Template
+**Purpose:** Template de démarrage pour un nouveau projet de jeu
+
+- [ ] Créer répertoire `templates/game_project/` dans le repo du moteur
+- [ ] Template `CMakeLists.txt` :
+  - `find_package(VoxelEngine REQUIRED)` ou FetchContent
+  - Link contre `VoxelEngine::VoxelEngine`
+  - Copie automatique des assets au build
+  - Configuration des chemins standards
+- [ ] Template `src/MyGame.hpp` et `MyGame.cpp` :
+  - Sous-classe `Voxel::Application`
+  - Implémente `onInitialize()`, `onUpdate()`, `onRender()`
+  - Utilise `VOXEL_MAIN(MyGame)`
+- [ ] Répertoire `assets/` avec assets d'exemple
+- [ ] README expliquant les étapes pour compiler et lancer
+
+**Why this matters:** Sans template, chaque utilisateur passe 2h à configurer CMake. Avec template, ça prend 5 minutes.
+
+### 11.5 API Documentation
+**Purpose:** Documenter l'API publique pour que les développeurs sachent comment utiliser le moteur
+
+- [ ] Intégrer Doxygen : générer docs HTML depuis les headers publics
+- [ ] Documenter toutes les classes publiques avec exemples d'usage :
+  - `Application` : comment sous-classer et implémenter la boucle de jeu
+  - `Entity` : créer, ajouter composants, détruire
+  - `InputManager` : requêter touches et souris
+  - `ServiceLocator` : accéder aux managers
+  - `AssetManager` : charger textures, meshes, sons
+- [ ] Guide "Getting Started" :
+  - Installer le moteur via FetchContent
+  - Créer premier projet depuis le template
+  - Ajouter une entité avec MeshRenderer
+  - Déplacer l'entité avec InputManager
+  - Builder et lancer le jeu
+- [ ] Héberger la doc en GitHub Pages ou site statique
+- [ ] Changelog versionné pour suivre les breaking changes d'API
+
+**Why this matters:** Une API non documentée est inutilisable. Les exemples sont plus importants que la référence exhaustive.
 
 ---
 

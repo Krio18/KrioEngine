@@ -48,11 +48,11 @@ include(cmake/Compiler.cmake OPTIONAL)
 
 set(VOXEL_ENGINE_SOURCES
     src/main.cpp
-    src/Platform/WindowSDL.cpp
+    src/Platform/WindowSDL/WindowSDL.cpp
+    src/Platform/InputManager/InputManager.cpp
     src/Core/Application/Application.cpp
     src/Core/ServiceLocator/ServiceLocator.cpp
     src/Core/TimeManager/TimeManager.cpp
-    src/Core/InputManager/InputManager.cpp
     src/Core/PhysicsManager/PhysicsManager.cpp
     src/Core/SceneManager/SceneManager.cpp
     src/Core/RenderManager/RenderManager.cpp
@@ -65,6 +65,11 @@ set(VOXEL_ENGINE_SOURCES
     src/Renderer/MaterialManager/MaterialManager.cpp
     src/Renderer/MeshManager/MeshManager.cpp
     src/Renderer/RendererManager/RendererManager.cpp
+    src/Renderer/Camera/Camera.cpp
+    src/Renderer/CameraManager/CameraManager.cpp
+    src/Renderer/Controllers/FollowCameraController/FollowCameraController.cpp
+    src/Renderer/Controllers/FPSCameraController/FPSCameraController.cpp
+    src/Renderer/Controllers/OrbitCameraController/OrbitCameraController.cpp
     src/Math/Transform.cpp
 )
 
