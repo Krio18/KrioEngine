@@ -40,8 +40,12 @@ namespace Voxel {
             glm::vec2 getMouseDelta() const;
             float getMouseScroll() const;
             bool isMouseButtonPressed(MouseButton button) const;
+            bool isMouseButtonDown(MouseButton button) const;
+            bool isMouseButtonUp(MouseButton button) const;
+            glm::vec2 getMousePosition() const;
 
             void addScrollDelta(float delta);
+            void resetScroll();
 
         private:
             std::array<uint8_t, KEY_COUNT> _currentKeys;
@@ -50,6 +54,9 @@ namespace Voxel {
             int _mouseDeltaY;
             float _mouseScroll;
             uint32_t _mouseButtons;
+            uint32_t _previousMouseButtons;
+            int _mouseX;
+            int _mouseY;
 
             int toScancode(Key key) const;
     };

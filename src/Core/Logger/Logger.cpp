@@ -3,7 +3,12 @@
 namespace Voxel {
     void Logger::log(LogLevel level, const std::string& message) {
         const char* prefixes[] = {"[INFO]", "[WARN]", "[ERROR]"};
-        std::cout << prefixes[static_cast<int>(level)] << " " << message << std::endl;
+        const char* colors[] = {"\033[1;34m", "\033[1;33m", "\033[1;31m"};
+        const char* reset = "\033[0m";
+
+        std::cout << colors[static_cast<int>(level)]
+                  << prefixes[static_cast<int>(level)]
+                  << reset << " " << message << std::endl;
     }
 
     void Logger::info(const std::string& message) {

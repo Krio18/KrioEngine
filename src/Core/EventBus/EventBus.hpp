@@ -1,13 +1,15 @@
 #pragma once
 
 #include "../EventSystem/Event.hpp"
+
+#include <algorithm>
 #include <functional>
 #include <memory>
 #include <typeindex>
+#include <type_traits>
 #include <unordered_map>
 #include <vector>
 #include <queue>
-#include <algorithm>
 
 namespace Voxel {
     class EventBus {

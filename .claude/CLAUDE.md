@@ -11,6 +11,8 @@
   - `CMakeLists.txt`
   - `TODO.md` (pour cocher les tâches complétées)
   - `README.md`
+  - Tout les fichiées MAIS uniquement pour ajouter des Logger via `Voxel::Logger::info/warning/error`
+  - `Sandbox.cpp` et `Sandbox.hpp`
 
 ### Style de communication
 - Répondre en français

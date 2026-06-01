@@ -102,10 +102,10 @@
 
 **Why this matters:** Physics, animation, and gameplay logic all need consistent time values. TimeScale enables bullet-time effects.
 
-### 0.3 Refactor Application Class
-**Purpose:** Convert from monolithic Application to manager-orchestration pattern
+### 0.3 Refactor Engine Class
+**Purpose:** Convert from monolithic Engine to manager-orchestration pattern
 
-- [x] Remove singleton pattern from `Application`
+- [x] Remove singleton pattern from `Engine`
 - [x] Create `initializeManagers()` method that registers all managers with ServiceLocator
 - [x] Create `shutdownManagers()` method that destroys managers in reverse order
 - [x] Refactor main loop to call managers in correct sequence:
@@ -117,7 +117,7 @@
 - [x] Add exception handling around manager calls
 - [x] Log manager initialization/shutdown for debugging
 
-**Why this matters:** Clear separation of concerns. Each manager owns its domain. Application just orchestrates.
+**Why this matters:** Clear separation of concerns. Each manager owns its domain. Engine just orchestrates.
 
 ### 0.4 Event System
 **Purpose:** Decouple systems via publish-subscribe messaging instead of direct calls
@@ -184,7 +184,7 @@
 ### 1.3 First Triangle Milestone
 **Purpose:** Validate entire rendering pipeline with simplest possible output
 
-- [x] In `Application::run()` create a triangle mesh using `Mesh::createTriangle()`
+- [x] In `Engine::run()` create a triangle mesh using `Mesh::createTriangle()`
 - [x] Load simple shader program
 - [x] Submit draw call with identity matrices (no transformation)
 - [x] Set clear color to dark gray so triangle is visible
@@ -225,9 +225,9 @@
 - [x] Implement `reload(handle)`: recompile shader from disk (for hot-reload)
 - [x] Handle compilation errors gracefully: log error, return fallback shader
 - [x] Track shader usage count for debugging
-- [ ] Implement shader variants: same shader with different #defines (e.g., WITH_SHADOWS) *(reporté à 5.3 Lighting)*
+- [ ] Implement shader variants: same shader with different #defines (e.g., WITH_SHADOWS) *(voir Phase 5.3)*
 
-- [x] **Intégration** : Enregistrer `ShaderManager` dans `ServiceLocator` (`Application::_initializeManagers`), et remplacer la création directe de `Shader` dans `RenderManager` par `ShaderManager::load/get`
+- [x] **Intégration** : Enregistrer `ShaderManager` dans `ServiceLocator` (`Engine::_initializeManagers`), et remplacer la création directe de `Shader` dans `RenderManager` par `ShaderManager::load/get`
 
 **Why this matters:** Avoids duplicate shader loads. Hot-reload enables edit-while-running workflow.
 
@@ -333,22 +333,20 @@
 - [x] Optional sprint modifier (Shift key)
 
 #### Orbit Camera Controller
-- [ ] Create `src/Renderer/Controllers/OrbitCameraController.hpp` and `.cpp`
-- [ ] Set target point to orbit around
-- [ ] Mouse drag to rotate around target (spherical coordinates)
-- [ ] Mouse scroll to zoom in/out (change orbit distance)
-- [ ] Limit minimum and maximum zoom distance
-- [ ] Limit pitch angle to avoid flipping
+- [x] Create `src/Renderer/Controllers/OrbitCameraController.hpp` and `.cpp`
+- [x] Set target point to orbit around
+- [x] Mouse drag to rotate around target (spherical coordinates)
+- [x] Mouse scroll to zoom in/out (change orbit distance)
+- [x] Limit minimum and maximum zoom distance
+- [x] Limit pitch angle to avoid flipping
 
 #### Follow Camera Controller
-- [ ] Create `src/Renderer/Controllers/FollowCameraController.hpp` and `.cpp`
-- [ ] Set target transform to follow
-- [ ] Smooth follow using damping (lerp with time)
-- [ ] Offset from target (e.g., behind and above player)
-- [ ] Optional look-ahead: predict target movement
-- [ ] Collision detection: move camera forward if occluded (advanced)
+- [x] Create `src/Renderer/Controllers/FollowCameraController.hpp` and `.cpp`
+- [x] Set target transform to follow
+- [x] Smooth follow using damping (lerp with time)
+- [x] Offset from target (e.g., behind and above player)
 
-- [x] **Intégration** : Les controllers sont mis à jour dans `Application::update(deltaTime)` via le `ServiceLocator`, ils lisent l'`InputManager` et modifient la `Camera` associée
+- [x] **Intégration** : Les controllers sont mis à jour dans `Engine::update(deltaTime)` via le `ServiceLocator`, ils lisent l'`InputManager` et modifient la `Camera` associée
 
 **Why this matters:** Controllers implement behavior. Swap controller = change camera feel. Reusable across projects.
 
@@ -363,30 +361,33 @@
 - [x] Implement `isKeyDown(key)`: true only on press frame
 - [x] Implement `isKeyUp(key)`: true only on release frame
 - [x] Track current mouse button state
+- [x] Track previous mouse button state for detecting button up/down transitions
 - [x] Implement `isMouseButtonPressed(button)`
-- [ ] Implement `isMouseButtonDown(button)`
-- [ ] Implement `isMouseButtonUp(button)`
-- [ ] Track mouse position in screen coordinates
-- [ ] Implement `getMousePosition()`: current position
+- [x] Implement `isMouseButtonDown(button)`
+- [x] Implement `isMouseButtonUp(button)`
+- [x] Track mouse position in screen coordinates
+- [x] Implement `getMousePosition()`: current position
 - [x] Implement `getMouseDelta()`: movement since last frame
 - [x] Track mouse scroll offset
 - [x] Implement `getMouseScroll()`: scroll amount this frame
 
-#### Input Action System *(reporté à Phase 5)*
-- [ ] Create `src/Platform/InputAction.hpp`
-- [ ] Define Action: named input binding (e.g., "Jump")
-- [ ] Map action name to one or more KeyCodes
-- [ ] Support multiple bindings for same action (Space OR Gamepad A for Jump)
-- [ ] Implement `registerAction(name, keycode)`: bind action to key
-- [ ] Implement `isActionPressed(name)`: check if any bound key is pressed
-- [ ] Implement `isActionDown(name)`: check if action triggered this frame
-- [ ] Load action mappings from JSON config file
-- [ ] Support action modifiers: require Ctrl+S for "Save" action
-- [ ] Support axis bindings: map W/S to "MoveForward" axis with +1/-1 values
-
-- [x] **Intégration** : Enregistrer `InputManager` dans `ServiceLocator`, appeler `pollInput()` dans `Application::run()` à chaque frame avant les updates
+- [x] **Intégration** : Enregistrer `InputManager` dans `ServiceLocator`, appeler `pollInput()` dans `Engine::run()` à chaque frame avant les updates
 
 **Why this matters:** Rebindable controls. Same code works with keyboard, gamepad, or touchscreen if you swap InputManager.
+
+### 2.9 Engine Base Class & Sandbox
+**Purpose:** Séparer le moteur pur de la logique applicative — le dev hérite de `Engine` pour créer son jeu
+
+- [x] Renommer `Application` → `Engine` (`src/Core/Engine/Engine.hpp` et `.cpp`)
+- [x] Exposer trois hooks virtuels : `onInit()`, `onUpdate()`, `onShutdown()`
+- [x] Exposer `getServiceLocator()`, `getCamera()`, `getWindowWidth()`, `getWindowHeight()` en `protected`
+- [x] `Engine` ne connaît aucun asset ni controller — responsabilité de la sous-classe
+- [x] Créer `Sandbox/Sandbox.hpp` et `.cpp` — sous-classe concrète pour tester les features
+- [x] Déplacer `Sandbox/` hors de `src/` — ce n'est pas du code moteur
+- [x] Assets chargés dans `Sandbox::onInit()` (shader, mesh, material) et non dans `Engine`
+- [x] `main.cpp` instancie `Sandbox` au lieu de `Engine` directement
+
+**Why this matters:** Le moteur devient une library. Le dev sous-classe `Engine` sans jamais modifier le code moteur — exactement comme Unity (`MonoBehaviour`) ou Unreal (`GameMode`).
 
 ---
 
@@ -490,6 +491,9 @@
 
 **Why this matters:** Systems provide behavior. Adding RenderSystem makes entities with MeshRenderer automatically render.
 
+#### FollowCameraController — look-ahead *(reporté depuis 2.7)*
+- [ ] `FollowCameraController` : optional look-ahead — predict target movement direction using velocity, offset camera slightly in front of target
+
 ### 3.5 Scene
 **Purpose:** Container for entities and scene-level data
 
@@ -507,7 +511,7 @@
 - [ ] Implement `update(deltaTime)`: execute all scene systems
 - [ ] Store scene-level settings: ambient light color, fog, skybox
 
-- [ ] **Intégration** : `Scene` est créée et gérée par `SceneManager`, son `update()` est appelé depuis `SceneManager::update()` qui lui-même est appelé depuis `Application::run()`
+- [ ] **Intégration** : `Scene` est créée et gérée par `SceneManager`, son `update()` est appelé depuis `SceneManager::update()` qui lui-même est appelé depuis `Engine::run()`
 
 **Why this matters:** Scene owns all entities. Switching scenes = load different set of entities.
 
@@ -525,7 +529,7 @@
 - [ ] Support async scene loading: load in background, switch when ready
 - [ ] Scene transition callbacks: onSceneUnload, onSceneLoaded
 
-- [ ] **Intégration** : Enregistrer `SceneManager` dans `ServiceLocator`, appeler `SceneManager::update(deltaTime)` depuis `Application::run()`
+- [ ] **Intégration** : Enregistrer `SceneManager` dans `ServiceLocator`, appeler `SceneManager::update(deltaTime)` depuis `Engine::run()`
 
 **Why this matters:** Games have menus, levels, cutscenes. SceneManager handles transitions.
 
@@ -876,6 +880,9 @@
 
 **Why this matters:** Physics makes games interactive. Jumping, collisions, ragdolls all need physics.
 
+#### FollowCameraController — collision detection *(reporté depuis 2.7)*
+- [ ] `FollowCameraController` : collision detection — if occluded by geometry, move camera forward along offset axis to maintain line of sight (requires raycast from Physics)
+
 ### 5.6 Audio System
 **Purpose:** Play sounds and music with spatial 3D positioning
 
@@ -918,7 +925,7 @@
 - [ ] Implement `setVolume(volume)`: set master volume
 - [ ] Implement `setGroupVolume(group, volume)`: set group volume
 
-- [ ] **Intégration** : Enregistrer `AudioManager` dans `ServiceLocator`, appeler `AudioManager::update()` chaque frame depuis `Application::run()`, synchroniser la position du listener avec la caméra principale
+- [ ] **Intégration** : Enregistrer `AudioManager` dans `ServiceLocator`, appeler `AudioManager::update()` chaque frame depuis `Engine::run()`, synchroniser la position du listener avec la caméra principale
 
 **Why this matters:** Audio is 50% of game feel. Footsteps, gunshots, music set mood.
 
@@ -1089,7 +1096,23 @@
 
 **Why this matters:** Characters need to walk, run, attack. Without animation, games feel static and lifeless.
 
-### 5.11 Runtime UI System
+### 5.11 Input Action System *(reporté depuis 2.8)*
+**Purpose:** Rebindable named input actions — abstracts physical keys from game actions
+
+- [ ] Create `src/Platform/InputAction.hpp`
+- [ ] Define Action: named input binding (e.g., "Jump")
+- [ ] Map action name to one or more KeyCodes
+- [ ] Support multiple bindings for same action (Space OR Gamepad A for Jump)
+- [ ] Implement `registerAction(name, keycode)`: bind action to key
+- [ ] Implement `isActionPressed(name)`: check if any bound key is pressed
+- [ ] Implement `isActionDown(name)`: check if action triggered this frame
+- [ ] Load action mappings from JSON config file
+- [ ] Support action modifiers: require Ctrl+S for "Save" action
+- [ ] Support axis bindings: map W/S to "MoveForward" axis with +1/-1 values
+
+**Why this matters:** Rebindable controls. Same code works with keyboard, gamepad, or touchscreen if you swap InputManager.
+
+### 5.12 Runtime UI System
 **Purpose:** In-game user interface for menus, HUD, dialogs (separate from editor ImGui)
 
 #### UI Architecture
@@ -1210,7 +1233,7 @@
   - Sequence multiple tweens
   - OnComplete callback
 
-- [ ] **Intégration** : `UIRenderer` est appelé dans `RenderManager::render()` en dernière passe (après post-process), `UIEventSystem` est mis à jour depuis `Application::run()` après `InputManager::pollInput()`
+- [ ] **Intégration** : `UIRenderer` est appelé dans `RenderManager::render()` en dernière passe (après post-process), `UIEventSystem` est mis à jour depuis `Engine::run()` après `InputManager::pollInput()`
 
 **Why this matters:** Every game needs menus, health bars, inventory screens. ImGui is for developers, runtime UI is for players.
 
@@ -1226,7 +1249,7 @@
 - [ ] Add Dear ImGui to `vcpkg.json`
 - [ ] Integrate ImGui with bgfx renderer backend
 - [ ] Create `src/Editor/EditorLayer.hpp` and `.cpp`
-- [ ] Initialize ImGui context in Application startup
+- [ ] Initialize ImGui context in Engine startup
 - [ ] Begin ImGui frame before rendering
 - [ ] End ImGui frame and render after scene
 - [ ] Handle ImGui input: pass mouse/keyboard events to ImGui
@@ -1906,7 +1929,7 @@
 
 - [ ] Créer répertoire `include/VoxelEngine/` : contient uniquement les headers publics
 - [ ] Headers publics à exposer :
-  - `include/VoxelEngine/Application.hpp` : classe de base pour le jeu
+  - `include/VoxelEngine/Engine.hpp` : classe de base pour le jeu
   - `include/VoxelEngine/ECS/Entity.hpp` : manipulation des entités
   - `include/VoxelEngine/ECS/Components/` : tous les composants
   - `include/VoxelEngine/Core/InputManager.hpp` : lecture des inputs
@@ -1920,10 +1943,10 @@
 
 **Why this matters:** L'API publique est le contrat avec les développeurs. Ce qui est dans `src/` peut changer librement.
 
-### 11.3 Application Entry Point
+### 11.3 Engine Entry Point
 **Purpose:** Définir comment un développeur de jeu démarre son jeu avec le moteur
 
-- [ ] Finaliser `Voxel::Application` comme classe de base avec méthodes virtuelles :
+- [ ] Finaliser `Voxel::Engine` comme classe de base avec méthodes virtuelles :
   - `virtual void onInitialize()` : appelé une fois après l'init du moteur
   - `virtual void onUpdate(float deltaTime)` : appelé chaque frame
   - `virtual void onRender()` : appelé après update pour rendu custom
@@ -1935,7 +1958,7 @@
   - Cap FPS cible
   - Chemin de la scène initiale
   - Chemin du répertoire assets
-- [ ] Surcharge optionnelle `configureEngine(EngineConfig&)` dans `Application` pour personnaliser
+- [ ] Surcharge optionnelle `configureEngine(EngineConfig&)` dans `Engine` pour personnaliser
 
 **Why this matters:** Le dev de jeu doit pouvoir écrire son jeu en 20 lignes sans comprendre les internals du moteur.
 
@@ -1949,7 +1972,7 @@
   - Copie automatique des assets au build
   - Configuration des chemins standards
 - [ ] Template `src/MyGame.hpp` et `MyGame.cpp` :
-  - Sous-classe `Voxel::Application`
+  - Sous-classe `Voxel::Engine`
   - Implémente `onInitialize()`, `onUpdate()`, `onRender()`
   - Utilise `VOXEL_MAIN(MyGame)`
 - [ ] Répertoire `assets/` avec assets d'exemple
@@ -1962,7 +1985,7 @@
 
 - [ ] Intégrer Doxygen : générer docs HTML depuis les headers publics
 - [ ] Documenter toutes les classes publiques avec exemples d'usage :
-  - `Application` : comment sous-classer et implémenter la boucle de jeu
+  - `Engine` : comment sous-classer et implémenter la boucle de jeu
   - `Entity` : créer, ajouter composants, détruire
   - `InputManager` : requêter touches et souris
   - `ServiceLocator` : accéder aux managers
@@ -2213,7 +2236,7 @@
 ### Immediate Priority (v0.1.0 - Core Foundation)
 1. **ServiceLocator** - Foundation for all managers, must be first ✅
 2. **TimeManager** - Delta time needed by all systems ✅
-3. **Refactor Application** - Implement manager lifecycle ✅
+3. **Refactor Engine** - Implement manager lifecycle ✅
 4. **Event System** - Decouple systems early ✅
 5. **Shader basics** - Get triangle on screen (motivation!)
 6. **Transform matrices (GLM)** - Enable 3D positioning
