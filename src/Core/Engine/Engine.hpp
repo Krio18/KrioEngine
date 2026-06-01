@@ -14,32 +14,41 @@
 #include "../Logger/Logger.hpp"
 #include "../../Renderer/MeshManager/MeshManager.hpp"
 #include "../../Renderer/CameraManager/CameraManager.hpp"
-#include "../../Renderer/Controllers/FPSCameraController/FPSCameraController.hpp"
 
 #include <memory>
 
 namespace Voxel {
-    class Application {
+    class Engine {
         public:
-            Application();
-            ~Application() = default;
+            Engine();
+            virtual ~Engine() = default;
 
-            Application(const Application&) = delete;
-            Application& operator=(const Application&) = delete;
+            Engine(const Engine&) = delete;
+            Engine& operator=(const Engine&) = delete;
 
             bool shutdown();
             bool initialize();
 
             void run();
+
+        protected:
+            ServiceLocator& getServiceLocator();
+            std::shared_ptr<Camera> getCamera();
+            int getWindowWidth() const;
+            int getWindowHeight() const;
+
+            virtual void onInit();
+            virtual void onUpdate();
+            virtual void onShutdown();
+
+            std::shared_ptr<Camera> _camera;
+
         private:
             WindowSDL _window;
             BgfxContext _renderer;
             bool _running;
 
             ServiceLocator _serviceLocator;
-
-            std::shared_ptr<Camera> _camera;
-            std::unique_ptr<FPSCameraController> _fpsController;
 
 
             int _lastWindowWidth;

@@ -9,7 +9,7 @@ namespace Voxel {
         auto it = this->_shaders.find("error");
         if (it != this->_shaders.end()) {
             this->_errorProgramHandle = it->second.shader->getProgramHandle();
-            Logger::info("Error shader loaded successfully");
+            Logger::info("Fallback error shader loaded successfully");
         } else {
             Logger::error("Critical: Error shader ('error') not found in build/shaders/spirv/");
         }

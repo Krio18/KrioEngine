@@ -1,13 +1,13 @@
-#include "Core/Application/Application.hpp"
+#include "../Sandbox/Sandbox.hpp"
 
 int main() {
-    Voxel::Application app;
-    if (!app.initialize())
+    Voxel::Sandbox sandbox;
+    if (!sandbox.initialize())
         return 1;
 
-    app.run();
+    sandbox.run();
 
-    if (!app.shutdown())
+    if (!sandbox.shutdown())
         return 1;
     return 0;
 }

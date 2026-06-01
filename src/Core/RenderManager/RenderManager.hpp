@@ -10,6 +10,7 @@
 #include "../../Renderer/RendererManager/RendererManager.hpp"
 #include "../../Renderer/CameraManager/CameraManager.hpp"
 
+#include <glm/glm.hpp>
 #include <memory>
 
 namespace Voxel {
@@ -21,13 +22,10 @@ namespace Voxel {
 
             void init(ShaderManager& shaderManager, MeshManager& meshManager, CameraManager& cameraManager);
             void render(double deltaTime);
-            void submitMesh(const Mesh& mesh, const Material& material, const Transform& transform);
+            void submitMesh(const Mesh& mesh, const Material& material, const glm::mat4& transform);
 
         private:
             RendererManager _rendererManager;
-            std::unique_ptr<Material> _material;
-            Mesh* _cubeMesh;
             CameraManager* _cameraManager = nullptr;
-            float _angle;
     };
 }

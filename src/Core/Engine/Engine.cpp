@@ -1,15 +1,15 @@
-#include "Application.hpp"
+#include "Engine.hpp"
 
 
 namespace Voxel {
-    Application::Application()
+    Engine::Engine()
         : _running(false)
         , _lastWindowWidth(0)
         , _lastWindowHeight(0)
         , _physicsAccumulator(0.0)
     {}
 
-    bool Application::initialize() {
+    bool Engine::initialize() {
         Logger::info("Initializing VoxelEngine...");
 
         if (!this->_window.create("VoxelEngine", 1280, 720)) {
@@ -38,11 +38,13 @@ namespace Voxel {
 
         this->_running = true;
 
+        this->onInit();
+
         Logger::info("VoxelEngine initialized successfully");
         return true;
     }
 
-    bool Application::_initializeManagers() {
+    bool Engine::_initializeManagers() {
         Logger::info("Initializing managers...");
 
         try {
@@ -66,12 +68,6 @@ namespace Voxel {
                 this->_serviceLocator.getManager<CameraManager>()
             );
 
-            this->_camera = std::make_shared<Camera>();
-            this->_camera->position = glm::vec3(0.0f, 0.0f, 5.0f);
-            this->_camera->aspect = static_cast<float>(this->_lastWindowWidth) / static_cast<float>(this->_lastWindowHeight);
-            this->_serviceLocator.getManager<CameraManager>().registerCamera(this->_camera);
-            this->_serviceLocator.getManager<CameraManager>().setMainCamera(this->_camera);
-            this->_fpsController = std::make_unique<FPSCameraController>(*(this->_camera));
 
             Logger::info("Managers initialized successfully");
             return true;
@@ -86,8 +82,10 @@ namespace Voxel {
         }
     }
 
-    bool Application::shutdown() {
+    bool Engine::shutdown() {
         this->_running = false;
+
+        this->onShutdown();
 
         if (!this->_shutdownManagers()) {
             Logger::error("Failed to shutdown managers");
@@ -100,7 +98,7 @@ namespace Voxel {
         return true;
     }
 
-    bool Application::_shutdownManagers() {
+    bool Engine::_shutdownManagers() {
         try {
             this->_serviceLocator.shutdown();
             Logger::info("Managers shutdown successfully");
@@ -116,7 +114,7 @@ namespace Voxel {
         }
     }
 
-    void Application::run() {
+    void Engine::run() {
         while (this->_running) {
             try {
                 this->_serviceLocator.getManager<TimeManager>().update();
@@ -149,7 +147,24 @@ namespace Voxel {
         }
     }
 
-    void Application::handleEvents() {
+    ServiceLocator& Engine::getServiceLocator() {
+        return this->_serviceLocator;
+    }
+
+    std::shared_ptr<Camera> Engine::getCamera() {
+        return this->_camera;
+    }
+
+    int Engine::getWindowWidth() const {
+        return this->_window.getWidth();
+    }
+
+    int Engine::getWindowHeight() const {
+        return this->_window.getHeight();
+    }
+
+    void Engine::handleEvents() {
+        this->_serviceLocator.getManager<InputManager>().resetScroll();
         this->_window.pollEvents();
         float scroll = this->_window.getScrollDelta();
         if (scroll != 0.0f)
@@ -168,17 +183,22 @@ namespace Voxel {
         }
     }
 
-    void Application::update() {
-        this->_serviceLocator.getManager<TimeManager>().debugLogTimeInfo();
-        this->_fpsController->update(
-            static_cast<float>(this->_serviceLocator.getManager<TimeManager>().getDeltaTime()),
-            this->_serviceLocator.getManager<InputManager>()
-        );
+    void Engine::update() {
+        this->onUpdate();
     }
 
-    void Application::render() {
+    void Engine::render() {
         double deltaTime = this->_serviceLocator.getManager<TimeManager>().getDeltaTime();
         this->_serviceLocator.getManager<RenderManager>().render(deltaTime);
         this->_renderer.frame();
+    }
+
+    void Engine::onInit() {
+    }
+
+    void Engine::onUpdate() {
+    }
+
+    void Engine::onShutdown() {
     }
 }

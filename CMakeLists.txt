@@ -50,7 +50,8 @@ set(VOXEL_ENGINE_SOURCES
     src/main.cpp
     src/Platform/WindowSDL/WindowSDL.cpp
     src/Platform/InputManager/InputManager.cpp
-    src/Core/Application/Application.cpp
+    src/Core/Engine/Engine.cpp
+    Sandbox/Sandbox.cpp
     src/Core/ServiceLocator/ServiceLocator.cpp
     src/Core/TimeManager/TimeManager.cpp
     src/Core/PhysicsManager/PhysicsManager.cpp
@@ -182,6 +183,7 @@ add_dependencies(VoxelEngine Shaders)
 
 target_include_directories(VoxelEngine PRIVATE
     src
+    Sandbox
     extern/bgfx.cmake/bgfx/include
     extern/bgfx.cmake/bx/include
     extern/bgfx.cmake/bimg/include
