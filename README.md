@@ -21,17 +21,16 @@
 VoxelEngine is a **C++ game engine SDK** — you write your game in C++ by linking against the engine library, similar to how Unreal Engine works. No scripting language required: the engine exposes a clean C++ API that you subclass and extend to build your game.
 
 ```cpp
-#include <VoxelEngine/Application.hpp>
+#include <VoxelEngine/Engine.hpp>
 
-class MyGame : public Voxel::Application {
-    void onInitialize() override { /* setup scene, load assets */ }
-    void onUpdate(float dt) override { /* game logic */ }
+class MyGame : public Voxel::Engine {
+    void onInit() override { /* setup scene, load assets */ }
+    void onUpdate() override { /* game logic */ }
+    void onShutdown() override { /* cleanup */ }
 };
-
-VOXEL_MAIN(MyGame)
 ```
 
-> **Note:** The `VOXEL_MAIN` macro and public SDK headers are part of the planned Phase 11 work. The engine is currently in active development.
+> **Note:** The public SDK headers and distribution packaging are part of the planned Phase 11 work. The engine is currently in active development. For now, extend `Voxel::Engine` directly from source (see `src/Core/Sandbox/` for a working example).
 
 ---
 
@@ -41,7 +40,7 @@ VOXEL_MAIN(MyGame)
 |-------|-------------|--------|
 | Phase 0 | Core Architecture (ServiceLocator, TimeManager, EventBus, InputManager) | ✅ Done |
 | Phase 1 | Minimal Rendering (Shader, Mesh, Transform, MVP Pipeline) | ✅ Done |
-| Phase 2 | Manager Infrastructure (Camera, Material, Mesh, Render managers) | ✅ Done |
+| Phase 2 | Manager Infrastructure (Shader, Material, Mesh, Camera, Controllers, InputManager, Engine base class) | ✅ Done |
 | Phase 3 | Scene & ECS (EnTT integration, components, systems) | 📋 Planned |
 | Phase 4 | Asset Pipeline | 📋 Planned |
 | Phase 5 | Advanced Systems (Physics, Audio, Lighting, Animation) | 📋 Planned |
@@ -128,6 +127,7 @@ cmake --build build --config Release
 **Design Patterns:**
 - **Manager-based architecture** — each major system has a dedicated Manager (RenderManager, InputManager, etc.)
 - **Service Locator** — global access to managers without singletons or tight coupling
+- **Engine base class** — `Voxel::Engine` handles the main loop, windowing and managers; the user subclasses it and overrides `onInit()`, `onUpdate()`, `onShutdown()`
 - **ECS (planned)** — EnTT library for entity-component relationships, cache-friendly
 - **RAII** — automatic resource management throughout
 - **Cross-platform** — bgfx abstracts Vulkan/D3D12/Metal/OpenGL

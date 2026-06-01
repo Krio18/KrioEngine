@@ -19,7 +19,6 @@ namespace Voxel {
         glm::vec3 right = this->_camera.orientation * glm::vec3(1.0f, 0.0f, 0.0f);
         glm::vec3 up = this->_camera.orientation * glm::vec3(0.0f, 1.0f, 0.0f);
 
-
         if (inputmanager.isKeyPressed(Key::W)) this->_camera.position += forward * this->_moveSpeed * deltaTime;
         if (inputmanager.isKeyPressed(Key::S)) this->_camera.position -= forward * this->_moveSpeed * deltaTime;
         if (inputmanager.isKeyPressed(Key::A)) this->_camera.position -= right * this->_moveSpeed * deltaTime;
