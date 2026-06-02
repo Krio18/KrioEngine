@@ -1,7 +1,7 @@
 #include "ShaderManager.hpp"
 
 namespace Voxel {
-    ShaderManager::ShaderManager() : _errorProgramHandle(BGFX_INVALID_HANDLE) {}
+    ShaderManager::ShaderManager() : _errorProgramHandle(BGFX_INVALID_HANDLE), _shaderDirectory("build/shaders/spirv") {}
 
     void ShaderManager::init() {
         this->load("error");
@@ -11,7 +11,7 @@ namespace Voxel {
             this->_errorProgramHandle = it->second.shader->getProgramHandle();
             Logger::info("Fallback error shader loaded successfully");
         } else {
-            Logger::error("Critical: Error shader ('error') not found in build/shaders/spirv/");
+            Logger::error("Critical: Error shader ('error') not found in " + this->_shaderDirectory.string());
         }
     }
 
@@ -21,8 +21,8 @@ namespace Voxel {
             return;
         }
 
-        std::string vertexPath = "build/shaders/spirv/v_" + name + ".sc.bin";
-        std::string fragmentPath = "build/shaders/spirv/f_" + name + ".sc.bin";
+        std::string vertexPath = (_shaderDirectory / ("v_" + name + ".sc.bin")).string();
+        std::string fragmentPath = (_shaderDirectory / ("f_" + name + ".sc.bin")).string();
 
         std::unique_ptr<Voxel::Shader> shader = std::make_unique<Shader>(vertexPath, fragmentPath);
 
@@ -31,13 +31,12 @@ namespace Voxel {
             return;
         }
 
-        this->_shaders.insert({name, ShaderEntry{std::move(shader), 1}});
+        this->_shaders.emplace(name, ShaderEntry{std::move(shader)});
     }
 
     const Shader& ShaderManager::get(const std::string& name) {
         auto it = this->_shaders.find(name);
         if (it != this->_shaders.end()) {
-            it->second.usageCount++;
             return *(it->second.shader);
         } else {
             Logger::warning("Shader '" + name + "' not found. Using fallback 'error' shader.");
@@ -54,7 +53,6 @@ namespace Voxel {
         auto it = this->_shaders.find(name);
 
         if (it != this->_shaders.end()) {
-            it->second.usageCount++;
             return it->second.shader->getProgramHandle();
         }
 

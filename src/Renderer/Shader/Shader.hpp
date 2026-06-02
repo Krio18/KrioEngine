@@ -7,7 +7,6 @@
 #include <iostream>
 #include <fstream>
 
-
 namespace Voxel {
     class Shader {
         public:

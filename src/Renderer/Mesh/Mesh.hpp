@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <vector>
 #include <algorithm>
+#include <mutex>
 
 namespace Voxel {
     struct Vertex {
@@ -32,6 +33,7 @@ namespace Voxel {
 
         private:
             static bgfx::VertexLayout _vertexLayout;
+            static std::once_flag _layoutInitFlag;
             bgfx::VertexBufferHandle _vbh;
             bgfx::IndexBufferHandle _ibh;
             uint32_t _indexCount;

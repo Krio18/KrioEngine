@@ -1,4 +1,5 @@
 #include "Engine.hpp"
+#include <cassert>
 
 
 namespace Voxel {
@@ -57,6 +58,17 @@ namespace Voxel {
             this->_serviceLocator.registerManager<MeshManager>();
             this->_serviceLocator.registerManager<CameraManager>();
             this->_serviceLocator.registerManager<RenderManager>();
+
+            assert(this->_serviceLocator.hasManager<TimeManager>());
+            assert(this->_serviceLocator.hasManager<InputManager>());
+            assert(this->_serviceLocator.hasManager<PhysicsManager>());
+            assert(this->_serviceLocator.hasManager<SceneManager>());
+            assert(this->_serviceLocator.hasManager<ShaderManager>());
+            assert(this->_serviceLocator.hasManager<MaterialManager>());
+            assert(this->_serviceLocator.hasManager<MeshManager>());
+            assert(this->_serviceLocator.hasManager<CameraManager>());
+            assert(this->_serviceLocator.hasManager<RenderManager>());
+
             this->_serviceLocator.getManager<ShaderManager>().init();
             this->_serviceLocator.getManager<MaterialManager>().init(this->_serviceLocator.getManager<ShaderManager>());
 

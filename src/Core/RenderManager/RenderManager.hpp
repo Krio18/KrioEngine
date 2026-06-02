@@ -22,7 +22,7 @@ namespace Voxel {
 
             void init(ShaderManager& shaderManager, MeshManager& meshManager, CameraManager& cameraManager);
             void render(double deltaTime);
-            void submitMesh(const Mesh& mesh, const Material& material, const glm::mat4& transform);
+            void submitMesh(std::shared_ptr<const Mesh> mesh, std::shared_ptr<const Material> material, const glm::mat4& transform);
 
         private:
             RendererManager _rendererManager;

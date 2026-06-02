@@ -11,7 +11,7 @@ namespace Voxel {
 
         MeshEntry entry;
         if (path == "triangle") {
-            entry.mesh = Mesh::createTriangle();
+            entry.mesh = std::make_shared<Mesh>(Mesh::createTriangle());
             entry.refCount = 1;
             this->_meshMap.emplace(path, std::move(entry));
             Logger::info("Loaded primitive mesh: " + path);
@@ -19,7 +19,7 @@ namespace Voxel {
         }
 
         if (path == "quad") {
-            entry.mesh = Mesh::createQuad();
+            entry.mesh = std::make_shared<Mesh>(Mesh::createQuad());
             entry.refCount = 1;
             this->_meshMap.emplace(path, std::move(entry));
             Logger::info("Loaded primitive mesh: " + path);
@@ -27,7 +27,7 @@ namespace Voxel {
         }
 
         if (path == "cube") {
-            entry.mesh = Mesh::createCube();
+            entry.mesh = std::make_shared<Mesh>(Mesh::createCube());
             entry.refCount = 1;
             this->_meshMap.emplace(path, std::move(entry));
             Logger::info("Loaded primitive mesh: " + path);
@@ -44,7 +44,7 @@ namespace Voxel {
         file.close();
     }
 
-    Mesh& MeshManager::get(const std::string& name) {
+    std::shared_ptr<Mesh> MeshManager::get(const std::string& name) {
         auto it = this->_meshMap.find(name);
         if (it == this->_meshMap.end()) {
             Logger::error("Mesh not found: " + name);

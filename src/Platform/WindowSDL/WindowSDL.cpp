@@ -3,21 +3,17 @@
 
 namespace Voxel {
     WindowSDL::WindowSDL()
-        : _window(nullptr)
-        , _shouldClose(false)
-        , _width(0)
-        , _height(0)
-        , _nativeWindowHandle(nullptr)
-        , _nativeDisplayHandle(nullptr)
-        , _subsystemType(SDL_SYSWM_UNKNOWN)
-        , _resizeCallback(nullptr)
-        , _scrollDelta(0.0f)
-    {}
+        : _window(nullptr) , _shouldClose(false) , _width(0) , _height(0)
+        , _nativeWindowHandle(nullptr), _nativeDisplayHandle(nullptr)
+        , _subsystemType(SDL_SYSWM_UNKNOWN), _resizeCallback(nullptr)
+        , _scrollDelta(0.0f) {}
 
     WindowSDL::~WindowSDL()
     {
-        if (this->_window)
+        if (this->_window) {
             SDL_DestroyWindow(this->_window);
+            this->_window = nullptr;
+        }
         SDL_Quit();
     }
 

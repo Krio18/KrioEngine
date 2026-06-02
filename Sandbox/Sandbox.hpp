@@ -4,6 +4,8 @@
 #include "../src/Renderer/Controllers/FollowCameraController/FollowCameraController.hpp"
 #include "../src/Math/Transform.hpp"
 
+#include <memory>
+
 namespace Voxel {
     class Sandbox : public Engine {
         public:
@@ -20,10 +22,10 @@ namespace Voxel {
 
         private:
             std::unique_ptr<FollowCameraController> _cameraController;
-            glm::vec3 _targetPosition;
+            std::shared_ptr<glm::vec3> _targetPosition;
             float _targetAngle;
             float _mainAngle;
-            Mesh* _cubeMesh = nullptr;
-            std::shared_ptr<Material> _material = nullptr;
+            std::weak_ptr<Mesh> _cubeMesh;
+            std::weak_ptr<Material> _material;
     };
 }

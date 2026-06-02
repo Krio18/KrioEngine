@@ -10,7 +10,7 @@ namespace Voxel {
 
 
     void InputManager::pollInput() {
-        memcpy(this->_previousKeys.data(), this->_currentKeys.data(), SDL_NUM_SCANCODES);
+        memcpy(this->_previousKeys.data(), this->_currentKeys.data(), SDL_NUM_SCANCODES * sizeof(uint8_t));
         this->_previousMouseButtons = this->_mouseButtons;
 
         const uint8_t* keyboardState = SDL_GetKeyboardState(nullptr);

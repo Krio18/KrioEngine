@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 #include <algorithm>
+#include <memory>
 
 namespace Voxel {
     class FollowCameraController {
@@ -13,13 +14,13 @@ namespace Voxel {
 
             void update(float deltaTime);
 
-            void setTarget(glm::vec3* target);
+            void setTarget(std::shared_ptr<glm::vec3> target);
             void setOffset(const glm::vec3& offset);
             void setDamping(float damping);
 
         private:
             Camera& _camera;
-            glm::vec3* _target;
+            std::shared_ptr<glm::vec3> _target;
             glm::vec3 _offset;
             float _damping;
     };

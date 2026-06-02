@@ -6,16 +6,16 @@ namespace Voxel {
         this->_transparentDrawCalls.clear();
     }
 
-    void RendererManager::submitMesh(const Mesh* mesh, const Material* material, const glm::mat4& transform) {
+    void RendererManager::submitMesh(std::shared_ptr<const Mesh> mesh, std::shared_ptr<const Material> material, const glm::mat4& transform) {
         if (material->isTransparent()) {
-            this->_transparentDrawCalls.push_back({mesh, material, transform});
+            this->_transparentDrawCalls.push_back({std::move(mesh), std::move(material), transform});
         } else {
-            this->_opaqueDrawCalls.push_back({mesh, material, transform});
+            this->_opaqueDrawCalls.push_back({std::move(mesh), std::move(material), transform});
         }
     }
 
-    void RendererManager::submitCamera(const Camera* camera) {
-        this->_activeCamera = camera;
+    void RendererManager::submitCamera(std::shared_ptr<const Camera> camera) {
+        this->_activeCamera = std::move(camera);
     }
 
     uint32_t RendererManager::getDrawCallCount() const {
@@ -66,6 +66,6 @@ namespace Voxel {
 
         this->_opaqueDrawCalls.clear();
         this->_transparentDrawCalls.clear();
-        this->_activeCamera = nullptr;
+        this->_activeCamera.reset();
     }
 }

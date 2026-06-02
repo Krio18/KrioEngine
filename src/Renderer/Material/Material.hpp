@@ -4,6 +4,7 @@
 #include <bgfx/bgfx.h>
 #include <unordered_map>
 #include <string>
+#include <mutex>
 
 namespace Voxel {
     struct UniformValue {
@@ -37,5 +38,6 @@ namespace Voxel {
 
             static bgfx::UniformHandle _uColor;
             static bgfx::UniformHandle _uMaterialParams;
+            static std::once_flag _uniformInitFlag;
     };
 }

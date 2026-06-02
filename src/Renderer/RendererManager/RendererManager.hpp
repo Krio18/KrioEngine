@@ -6,13 +6,14 @@
 
 #include <algorithm>
 #include <glm/glm.hpp>
+#include <memory>
 #include <vector>
 #include <cstdint>
 
 namespace Voxel {
     struct DrawCall {
-        const Mesh* mesh;
-        const Material* material;
+        std::shared_ptr<const Mesh> mesh;
+        std::shared_ptr<const Material> material;
         glm::mat4 transform;
     };
 
@@ -23,8 +24,8 @@ namespace Voxel {
             RendererManager() = default;
             ~RendererManager();
 
-            void submitMesh(const Mesh* mesh, const Material* material, const glm::mat4& transform);
-            void submitCamera(const Camera* camera);
+            void submitMesh(std::shared_ptr<const Mesh> mesh, std::shared_ptr<const Material> material, const glm::mat4& transform);
+            void submitCamera(std::shared_ptr<const Camera> camera);
             void render();
             uint32_t getDrawCallCount() const;
             uint32_t getTriangleCount() const;
@@ -34,6 +35,6 @@ namespace Voxel {
             std::vector<DrawCall> _transparentDrawCalls;
             uint32_t _drawCallCount = 0;
             uint32_t _triangleCount = 0;
-            const Camera* _activeCamera = nullptr;
+            std::shared_ptr<const Camera> _activeCamera = nullptr;
     };
 }
