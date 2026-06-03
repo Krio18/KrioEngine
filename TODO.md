@@ -491,6 +491,9 @@
 
 **Why this matters:** Systems provide behavior. Adding RenderSystem makes entities with MeshRenderer automatically render.
 
+#### Registry::each — *(reporté depuis 3.1)*
+- [ ] Implémenter `each<Components...>(callback)` dans `Registry.hpp` en s'appuyant sur `view()`
+
 #### FollowCameraController — look-ahead *(reporté depuis 2.7)*
 - [ ] `FollowCameraController` : optional look-ahead — predict target movement direction using velocity, offset camera slightly in front of target
 

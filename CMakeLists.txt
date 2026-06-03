@@ -72,6 +72,8 @@ set(VOXEL_ENGINE_SOURCES
     src/Renderer/Controllers/FPSCameraController/FPSCameraController.cpp
     src/Renderer/Controllers/OrbitCameraController/OrbitCameraController.cpp
     src/Math/Transform.cpp
+    src/ECS/Entity/Entity.cpp
+    src/ECS/Registry/Registry.cpp
 )
 
 add_executable(VoxelEngine ${VOXEL_ENGINE_SOURCES})
