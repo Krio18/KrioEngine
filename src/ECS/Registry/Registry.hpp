@@ -11,6 +11,7 @@ namespace Voxel {
 
             Entity createEntity();
             void destroyEntity(Entity entity);
+            bool isValid(entt::entity id) const;
 
             template<typename T, typename... Args>
             void addComponent(Entity entity, Args... args) {

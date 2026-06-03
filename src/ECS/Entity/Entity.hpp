@@ -12,27 +12,30 @@ namespace Voxel {
 
             template<typename T, typename... Args>
             void addComponent(Args... args) {
-                return;
+                this->_registry->addComponent<T>(*this, args...);
             }
 
             template<typename T>
             T* getComponent() {
-                return nullptr;
+                return this->_registry->getComponent<T>(*this);
             }
 
             template<typename T>
             bool hasComponent() {
-                return false;
+                return this->_registry->hasComponent<T>(*this);
             }
 
             template<typename T>
             void removeComponent() {
-                return;
+                this->_registry->removeComponent<T>(*this);
             }
 
             void destroy();
             bool isValid() const;
             entt::entity getID() const;
+
+            bool operator==(const Entity& other) const;
+            bool operator!=(const Entity& other) const;
 
         private:
             Registry* _registry;
