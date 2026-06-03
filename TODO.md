@@ -398,16 +398,16 @@
 ### 3.1 EnTT Integration
 **Purpose:** Use proven ECS library instead of building from scratch
 
-- [ ] Add EnTT to `vcpkg.json`
-- [ ] Create `src/ECS/Registry.hpp` wrapper around `entt::registry`
-- [ ] Implement `createEntity()`: create new entity, return Entity wrapper
-- [ ] Implement `destroyEntity(entity)`: remove entity and all components
-- [ ] Implement `addComponent<T>(entity, args...)`: attach component to entity
-- [ ] Implement `getComponent<T>(entity)`: retrieve component reference
-- [ ] Implement `hasComponent<T>(entity)`: check if entity has component
-- [ ] Implement `removeComponent<T>(entity)`: detach component from entity
-- [ ] Implement `view<Components...>()`: iterate entities with specific components
-- [ ] Implement `each<Components...>(callback)`: execute callback on matching entities
+- [x] Add EnTT to `vcpkg.json`
+- [x] Create `src/ECS/Registry.hpp` wrapper around `entt::registry`
+- [x] Implement `createEntity()`: create new entity, return Entity wrapper
+- [x] Implement `destroyEntity(entity)`: remove entity and all components
+- [x] Implement `addComponent<T>(entity, args...)`: attach component to entity
+- [x] Implement `getComponent<T>(entity)`: retrieve component reference
+- [x] Implement `hasComponent<T>(entity)`: check if entity has component
+- [x] Implement `removeComponent<T>(entity)`: detach component from entity
+- [x] Implement `view<Components...>()`: iterate entities with specific components
+- [ ] Implement `each<Components...>(callback)`: execute callback on matching entities *(reporté en 3.4)*
 
 **Why this matters:** EnTT is battle-tested, cache-friendly, and fast. Don't reinvent ECS.
 
@@ -490,6 +490,9 @@
 - [ ] **Intégration** : `RenderSystem` et `CameraSystem` sont enregistrés et appelés dans `Scene::update(deltaTime)`
 
 **Why this matters:** Systems provide behavior. Adding RenderSystem makes entities with MeshRenderer automatically render.
+
+#### Registry::each — *(reporté depuis 3.1)*
+- [ ] Implémenter `each<Components...>(callback)` dans `Registry.hpp` en s'appuyant sur `view()`
 
 #### FollowCameraController — look-ahead *(reporté depuis 2.7)*
 - [ ] `FollowCameraController` : optional look-ahead — predict target movement direction using velocity, offset camera slightly in front of target
