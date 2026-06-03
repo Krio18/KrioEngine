@@ -2,7 +2,7 @@
 #include "../Registry/Registry.hpp"
 
 namespace Voxel {
-    Entity::Entity(entt::entity id, Registry* registry) : _ID(id), _registry(registry) {}
+    Entity::Entity(entt::entity id, Registry* registry) : _registry(registry), _ID(id) {}
 
     void Entity::destroy() {
         if (this->_registry != nullptr) {

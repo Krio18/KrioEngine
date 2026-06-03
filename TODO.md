@@ -427,6 +427,8 @@
 
 **Why this matters:** Users call `entity.addComponent<Transform>()` instead of `registry.emplace<Transform>(entityID)`. Cleaner API.
 
+> **Note technique :** Les corps des méthodes templates d'`Entity` sont définis à la **fin de `Registry.hpp`** (deferred template definition) car ils ont besoin de la définition complète de `Registry`. `Entity.hpp` ne contient que les déclarations. C'est la solution standard pour les dépendances circulaires entre templates.
+
 ### 3.3 Core Components
 
 #### Transform Component

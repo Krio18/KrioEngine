@@ -46,4 +46,24 @@ namespace Voxel {
         private:
             entt::registry _registry;
     };
+
+    template<typename T, typename... Args>
+    inline void Entity::addComponent(Args... args) {
+        this->_registry->template addComponent<T>(*this, args...);
+    }
+
+    template<typename T>
+    inline T* Entity::getComponent() {
+        return this->_registry->template getComponent<T>(*this);
+    }
+
+    template<typename T>
+    inline bool Entity::hasComponent() {
+        return this->_registry->template hasComponent<T>(*this);
+    }
+
+    template<typename T>
+    inline void Entity::removeComponent() {
+        this->_registry->template removeComponent<T>(*this);
+    }
 }
