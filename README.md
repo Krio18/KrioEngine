@@ -88,7 +88,7 @@ git clone --recursive https://github.com/Krio18/VOXEL.git
 cd VOXEL
 ```
 
-> The `--recursive` flag is required to fetch the bgfx submodule in `extern/`.
+> The `--recursive` flag is required to fetch all submodules (`bgfx`, `glm`, `entt`) in `extern/`. If you already cloned without it, run `git submodule update --init --recursive`.
 
 #### 3. Build
 
@@ -114,7 +114,7 @@ cmake --build build --config Release
 | **Rendering** | bgfx | ✅ Integrated (git submodule) |
 | **Build System** | CMake + vcpkg | ✅ Working |
 | **Math** | GLM | ✅ Integrated |
-| **ECS** | EnTT | 📋 Planned (Phase 3) |
+| **ECS** | EnTT | ✅ Integrated (git submodule) |
 | **UI (Editor)** | Dear ImGui | 📋 Planned (Phase 6) |
 | **Physics** | Jolt Physics | 📋 Planned (Phase 5) |
 | **Audio** | OpenAL | 📋 Planned (Phase 5) |
@@ -144,5 +144,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [bgfx](https://github.com/bkaradzic/bgfx) by Branimir Karadzic - Amazing rendering abstraction
 - [SDL2](https://www.libsdl.org/) - Cross-platform windowing
-- [EnTT](https://github.com/skypjack/entt) (planned) by Michele Caini
+- [EnTT](https://github.com/skypjack/entt) by Michele Caini - Fast and reliable ECS library
 - [Dear ImGui](https://github.com/ocornut/imgui) (planned) by Omar Cornut

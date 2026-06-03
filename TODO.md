@@ -414,18 +414,20 @@
 ### 3.2 Entity Wrapper
 **Purpose:** Friendly API on top of EnTT's raw entity ID
 
-- [ ] Create `src/ECS/Entity.hpp`
-- [ ] Store entity handle (entt::entity)
-- [ ] Store registry pointer for convenience
-- [ ] Implement `addComponent<T>(args...)`: forward to registry
-- [ ] Implement `getComponent<T>()`: forward to registry
-- [ ] Implement `hasComponent<T>()`: forward to registry
-- [ ] Implement `removeComponent<T>()`: forward to registry
-- [ ] Implement `destroy()`: remove entity from registry
-- [ ] Implement `isValid()`: check if entity still exists
-- [ ] Overload equality operators for entity comparison
+- [x] Create `src/ECS/Entity.hpp`
+- [x] Store entity handle (entt::entity)
+- [x] Store registry pointer for convenience
+- [x] Implement `addComponent<T>(args...)`: forward to registry
+- [x] Implement `getComponent<T>()`: forward to registry
+- [x] Implement `hasComponent<T>()`: forward to registry
+- [x] Implement `removeComponent<T>()`: forward to registry
+- [x] Implement `destroy()`: remove entity from registry
+- [x] Implement `isValid()`: check if entity still exists
+- [x] Overload equality operators for entity comparison
 
 **Why this matters:** Users call `entity.addComponent<Transform>()` instead of `registry.emplace<Transform>(entityID)`. Cleaner API.
+
+> **Note technique :** Les corps des méthodes templates d'`Entity` sont définis à la **fin de `Registry.hpp`** (deferred template definition) car ils ont besoin de la définition complète de `Registry`. `Entity.hpp` ne contient que les déclarations. C'est la solution standard pour les dépendances circulaires entre templates.
 
 ### 3.3 Core Components
 
