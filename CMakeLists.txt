@@ -74,6 +74,8 @@ set(VOXEL_ENGINE_SOURCES
     src/Math/Transform.cpp
     src/ECS/Entity/Entity.cpp
     src/ECS/Registry/Registry.cpp
+    src/ECS/Components/Transform/Transform.cpp
+    src/ECS/Components/MeshRenderer/MeshRenderer.cpp
 )
 
 add_executable(VoxelEngine ${VOXEL_ENGINE_SOURCES})
