@@ -496,17 +496,17 @@
 - [x] Store bounds (AABB) for frustum culling
 
 #### Camera Component
-- [ ] Create `src/ECS/Components/Camera.hpp`
-- [ ] Reuse Camera class from Phase 2.6 as component
-- [ ] Entity with Camera component is a camera in the scene
-- [ ] Entity must also have Transform component for positioning
+> **Note :** Pas de nouveau fichier — `Voxel::Camera` (Phase 2.6) est utilisée directement comme composant EnTT. Le CameraSystem vérifie la présence d'un Transform.
+- [x] Reuse Camera class from Phase 2.6 as component
+- [x] Entity with Camera component is a camera in the scene
+- [x] Entity must also have Transform component for positioning
 
 #### Tag Component
-- [ ] Create `src/ECS/Components/Tag.hpp`
-- [ ] Store entity name as string
-- [ ] Store enabled boolean (entities can be disabled without destroying)
-- [ ] Store layer (physics, rendering layers)
-- [ ] Store tag (for grouping: "Player", "Enemy", "Pickup")
+- [x] Create `src/ECS/Components/Tag.hpp`
+- [x] Store entity name as string
+- [x] Store enabled boolean (entities can be disabled without destroying)
+- [x] Store layer (physics, rendering layers)
+- [x] Store tag (for grouping: "Player", "Enemy", "Pickup")
 
 **Why this matters:** Components are pure data. Systems operate on components. This is the core of ECS.
 
