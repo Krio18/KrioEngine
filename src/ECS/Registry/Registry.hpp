@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Entity/Entity.hpp"
-#include "../Components/Components.hpp"
 
 namespace Voxel {
     class Registry {
