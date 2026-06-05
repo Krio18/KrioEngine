@@ -47,11 +47,11 @@ include(cmake/Compiler.cmake OPTIONAL)
 # =============================================================================
 
 set(VOXEL_ENGINE_SOURCES
+    Sandbox/Sandbox.cpp
     src/main.cpp
     src/Platform/WindowSDL/WindowSDL.cpp
     src/Platform/InputManager/InputManager.cpp
     src/Core/Engine/Engine.cpp
-    Sandbox/Sandbox.cpp
     src/Core/ServiceLocator/ServiceLocator.cpp
     src/Core/TimeManager/TimeManager.cpp
     src/Core/PhysicsManager/PhysicsManager.cpp
@@ -77,6 +77,7 @@ set(VOXEL_ENGINE_SOURCES
     src/ECS/Components/Transform/Transform.cpp
     src/ECS/Components/MeshRenderer/MeshRenderer.cpp
     src/ECS/Components/Tag/Tag.cpp
+    src/ECS/Systems/RenderSystem/RenderSystem.cpp
 )
 
 add_executable(VoxelEngine ${VOXEL_ENGINE_SOURCES})

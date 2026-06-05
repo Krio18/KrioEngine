@@ -513,16 +513,14 @@
 ### 3.4 Systems
 
 #### RenderSystem
-- [ ] Create `src/ECS/Systems/RenderSystem.hpp` and `.cpp`
-- [ ] Query all entities with Transform + MeshRenderer components
-- [ ] For each entity:
+- [x] Create `src/ECS/Systems/RenderSystem.hpp` and `.cpp`
+- [x] Query all entities with Transform + MeshRenderer components
+- [x] For each entity:
   - Retrieve mesh from MeshManager using `meshName` (std::string key)
   - Retrieve material from MaterialManager using `materialName` (std::string key)
   - Calculate model matrix from Transform
   - Submit to RenderManager
-- [ ] Skip disabled entities (Tag component enabled = false)
-- [ ] Skip entities outside camera frustum (frustum culling)
-- [ ] Execute during scene render phase
+- [x] Skip disabled entities (Tag component enabled = false)
 
 #### CameraSystem
 - [ ] Create `src/ECS/Systems/CameraSystem.hpp` and `.cpp`
@@ -557,7 +555,7 @@
   - Implement `setParent(child, parent)`
   - Implement `getParent(entity)`
   - Implement `getChildren(entity)`
-- [ ] Implement `update(deltaTime)`: execute all scene systems
+- [ ] Implement `update(deltaTime)`: execute all scene systems (dont RenderSystem et CameraSystem — reportés depuis 3.4)
 - [ ] Store scene-level settings: ambient light color, fog, skybox
 
 - [ ] **Intégration** : `Scene` est créée et gérée par `SceneManager`, son `update()` est appelé depuis `SceneManager::update()` qui lui-même est appelé depuis `Engine::run()`
@@ -759,6 +757,9 @@
 ## Phase 5: Advanced Systems
 
 **Goal:** Complete core engine features for production-ready games
+
+> **Reporté depuis 3.4 (RenderSystem) :**
+> - [ ] Frustum culling dans `RenderSystem::update()` : extraire les 6 plans du frustum depuis la matrice view-projection de la caméra principale (Gribb-Hartmann), tester l'AABB (`boundsMin`/`boundsMax`) de chaque `MeshRenderer` contre ces plans, skip si hors frustum. Nécessite accès au `CameraManager` dans `RenderSystem`.
 
 > **Reporté depuis 2.6 (Camera avancée) :**
 > - [ ] Store viewport rectangle: x, y, width, height (normalized 0-1 or pixel coordinates)
