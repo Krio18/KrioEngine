@@ -23,7 +23,17 @@ namespace Voxel {
             }
 
             template<typename T>
+            const T* getComponent(Entity entity) const {
+                return this->_registry.try_get<T>(entity.getID());
+            }
+
+            template<typename T>
             bool hasComponent(Entity entity) {
+                return this->_registry.any_of<T>(entity.getID());
+            }
+
+            template<typename T>
+            bool hasComponent(Entity entity) const {
                 return this->_registry.any_of<T>(entity.getID());
             }
 
@@ -39,8 +49,30 @@ namespace Voxel {
 
             template<typename... Components, typename Callback>
             void each(Callback callback) {
-                return;
+                auto view = this->_registry.view<Components...>();
+                view.each(callback);
             }
+
+            template<typename Callback>
+            void eachEntity(Callback callback) {
+                auto &entities = this->_registry.storage<entt::entity>();
+                for (auto entityTuple: entities.each()) {
+                    callback(std::get<0>(entityTuple));
+                }
+            }
+
+            template<typename Callback>
+            void eachEntity(Callback callback) const {
+                const auto *entities = this->_registry.storage<entt::entity>();
+                if (entities) {
+                    for (auto entityTuple: entities->each()) {
+                        callback(std::get<0>(entityTuple));
+                    }
+                }
+            }
+
+            entt::registry& getNativeRegistry();
+            const entt::registry& getNativeRegistry() const;
 
         private:
             entt::registry _registry;

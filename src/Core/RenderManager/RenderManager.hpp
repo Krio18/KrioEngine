@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Logger/Logger.hpp"
-#include "../../Math/Transform.hpp"
+#include "../../Math/MathTransform.hpp"
 #include "../../Renderer/Shader/Shader.hpp"
 #include "../../Renderer/Mesh/Mesh.hpp"
 #include "../../Renderer/ShaderManager/ShaderManager.hpp"

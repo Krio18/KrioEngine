@@ -4,6 +4,8 @@
 
   ![VoxelEngine](docs/VoxelEngine.png)
 
+  ![VoxelEngine v0.2.0 Demo](docs/voxel-v0.2.0.gif)
+
   **A Modern C++ Game Engine - Early Development**
 
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -24,13 +26,19 @@ VoxelEngine is a **C++ game engine SDK** — you write your game in C++ by linki
 #include <VoxelEngine/Engine.hpp>
 
 class MyGame : public Voxel::Engine {
-    void onInit() override { /* setup scene, load assets */ }
-    void onUpdate() override { /* game logic */ }
+    void onInit() override {
+        // load assets, build ECS scene
+        _scene = sceneManager.loadScene("main");
+        auto player = _scene->createEntity("Player");
+        player.addComponent<Transform>(...);
+        player.addComponent<MeshRenderer>("cube", "gold");
+    }
+    void onUpdate() override { /* animate, update transforms */ }
     void onShutdown() override { /* cleanup */ }
 };
 ```
 
-> **Note:** The public SDK headers and distribution packaging are part of the planned Phase 11 work. The engine is currently in active development. For now, extend `Voxel::Engine` directly from source (see `src/Core/Sandbox/` for a working example).
+> **Note:** The public SDK headers and distribution packaging are part of the planned Phase 11 work. The engine is currently in active development. For now, extend `Voxel::Engine` directly from source (see `Sandbox/` for a working example).
 
 ---
 
@@ -40,8 +48,8 @@ class MyGame : public Voxel::Engine {
 |-------|-------------|--------|
 | Phase 0 | Core Architecture (ServiceLocator, TimeManager, EventBus, InputManager) | ✅ Done |
 | Phase 1 | Minimal Rendering (Shader, Mesh, Transform, MVP Pipeline) | ✅ Done |
-| Phase 2 | Manager Infrastructure (Shader, Material, Mesh, Camera, Controllers, InputManager, Engine base class) | ✅ Done |
-| Phase 3 | Scene & ECS (EnTT integration, components, systems) | 📋 Planned |
+| Phase 2 | Manager Infrastructure (ShaderManager, MaterialManager, MeshManager, CameraManager, RenderManager, Camera Controllers) | ✅ Done |
+| Phase 3 | Scene & ECS (EnTT, components, systems, SceneManager, SceneSerializer) | ✅ Done |
 | Phase 4 | Asset Pipeline | 📋 Planned |
 | Phase 5 | Advanced Systems (Physics, Audio, Lighting, Animation) | 📋 Planned |
 | Phase 6 | Editor & Tools (ImGui editor) | 📋 Planned |
@@ -115,6 +123,7 @@ cmake --build build --config Release
 | **Build System** | CMake + vcpkg | ✅ Working |
 | **Math** | GLM | ✅ Integrated |
 | **ECS** | EnTT | ✅ Integrated (git submodule) |
+| **Serialization** | nlohmann/json | ✅ Integrated |
 | **UI (Editor)** | Dear ImGui | 📋 Planned (Phase 6) |
 | **Physics** | Jolt Physics | 📋 Planned (Phase 5) |
 | **Audio** | OpenAL | 📋 Planned (Phase 5) |
@@ -125,12 +134,25 @@ cmake --build build --config Release
 ## Architecture
 
 **Design Patterns:**
-- **Manager-based architecture** — each major system has a dedicated Manager (RenderManager, InputManager, etc.)
+- **Manager-based architecture** — each major system has a dedicated Manager (RenderManager, SceneManager, MaterialManager, etc.)
 - **Service Locator** — global access to managers without singletons or tight coupling
 - **Engine base class** — `Voxel::Engine` handles the main loop, windowing and managers; the user subclasses it and overrides `onInit()`, `onUpdate()`, `onShutdown()`
-- **ECS (planned)** — EnTT library for entity-component relationships, cache-friendly
+- **ECS (EnTT)** — entities, components and systems for all game objects; `Scene` owns a `Registry` and runs `RenderSystem` + `CameraSystem` each frame
+- **Scene & Serialization** — `SceneManager` handles scene lifecycle (load, unload, additive, async); `SceneSerializer` saves/loads scenes as JSON
 - **RAII** — automatic resource management throughout
 - **Cross-platform** — bgfx abstracts Vulkan/D3D12/Metal/OpenGL
+
+### ECS Overview
+
+```
+Scene
+├── Registry (EnTT)
+│   ├── Entity "MainCamera"  →  Transform + Camera + Tag
+│   ├── Entity "Player"      →  Transform + MeshRenderer + Tag
+│   └── ...
+├── CameraSystem  — reads Transform+Camera, feeds CameraManager
+└── RenderSystem  — reads Transform+MeshRenderer, submits to RenderManager
+```
 
 ---
 
@@ -145,4 +167,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [bgfx](https://github.com/bkaradzic/bgfx) by Branimir Karadzic - Amazing rendering abstraction
 - [SDL2](https://www.libsdl.org/) - Cross-platform windowing
 - [EnTT](https://github.com/skypjack/entt) by Michele Caini - Fast and reliable ECS library
+- [nlohmann/json](https://github.com/nlohmann/json) by Niels Lohmann - JSON for Modern C++
 - [Dear ImGui](https://github.com/ocornut/imgui) (planned) by Omar Cornut

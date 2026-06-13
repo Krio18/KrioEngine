@@ -56,6 +56,7 @@ set(VOXEL_ENGINE_SOURCES
     src/Core/TimeManager/TimeManager.cpp
     src/Core/PhysicsManager/PhysicsManager.cpp
     src/Core/SceneManager/SceneManager.cpp
+    src/Scene/Scene.cpp
     src/Core/RenderManager/RenderManager.cpp
     src/Core/Logger/Logger.cpp
     src/Renderer/Shader/Shader.cpp
@@ -71,13 +72,15 @@ set(VOXEL_ENGINE_SOURCES
     src/Renderer/Controllers/FollowCameraController/FollowCameraController.cpp
     src/Renderer/Controllers/FPSCameraController/FPSCameraController.cpp
     src/Renderer/Controllers/OrbitCameraController/OrbitCameraController.cpp
-    src/Math/Transform.cpp
+    src/Math/MathTransform.cpp
     src/ECS/Entity/Entity.cpp
     src/ECS/Registry/Registry.cpp
     src/ECS/Components/Transform/Transform.cpp
     src/ECS/Components/MeshRenderer/MeshRenderer.cpp
     src/ECS/Components/Tag/Tag.cpp
     src/ECS/Systems/RenderSystem/RenderSystem.cpp
+    src/ECS/Systems/CameraSystem/CameraSystem.cpp
+    src/Scene/SceneSerializer.cpp
 )
 
 add_executable(VoxelEngine ${VOXEL_ENGINE_SOURCES})
@@ -127,6 +130,9 @@ endif()
 if(VOXEL_ENABLE_PROFILING)
     add_compile_definitions(VOXEL_ENABLE_PROFILING)
 endif()
+
+# GLM: Vulkan uses [0,1] depth range (not OpenGL's [-1,1])
+target_compile_definitions(VoxelEngine PRIVATE GLM_FORCE_DEPTH_ZERO_TO_ONE)
 
 # =============================================================================
 # External Dependencies
@@ -204,10 +210,13 @@ target_include_directories(VoxelEngine PRIVATE
 # Libraries
 # =============================================================================
 
+find_package(nlohmann_json CONFIG REQUIRED)
+
 target_link_libraries(VoxelEngine PRIVATE
     bgfx
     bx
     bimg
+    nlohmann_json::nlohmann_json
 )
 
 # SDL2 (trying vcpkg first, fallback to manual)

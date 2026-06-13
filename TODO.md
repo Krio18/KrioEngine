@@ -47,6 +47,8 @@
 - Spatial 3D audio system (OpenAL)
 - Visual scene editor (ImGui-based)
 
+> **⚠️ Note de scope :** Les sections 5.10 (animation squelettique), 5.12 (UI runtime complet) et Phase 9 (networking) représentent chacune un projet de la taille du reste du moteur. **Conseil :** construire un mini-jeu cible (Breakout 3D, plateformer simple) dès la fin de Phase 3, et le laisser dicter quelles features de Phase 5 sont réellement nécessaires. `UIContentSizeFitter`, blend trees, lag compensation — ignorer tout ce dont le mini-jeu n'a pas besoin.
+
 ### Manager Initialization Order (Critical!)
 **Dependencies must be initialized in this exact order to avoid null references:**
 
@@ -154,6 +156,7 @@
 - [x] Affichage dans la console avec horodatage et niveau
 - [ ] Architecture multi-sink : console stdout + buffer interne (pour la console éditeur Phase 6)
 - [ ] Niveau configurable à runtime : masquer les `info` en release
+  > **⚠️ Priorité :** À faire avant Phase 4.6 (Hot-Reload) — sans filtre de niveau, les logs info du ServiceLocator, AssetManager et hot-reload deviendront du bruit constant dès que le projet grossit.
 - [ ] Macro `VOXEL_VERBOSE` pour activer les logs ultra-détaillés (développement uniquement)
 
 **Why this matters:** Logger est utilisé dès Phase 0 par ServiceLocator, Engine, et tous les Managers. Il doit être la **première** chose initialisée. Il alimentera la console éditeur (Phase 6) via le buffer interne (sink pattern).
@@ -437,6 +440,8 @@
 
 **Goal:** Build entity-component system for game object management
 
+> **⚠️ Prérequis avant de commencer Phase 3 :** Ajouter `TestServiceLocator` et `TestEventBus` (voir section Testing Strategy). Le ServiceLocator et l'EventBus sont les briques dont tout dépend — refactorer l'ECS sans filet sur ces fondations, c'est là que les régressions silencieuses apparaissent.
+
 ### 3.1 EnTT Integration
 **Purpose:** Use proven ECS library instead of building from scratch
 
@@ -474,6 +479,7 @@
 ### 3.3 Core Components
 
 #### Transform Component
+> **✅ Conflit résolu :** `src/Math/Transform.hpp` a été renommé de `class Transform` en `class MathTransform` (`Voxel::MathTransform`). L'ECS `Voxel::Transform` est désormais le seul `Transform` dans le namespace. **Convention à respecter :** toujours utiliser `MathTransform::createModelMatrix` (et non `Transform::`) pour les matrices utilitaires Math.
 - [x] Create `src/ECS/Components/Transform.hpp`
 - [x] Store position as vec3
 - [x] Store rotation as quaternion (avoids gimbal lock)
@@ -523,20 +529,20 @@
 - [x] Skip disabled entities (Tag component enabled = false)
 
 #### CameraSystem
-- [ ] Create `src/ECS/Systems/CameraSystem.hpp` and `.cpp`
-- [ ] Query all entities with Transform + Camera components
-- [ ] For each camera entity:
+- [x] Create `src/ECS/Systems/CameraSystem.hpp` and `.cpp`
+- [x] Query all entities with Transform + Camera components
+- [x] For each camera entity:
   - Update Camera's view matrix using Transform position/rotation
   - Register camera with CameraManager
-- [ ] Unregister cameras when entities destroyed
-- [ ] Handle main camera switching (check Tag for "MainCamera")
+- [x] Unregister cameras when entities destroyed
+- [x] Handle main camera switching (check Tag for "MainCamera")
 
-- [ ] **Intégration** : `RenderSystem` et `CameraSystem` sont enregistrés et appelés dans `Scene::update(deltaTime)`
+- [x] **Intégration** : `RenderSystem` et `CameraSystem` sont enregistrés et appelés dans `Scene::update(deltaTime)`
 
 **Why this matters:** Systems provide behavior. Adding RenderSystem makes entities with MeshRenderer automatically render.
 
 #### Registry::each — *(reporté depuis 3.1)*
-- [ ] Implémenter `each<Components...>(callback)` dans `Registry.hpp` en s'appuyant sur `view()`
+- [x] Implémenter `each<Components...>(callback)` dans `Registry.hpp` en s'appuyant sur `view()`
 
 #### FollowCameraController — look-ahead *(reporté depuis 2.7)*
 - [ ] `FollowCameraController` : optional look-ahead — predict target movement direction using velocity, offset camera slightly in front of target
@@ -544,62 +550,63 @@
 ### 3.5 Scene
 **Purpose:** Container for entities and scene-level data
 
-- [ ] Create `src/Scene/Scene.hpp` and `.cpp`
-- [ ] Store ECS Registry instance
-- [ ] Store scene name
-- [ ] Implement `createEntity(name)`: create entity, add Tag component with name
-- [ ] Implement `destroyEntity(entity)`: remove from registry
-- [ ] Implement parent-child hierarchy:
+- [x] Create `src/Scene/Scene.hpp` and `.cpp`
+- [x] Store ECS Registry instance
+- [x] Store scene name
+- [x] Implement `createEntity(name)`: create entity, add Tag component with name
+- [x] Implement `destroyEntity(entity)`: remove from registry
+- [x] Implement parent-child hierarchy:
   - Store map of entity → parent entity
   - Store map of entity → list of children
   - Implement `setParent(child, parent)`
   - Implement `getParent(entity)`
   - Implement `getChildren(entity)`
-- [ ] Implement `update(deltaTime)`: execute all scene systems (dont RenderSystem et CameraSystem — reportés depuis 3.4)
-- [ ] Store scene-level settings: ambient light color, fog, skybox
+- [x] Implement `update(deltaTime)`: execute all scene systems (dont RenderSystem et CameraSystem — reportés depuis 3.4)
+- [x] Store scene-level settings: ambient light color, fog, skybox
 
-- [ ] **Intégration** : `Scene` est créée et gérée par `SceneManager`, son `update()` est appelé depuis `SceneManager::update()` qui lui-même est appelé depuis `Engine::run()`
+- [x] **Intégration** : `Scene` est créée et gérée par `SceneManager`, son `update()` est appelé depuis `SceneManager::update()` qui lui-même est appelé depuis `Engine::run()`
 
 **Why this matters:** Scene owns all entities. Switching scenes = load different set of entities.
 
 ### 3.6 SceneManager
 **Purpose:** Load, unload, and transition between scenes
 
-- [ ] Create `src/Scene/SceneManager.hpp` and `.cpp`
-- [ ] Store map of scene name → Scene object
-- [ ] Store active scene pointer
-- [ ] Implement `loadScene(name)`: unload current, load new, set as active
-- [ ] Implement `unloadScene(name)`: destroy scene and all entities
-- [ ] Implement `loadSceneAdditive(name)`: load scene without unloading current (for UI overlays)
-- [ ] Implement `getActiveScene()`: return currently active scene
-- [ ] Implement `update(deltaTime)`: call update on all active scenes
-- [ ] Support async scene loading: load in background, switch when ready
-- [ ] Scene transition callbacks: onSceneUnload, onSceneLoaded
+- [x] Create `src/Scene/SceneManager.hpp` and `.cpp`
+- [x] Store map of scene name → Scene object
+- [x] Store active scene pointer
+- [x] Implement `loadScene(name)`: unload current, load new, set as active
+- [x] Implement `unloadScene(name)`: destroy scene and all entities
+- [x] Implement `loadSceneAdditive(name)`: load scene without unloading current (for UI overlays)
+- [x] Implement `getActiveScene()`: return currently active scene
+- [x] Implement `update(deltaTime)`: call update on all active scenes
+- [x] Implement `loadSceneFromFile(filepath)`: délègue à `SceneSerializer::deserialize()`, stocke le résultat dans `_scenes`, active la scène — point d'entrée unique pour charger une scène depuis un fichier
+- [x] Support async scene loading: load in background, switch when ready
+- [x] Scene transition callbacks: onSceneUnload, onSceneLoaded
 
-- [ ] **Intégration** : Enregistrer `SceneManager` dans `ServiceLocator`, appeler `SceneManager::update(deltaTime)` depuis `Engine::run()`
+- [x] **Intégration** : Enregistrer `SceneManager` dans `ServiceLocator`, appeler `SceneManager::update(deltaTime)` depuis `Engine::run()`
 
 **Why this matters:** Games have menus, levels, cutscenes. SceneManager handles transitions.
 
 ### 3.7 Scene Serialization
 **Purpose:** Save and load scenes from disk for persistence
 
-- [ ] Add nlohmann/json to `vcpkg.json`
-- [ ] Create `src/Scene/SceneSerializer.hpp` and `.cpp`
-- [ ] Implement `serialize(scene, filepath)`:
+- [x] Add nlohmann/json to `vcpkg.json`
+- [x] Create `src/Scene/SceneSerializer.hpp` and `.cpp`
+- [x] Implement `serialize(scene, filepath)`:
   - Iterate all entities in scene
   - For each entity, serialize all components as JSON
   - Store parent-child hierarchy
-  - Store asset references as GUID (not path)
+  - Store asset references as **path** (migration vers GUID reportée en 4.4 — l'AssetManager n'existe pas encore à ce stade)
   - Write to file
-- [ ] Implement `deserialize(filepath)`:
+- [x] Implement `deserialize(filepath)`:
   - Parse JSON
   - Create entities
   - Recreate components from JSON data
   - Restore hierarchy
   - Resolve asset GUIDs to loaded assets
   - Return loaded scene
-- [ ] Support component polymorphism: save component type name, factory pattern to recreate
-- [ ] Validate scene file version for compatibility
+- [x] Support component polymorphism: save component type name, factory pattern to recreate
+- [x] Validate scene file version for compatibility
 
 **Why this matters:** Scenes created in editor must be saved. Saved scenes loaded at runtime.
 
@@ -690,6 +697,7 @@
 - [ ] Refactoriser `MaterialManager` : `load()` délègue à `AssetManager::load<MaterialAsset>()`
 - [ ] Supprimer les maps internes de cache des Managers (AssetManager devient l'unique cache)
 - [ ] Garder les APIs publiques des Managers identiques — seule l'implémentation change
+- [ ] Migrer `SceneSerializer` (3.7) : remplacer les références par chemin par des GUIDs (AssetManager désormais stable, les `.meta` files existent)
 
 > **Pourquoi ici :** Sans cette migration, tu auras deux caches qui s'ignorent : un mesh chargé deux fois, une fois par chemin, une fois par GUID. La migration doit se faire dès que l'AssetManager est stable.
 
@@ -759,7 +767,7 @@
 **Goal:** Complete core engine features for production-ready games
 
 > **Reporté depuis 3.4 (RenderSystem) :**
-> - [ ] Frustum culling dans `RenderSystem::update()` : extraire les 6 plans du frustum depuis la matrice view-projection de la caméra principale (Gribb-Hartmann), tester l'AABB (`boundsMin`/`boundsMax`) de chaque `MeshRenderer` contre ces plans, skip si hors frustum. Nécessite accès au `CameraManager` dans `RenderSystem`.
+> - [ ] Frustum culling dans `RenderSystem::update()` : extraire les 6 plans du frustum depuis la matrice view-projection de la caméra principale (Gribb-Hartmann), tester l'AABB (`boundsMin`/`boundsMax`) de chaque `MeshRenderer` contre ces plans, skip si hors frustum. Nécessite accès au `CameraManager` dans `RenderSystem`. Implémentation complète (hiérarchique + debug visuel + spatial partitioning) → **Phase 10.2**.
 
 > **Reporté depuis 2.6 (Camera avancée) :**
 > - [ ] Store viewport rectangle: x, y, width, height (normalized 0-1 or pixel coordinates)
@@ -1656,6 +1664,8 @@
 
 **Goal:** Enable multiplayer gameplay with client-server architecture
 
+> **⚠️ Scope :** Phase 9 est un projet complet en soi — prediction, lag compensation, replication, lobby représentent chacun plusieurs semaines. Ne commencer que si le mini-jeu cible requiert explicitement du multijoueur.
+
 ### 9.1 Network Architecture
 **Purpose:** Foundation for networked multiplayer games
 
@@ -1843,6 +1853,10 @@
 ## Phase 10: Optimization & Polish
 
 **Goal:** Performance improvements and developer experience enhancements
+
+> **Reporté depuis 3.4 (Systems) — rebuild-each-frame :**
+> - [ ] `CameraManager` : remplacer `clearCameras()` + rebuild par un système incrémental basé sur des événements (entité créée/détruite avec composant `Camera`). Évite les allocations inutiles chaque frame.
+> - [ ] `RenderManager` : même refacto — remplacer le `clear()` + rebuild des draw calls par une approche dirty-flag ou event-driven. Mesurer d'abord avec Tracy (10.1) pour confirmer que c'est un vrai bottleneck.
 
 ### 10.1 Profiling
 **Purpose:** Measure performance to identify bottlenecks

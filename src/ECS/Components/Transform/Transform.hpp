@@ -14,6 +14,14 @@ namespace Voxel {
             void rotate(glm::vec3 axis, float angle);
             void lookAt(glm::vec3 target);
 
+            glm::vec3 getPosition() const;
+            glm::quat getRotation() const;
+            glm::vec3 getScale() const;
+
+            void setPosition(const glm::vec3& position);
+            void setRotation(const glm::quat& rotation);
+            void setScale(const glm::vec3& scale);
+
         private:
             glm::vec3 _position;
             glm::quat _rotation;

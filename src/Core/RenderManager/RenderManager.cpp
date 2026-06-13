@@ -30,8 +30,8 @@ namespace Voxel {
         }
 
         if (!mainCam) {
-            view = Transform::createViewMatrix(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            proj = Transform::createPerspectiveMatrix(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+            view = MathTransform::createViewMatrix(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            proj = MathTransform::createPerspectiveMatrix(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
         }
 
         bgfx::setViewTransform(0, &view, &proj);
