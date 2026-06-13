@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <unordered_map>
 #include <stdexcept>
 
@@ -11,7 +12,7 @@
 
 namespace Voxel {
     struct MeshEntry {
-        Mesh mesh;
+        std::shared_ptr<Mesh> mesh;
         int refCount = 0;
     };
 
@@ -20,7 +21,7 @@ namespace Voxel {
             MeshManager() = default;
 
             void load(const std::string& path);
-            Mesh& get(const std::string& name);
+            std::shared_ptr<Mesh> get(const std::string& name);
             void unload(const std::string& name);
 
         private:

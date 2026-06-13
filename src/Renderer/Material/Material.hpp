@@ -4,12 +4,13 @@
 #include <bgfx/bgfx.h>
 #include <unordered_map>
 #include <string>
+#include <mutex>
 
 namespace Voxel {
     struct UniformValue {
-        glm::vec4 color;
-        float metallic;
-        float roughness;
+        glm::vec4 color = glm::vec4(1.0f);
+        float metallic = 0.0f;
+        float roughness = 1.0f;
     };
 
     class Material {
@@ -37,5 +38,6 @@ namespace Voxel {
 
             static bgfx::UniformHandle _uColor;
             static bgfx::UniformHandle _uMaterialParams;
+            static std::once_flag _uniformInitFlag;
     };
 }

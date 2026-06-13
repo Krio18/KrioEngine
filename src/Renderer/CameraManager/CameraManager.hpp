@@ -19,6 +19,7 @@ namespace Voxel {
             std::shared_ptr<Camera> getMainCamera() const;
             std::vector<std::shared_ptr<Camera>> getAllCameras() const;
             bool validateCamera(const Camera& cam) const;
+            void clearCameras();
 
         private:
             std::vector<std::shared_ptr<Camera>> _cameras;

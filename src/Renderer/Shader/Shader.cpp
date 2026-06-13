@@ -1,5 +1,8 @@
 #include "Shader.hpp"
 
+#include <vector>
+#include <cstring>
+
 namespace Voxel {
     Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
         this->_programHandle = BGFX_INVALID_HANDLE;
@@ -46,11 +49,17 @@ namespace Voxel {
         size_t fileSize = static_cast<size_t>(endPos);
         binaryFile.seekg(0, std::ios::beg);
 
-        const bgfx::Memory* buffer = bgfx::alloc(fileSize + 1);
-        binaryFile.read((char *)buffer->data, fileSize);
+        auto size = static_cast<uint32_t>(fileSize);
+        const bgfx::Memory* buffer = bgfx::alloc(size);
+        std::vector<uint8_t> fileData(size);
+        binaryFile.read(reinterpret_cast<char*>(fileData.data()), size);
 
-        buffer->data[fileSize] = '\0';
+        if (!binaryFile) {
+            Logger::error("Failed to read shader file: " + binShaderPath);
+            return BGFX_INVALID_HANDLE;
+        }
 
+        memcpy(buffer->data, fileData.data(), size);
         binaryFile.close();
 
         bgfx::ShaderHandle tmpShader = bgfx::createShader(buffer);

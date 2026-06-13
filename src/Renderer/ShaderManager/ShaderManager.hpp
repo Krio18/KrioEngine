@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <string>
 #include <memory>
+#include <filesystem>
 #include <stdexcept>
 
 #include "../../Core/Logger/Logger.hpp"
@@ -11,7 +12,6 @@
 namespace Voxel {
     struct ShaderEntry {
         std::unique_ptr<Shader> shader;
-        unsigned int usageCount = 0;
     };
 
     class ShaderManager {
@@ -28,5 +28,6 @@ namespace Voxel {
         private:
             std::unordered_map<std::string, ShaderEntry> _shaders;
             bgfx::ProgramHandle _errorProgramHandle;
+            std::filesystem::path _shaderDirectory;
     };
 }

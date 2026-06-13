@@ -3,14 +3,13 @@
 namespace Voxel {
     bgfx::UniformHandle Material::_uColor = BGFX_INVALID_HANDLE;
     bgfx::UniformHandle Material::_uMaterialParams = BGFX_INVALID_HANDLE;
+    std::once_flag Material::_uniformInitFlag;
 
     Material::Material(bgfx::ProgramHandle shaderHandle, const std::string& shaderName) : _shaderHandle(shaderHandle), _shaderName(shaderName) {
-        if (!bgfx::isValid(this->_uColor)) {
-            this->_uColor = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
-        }
-        if (!bgfx::isValid(this->_uMaterialParams)) {
-            this->_uMaterialParams = bgfx::createUniform("u_materialParams", bgfx::UniformType::Vec4);
-        }
+        std::call_once(Material::_uniformInitFlag, []() {
+            Material::_uColor = bgfx::createUniform("u_color", bgfx::UniformType::Vec4);
+            Material::_uMaterialParams = bgfx::createUniform("u_materialParams", bgfx::UniformType::Vec4);
+        });
         this->_isTransparent = false;
     }
 

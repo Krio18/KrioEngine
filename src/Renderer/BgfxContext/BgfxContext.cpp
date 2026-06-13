@@ -39,6 +39,7 @@ namespace Voxel {
 
         const bgfx::Caps* caps = bgfx::getCaps();
         Logger::info("bgfx initialized - Renderer: " + std::string(bgfx::getRendererName(caps->rendererType)));
+        Logger::info("bgfx depth convention: " + std::string(caps->homogeneousDepth ? "OpenGL [-1,1]" : "Vulkan/D3D [0,1]"));
 
         this->_initialized = true;
         setupDefaultView(this->_width, this->_height);

@@ -33,6 +33,8 @@
 - **Service Locator pattern** - Provides global access to managers without tight coupling between systems
 - **ECS for game objects** - EnTT library handles entity-component relationships for optimal cache performance
 - **Data-driven design** - Configuration, assets, and scenes loaded from external files rather than hardcoded
+- **ECS/Manager separation** - Les Systems ECS produisent *quoi faire* (liste de draw calls, entités à simuler) ; les Managers consomment *comment le faire* (soumettre à bgfx, appeler Jolt). Les Managers ne dupliquent jamais la logique des Systems.
+- **Asset pipeline hiérarchique** - Les Managers de Phase 2 (MeshManager, ShaderManager, MaterialManager) sont des vues typées au-dessus de l'AssetManager (Phase 4). Ils délèguent le chargement et le cache à l'AssetManager — ils ne maintiennent pas leur propre cache indépendant.
 
 ### Target Feature Set (Unity-like Engine)
 - GameObject/Entity system with reusable components
@@ -45,29 +47,32 @@
 - Spatial 3D audio system (OpenAL)
 - Visual scene editor (ImGui-based)
 
+> **⚠️ Note de scope :** Les sections 5.10 (animation squelettique), 5.12 (UI runtime complet) et Phase 9 (networking) représentent chacune un projet de la taille du reste du moteur. **Conseil :** construire un mini-jeu cible (Breakout 3D, plateformer simple) dès la fin de Phase 3, et le laisser dicter quelles features de Phase 5 sont réellement nécessaires. `UIContentSizeFitter`, blend trees, lag compensation — ignorer tout ce dont le mini-jeu n'a pas besoin.
+
 ### Manager Initialization Order (Critical!)
 **Dependencies must be initialized in this exact order to avoid null references:**
 
 1. **Core Layer** (no dependencies)
+   - Logger *(première chose initialisée — utilisée par tout)*
    - TimeManager
    - InputManager
 
-2. **Rendering Layer** (depends on Core)
+2. **Asset Layer** (depends on Core only)
+   - AssetManager *(doit exister avant les Managers de rendu — ils délèguent leur chargement à l'AssetManager après la migration 4.3.1)*
+
+3. **Rendering Layer** (depends on Core + AssetManager)
    - ShaderManager
    - MaterialManager
    - MeshManager
    - CameraManager
    - RenderManager
 
-3. **Scene Layer** (depends on Rendering)
+4. **Scene Layer** (depends on Rendering)
    - SceneManager
 
-4. **Simulation Layer** (depends on Scene)
+5. **Simulation Layer** (depends on Scene)
    - PhysicsManager
    - AudioManager
-
-5. **Asset Layer** (depends on all above)
-   - AssetManager
 
 ---
 
@@ -82,10 +87,11 @@
 - [x] Template-based registration: allow any manager type to be registered
 - [x] Template-based retrieval: type-safe access to registered managers
 - [x] Thread-safe access using mutex or atomic operations
+  > **⚠️ Note :** Le mutex sur chaque `get()` est prématuré tant que le modèle de threading n'est pas défini (Phase 10). Implémenter single-thread d'abord, ajouter thread-safety quand le job system est connu.
 - [x] Null service pattern: return safe null object when service not found (prevents crashes)
 - [x] Shutdown method: cleanly destroy all registered services in reverse order
 - [x] Debug mode: track which services are registered
-**Why this matters:** Avoids global singletons while still providing convenient access. Makes testing easier since you can swap managers.
+**Why this matters:** Avoids global singletons while still providing convenient access. Le ServiceLocator est le pattern assumé pour ce moteur — ce n'est pas de la DI, c'est un choix pragmatique délibéré.
 
 ### 0.2 Time Management
 **Purpose:** Unified time source for all game systems to ensure synchronization
@@ -141,6 +147,39 @@
 - [x] Event queuing: queue events and dispatch at safe point in frame
 
 **Why this matters:** WindowResize shouldn't directly call RenderManager. Publish event, RenderManager subscribes. Loose coupling.
+
+### 0.5 Logger
+**Purpose:** Brique transversale de logging utilisée par tous les systèmes, future source de la console éditeur
+
+- [x] Create `src/Core/Logger.hpp` and `.cpp`
+- [x] Niveaux de log : `info`, `warning`, `error`
+- [x] Affichage dans la console avec horodatage et niveau
+- [ ] Architecture multi-sink : console stdout + buffer interne (pour la console éditeur Phase 6)
+- [ ] Niveau configurable à runtime : masquer les `info` en release
+  > **⚠️ Priorité :** À faire avant Phase 4.6 (Hot-Reload) — sans filtre de niveau, les logs info du ServiceLocator, AssetManager et hot-reload deviendront du bruit constant dès que le projet grossit.
+- [ ] Macro `VOXEL_VERBOSE` pour activer les logs ultra-détaillés (développement uniquement)
+
+**Why this matters:** Logger est utilisé dès Phase 0 par ServiceLocator, Engine, et tous les Managers. Il doit être la **première** chose initialisée. Il alimentera la console éditeur (Phase 6) via le buffer interne (sink pattern).
+
+### 0.6 Public API Structure (décision anticipée)
+**Purpose:** Décider la séparation `include/` vs `src/` et la macro d'export avant d'écrire du code
+
+- [ ] Décider la structure : headers publics → `include/VoxelEngine/`, headers internes → `src/`
+- [ ] Définir macro `VOXEL_API` pour l'export DLL Windows (`__declspec(dllexport/dllimport)`)
+- [ ] Documenter la règle dans un commentaire en tête de chaque header public : *"This header is part of the public API"*
+- [ ] Appliquer rétroactivement aux headers de Phase 0 déjà écrits
+
+> **Pourquoi maintenant :** La frontière `include/` vs `src/` influence chaque header écrit. La découvrir en Phase 11 = refactoring de toute la base. Décider la structure maintenant, déplacer progressivement.
+
+### 0.7 CI Minimale
+**Purpose:** Détecter les builds cassés sur toutes les plateformes dès le premier commit
+
+- [ ] Créer `.github/workflows/build.yml`
+- [ ] Build automatique sur Linux, Windows, macOS à chaque push sur `main` et chaque PR
+- [ ] Aucun test requis pour l'instant — juste `cmake && cmake --build`
+- [ ] Bloquer les merges si le build échoue
+
+> **Pourquoi maintenant :** Mettre en place la CI sur un projet vide prend 30 minutes. Attendre 60 fichiers = builds cassés sur d'autres plateformes accumulés sans le savoir.
 
 ---
 
@@ -208,11 +247,15 @@
 
 **Why this matters:** 3D rendering requires transforming vertices from object space → world space → view space → clip space.
 
+> **⚠️ Note technique GLM + bgfx :** GLM est **right-handed** par défaut avec depth clip-space **-1..1** (style OpenGL). bgfx attend **0..1** (style D3D). Si tu ne forces pas explicitement `glm::perspectiveLH_ZO` / `glm::lookAtLH`, ou les flags `GLM_FORCE_LEFT_HANDED` + `GLM_FORCE_DEPTH_ZERO_TO_ONE`, tu obtiendras un cube inversé en profondeur ou culé à l'envers selon le backend. À vérifier systématiquement quand le rendu semble bizarre.
+
 ---
 
 ## Phase 2: Manager Infrastructure
 
 **Goal:** Build the manager layer for all rendering and input subsystems
+
+> **⚠️ Note architecturale :** Les Managers de Phase 2 (ShaderManager, MeshManager, MaterialManager) maintiennent leur propre cache pour l'instant. En Phase 4, quand l'AssetManager sera disponible, ils seront **refactorisés pour déléguer** le chargement et le cache à l'AssetManager. Ils deviennent alors des vues typées (API pratique) au-dessus d'un cache unique. Ne pas anticiper ce refactoring maintenant — l'implémenter simplement d'abord.
 
 ### 2.1 ShaderManager
 **Purpose:** Centralized loading, caching, and hot-reload of shaders
@@ -278,7 +321,9 @@
 - [x] Support multiple render passes: opaque, transparent, post-process
 - [x] Track draw call count and triangle count for profiling
 
-- [x] **Intégration** : Instancier `Renderer/RenderManager` dans `Core/RenderManager` et déléguer les draw calls — `Core/RenderManager::render()` appelle `Renderer/RenderManager::submitMesh()` puis `Renderer/RenderManager::render()`
+- [x] **Intégration** : `RenderManager` (`src/Renderer/RenderManager`) est le seul gestionnaire de rendu. Enregistré dans `ServiceLocator`, appelé depuis `Engine::run()`. Il n'existe qu'un seul `RenderManager` — pas de couche Core/Renderer imbriquée.
+
+> **Convention :** Si une couche bas-niveau séparée devient nécessaire (ex: abstraction bgfx), elle sera nommée `RenderBackend` ou `RenderQueue` pour distinguer explicitement les responsabilités.
 
 **Why this matters:** Decouples "what to render" from "how to render". Enables optimizations like sorting.
 
@@ -298,7 +343,7 @@
 
 - [x] **Intégration** : Enregistrer `CameraManager` dans `ServiceLocator`, l'appeler depuis `RenderManager::render()` pour récupérer la caméra principale et appliquer son `ViewProjectionMatrix`
 
-> **Reporté depuis 2.4 :** ✅ Implémenté dans `src/Renderer/RendererManager` :
+> **Reporté depuis 2.4 :** ✅ Implémenté dans `src/Renderer/RenderManager` :
 > - [x] Sort opaque meshes front-to-back (distance caméra → mesh, `std::sort`)
 > - [x] Sort transparent meshes back-to-front (même principe, ordre inversé)
 > - [x] `submitCamera()` : transmettre la position caméra au RenderManager pour les tris
@@ -395,101 +440,109 @@
 
 **Goal:** Build entity-component system for game object management
 
+> **⚠️ Prérequis avant de commencer Phase 3 :** Ajouter `TestServiceLocator` et `TestEventBus` (voir section Testing Strategy). Le ServiceLocator et l'EventBus sont les briques dont tout dépend — refactorer l'ECS sans filet sur ces fondations, c'est là que les régressions silencieuses apparaissent.
+
 ### 3.1 EnTT Integration
 **Purpose:** Use proven ECS library instead of building from scratch
 
-- [ ] Add EnTT to `vcpkg.json`
-- [ ] Create `src/ECS/Registry.hpp` wrapper around `entt::registry`
-- [ ] Implement `createEntity()`: create new entity, return Entity wrapper
-- [ ] Implement `destroyEntity(entity)`: remove entity and all components
-- [ ] Implement `addComponent<T>(entity, args...)`: attach component to entity
-- [ ] Implement `getComponent<T>(entity)`: retrieve component reference
-- [ ] Implement `hasComponent<T>(entity)`: check if entity has component
-- [ ] Implement `removeComponent<T>(entity)`: detach component from entity
-- [ ] Implement `view<Components...>()`: iterate entities with specific components
-- [ ] Implement `each<Components...>(callback)`: execute callback on matching entities
+- [x] Add EnTT to `vcpkg.json`
+- [x] Create `src/ECS/Registry.hpp` wrapper around `entt::registry`
+- [x] Implement `createEntity()`: create new entity, return Entity wrapper
+- [x] Implement `destroyEntity(entity)`: remove entity and all components
+- [x] Implement `addComponent<T>(entity, args...)`: attach component to entity
+- [x] Implement `getComponent<T>(entity)`: retrieve component reference
+- [x] Implement `hasComponent<T>(entity)`: check if entity has component
+- [x] Implement `removeComponent<T>(entity)`: detach component from entity
+- [x] Implement `view<Components...>()`: iterate entities with specific components
+- [ ] Implement `each<Components...>(callback)`: execute callback on matching entities *(reporté en 3.4)*
 
 **Why this matters:** EnTT is battle-tested, cache-friendly, and fast. Don't reinvent ECS.
 
 ### 3.2 Entity Wrapper
 **Purpose:** Friendly API on top of EnTT's raw entity ID
 
-- [ ] Create `src/ECS/Entity.hpp`
-- [ ] Store entity handle (entt::entity)
-- [ ] Store registry pointer for convenience
-- [ ] Implement `addComponent<T>(args...)`: forward to registry
-- [ ] Implement `getComponent<T>()`: forward to registry
-- [ ] Implement `hasComponent<T>()`: forward to registry
-- [ ] Implement `removeComponent<T>()`: forward to registry
-- [ ] Implement `destroy()`: remove entity from registry
-- [ ] Implement `isValid()`: check if entity still exists
-- [ ] Overload equality operators for entity comparison
+- [x] Create `src/ECS/Entity.hpp`
+- [x] Store entity handle (entt::entity)
+- [x] Store registry pointer for convenience
+- [x] Implement `addComponent<T>(args...)`: forward to registry
+- [x] Implement `getComponent<T>()`: forward to registry
+- [x] Implement `hasComponent<T>()`: forward to registry
+- [x] Implement `removeComponent<T>()`: forward to registry
+- [x] Implement `destroy()`: remove entity from registry
+- [x] Implement `isValid()`: check if entity still exists
+- [x] Overload equality operators for entity comparison
 
 **Why this matters:** Users call `entity.addComponent<Transform>()` instead of `registry.emplace<Transform>(entityID)`. Cleaner API.
+
+> **Note technique :** Les corps des méthodes templates d'`Entity` sont définis à la **fin de `Registry.hpp`** (deferred template definition) car ils ont besoin de la définition complète de `Registry`. `Entity.hpp` ne contient que les déclarations. C'est la solution standard pour les dépendances circulaires entre templates.
 
 ### 3.3 Core Components
 
 #### Transform Component
-- [ ] Create `src/ECS/Components/Transform.hpp`
-- [ ] Store position as vec3
-- [ ] Store rotation as quaternion (avoids gimbal lock)
-- [ ] Store scale as vec3
-- [ ] Implement `getModelMatrix()`: calculate TRS matrix (Translation × Rotation × Scale)
-- [ ] Implement `translate(offset)`: move by offset
-- [ ] Implement `rotate(axis, angle)`: rotate around axis
-- [ ] Implement `lookAt(target)`: point toward target position
-- [ ] Store cached model matrix, dirty flag to avoid recalculation
+> **✅ Conflit résolu :** `src/Math/Transform.hpp` a été renommé de `class Transform` en `class MathTransform` (`Voxel::MathTransform`). L'ECS `Voxel::Transform` est désormais le seul `Transform` dans le namespace. **Convention à respecter :** toujours utiliser `MathTransform::createModelMatrix` (et non `Transform::`) pour les matrices utilitaires Math.
+- [x] Create `src/ECS/Components/Transform.hpp`
+- [x] Store position as vec3
+- [x] Store rotation as quaternion (avoids gimbal lock)
+- [x] Store scale as vec3
+- [x] Implement `getModelMatrix()`: calculate TRS matrix (Translation × Rotation × Scale)
+- [x] Implement `translate(offset)`: move by offset
+- [x] Implement `rotate(axis, angle)`: rotate around axis
+- [x] Implement `lookAt(target)`: point toward target position
+- [x] Store cached model matrix, dirty flag to avoid recalculation
+> **⚠️ Known edge case :** `lookAt()` ne gère pas le cas `target` directement au-dessus/dessous (`direction` colinéaire avec `up`) → `cross` = zéro → NaN. Fix : utiliser `up = (0,0,1)` si `abs(dot(direction, up)) > 0.999`.
 
 #### MeshRenderer Component
-- [ ] Create `src/ECS/Components/MeshRenderer.hpp`
-- [ ] Store MeshHandle reference
-- [ ] Store MaterialHandle reference
-- [ ] Store castShadows boolean flag
-- [ ] Store receiveShadows boolean flag
-- [ ] Store rendering layer mask (for selective rendering)
-- [ ] Store bounds (AABB) for frustum culling
+> **Note :** `MeshRenderer` est une `struct` (données publiques, pas de getters/setters). Les handles sont des `std::string` — migrés vers un vrai `Handle<T>` en Phase 4 avec l'AssetManager.
+- [x] Create `src/ECS/Components/MeshRenderer.hpp`
+- [x] Store MeshHandle reference
+- [x] Store MaterialHandle reference
+- [x] Store castShadows boolean flag
+- [x] Store receiveShadows boolean flag
+- [x] Store rendering layer mask (for selective rendering)
+- [x] Store bounds (AABB) for frustum culling
 
 #### Camera Component
-- [ ] Create `src/ECS/Components/Camera.hpp`
-- [ ] Reuse Camera class from Phase 2.6 as component
-- [ ] Entity with Camera component is a camera in the scene
-- [ ] Entity must also have Transform component for positioning
+> **Note :** Pas de nouveau fichier — `Voxel::Camera` (Phase 2.6) est utilisée directement comme composant EnTT. Le CameraSystem vérifie la présence d'un Transform.
+- [x] Reuse Camera class from Phase 2.6 as component
+- [x] Entity with Camera component is a camera in the scene
+- [x] Entity must also have Transform component for positioning
 
 #### Tag Component
-- [ ] Create `src/ECS/Components/Tag.hpp`
-- [ ] Store entity name as string
-- [ ] Store enabled boolean (entities can be disabled without destroying)
-- [ ] Store layer (physics, rendering layers)
-- [ ] Store tag (for grouping: "Player", "Enemy", "Pickup")
+- [x] Create `src/ECS/Components/Tag.hpp`
+- [x] Store entity name as string
+- [x] Store enabled boolean (entities can be disabled without destroying)
+- [x] Store layer (physics, rendering layers)
+- [x] Store tag (for grouping: "Player", "Enemy", "Pickup")
 
 **Why this matters:** Components are pure data. Systems operate on components. This is the core of ECS.
 
 ### 3.4 Systems
 
 #### RenderSystem
-- [ ] Create `src/ECS/Systems/RenderSystem.hpp` and `.cpp`
-- [ ] Query all entities with Transform + MeshRenderer components
-- [ ] For each entity:
-  - Retrieve mesh from MeshManager using MeshHandle
-  - Retrieve material from MaterialManager using MaterialHandle
+- [x] Create `src/ECS/Systems/RenderSystem.hpp` and `.cpp`
+- [x] Query all entities with Transform + MeshRenderer components
+- [x] For each entity:
+  - Retrieve mesh from MeshManager using `meshName` (std::string key)
+  - Retrieve material from MaterialManager using `materialName` (std::string key)
   - Calculate model matrix from Transform
   - Submit to RenderManager
-- [ ] Skip disabled entities (Tag component enabled = false)
-- [ ] Skip entities outside camera frustum (frustum culling)
-- [ ] Execute during scene render phase
+- [x] Skip disabled entities (Tag component enabled = false)
 
 #### CameraSystem
-- [ ] Create `src/ECS/Systems/CameraSystem.hpp` and `.cpp`
-- [ ] Query all entities with Transform + Camera components
-- [ ] For each camera entity:
+- [x] Create `src/ECS/Systems/CameraSystem.hpp` and `.cpp`
+- [x] Query all entities with Transform + Camera components
+- [x] For each camera entity:
   - Update Camera's view matrix using Transform position/rotation
   - Register camera with CameraManager
-- [ ] Unregister cameras when entities destroyed
-- [ ] Handle main camera switching (check Tag for "MainCamera")
+- [x] Unregister cameras when entities destroyed
+- [x] Handle main camera switching (check Tag for "MainCamera")
 
-- [ ] **Intégration** : `RenderSystem` et `CameraSystem` sont enregistrés et appelés dans `Scene::update(deltaTime)`
+- [x] **Intégration** : `RenderSystem` et `CameraSystem` sont enregistrés et appelés dans `Scene::update(deltaTime)`
 
 **Why this matters:** Systems provide behavior. Adding RenderSystem makes entities with MeshRenderer automatically render.
+
+#### Registry::each — *(reporté depuis 3.1)*
+- [x] Implémenter `each<Components...>(callback)` dans `Registry.hpp` en s'appuyant sur `view()`
 
 #### FollowCameraController — look-ahead *(reporté depuis 2.7)*
 - [ ] `FollowCameraController` : optional look-ahead — predict target movement direction using velocity, offset camera slightly in front of target
@@ -497,62 +550,63 @@
 ### 3.5 Scene
 **Purpose:** Container for entities and scene-level data
 
-- [ ] Create `src/Scene/Scene.hpp` and `.cpp`
-- [ ] Store ECS Registry instance
-- [ ] Store scene name
-- [ ] Implement `createEntity(name)`: create entity, add Tag component with name
-- [ ] Implement `destroyEntity(entity)`: remove from registry
-- [ ] Implement parent-child hierarchy:
+- [x] Create `src/Scene/Scene.hpp` and `.cpp`
+- [x] Store ECS Registry instance
+- [x] Store scene name
+- [x] Implement `createEntity(name)`: create entity, add Tag component with name
+- [x] Implement `destroyEntity(entity)`: remove from registry
+- [x] Implement parent-child hierarchy:
   - Store map of entity → parent entity
   - Store map of entity → list of children
   - Implement `setParent(child, parent)`
   - Implement `getParent(entity)`
   - Implement `getChildren(entity)`
-- [ ] Implement `update(deltaTime)`: execute all scene systems
-- [ ] Store scene-level settings: ambient light color, fog, skybox
+- [x] Implement `update(deltaTime)`: execute all scene systems (dont RenderSystem et CameraSystem — reportés depuis 3.4)
+- [x] Store scene-level settings: ambient light color, fog, skybox
 
-- [ ] **Intégration** : `Scene` est créée et gérée par `SceneManager`, son `update()` est appelé depuis `SceneManager::update()` qui lui-même est appelé depuis `Engine::run()`
+- [x] **Intégration** : `Scene` est créée et gérée par `SceneManager`, son `update()` est appelé depuis `SceneManager::update()` qui lui-même est appelé depuis `Engine::run()`
 
 **Why this matters:** Scene owns all entities. Switching scenes = load different set of entities.
 
 ### 3.6 SceneManager
 **Purpose:** Load, unload, and transition between scenes
 
-- [ ] Create `src/Scene/SceneManager.hpp` and `.cpp`
-- [ ] Store map of scene name → Scene object
-- [ ] Store active scene pointer
-- [ ] Implement `loadScene(name)`: unload current, load new, set as active
-- [ ] Implement `unloadScene(name)`: destroy scene and all entities
-- [ ] Implement `loadSceneAdditive(name)`: load scene without unloading current (for UI overlays)
-- [ ] Implement `getActiveScene()`: return currently active scene
-- [ ] Implement `update(deltaTime)`: call update on all active scenes
-- [ ] Support async scene loading: load in background, switch when ready
-- [ ] Scene transition callbacks: onSceneUnload, onSceneLoaded
+- [x] Create `src/Scene/SceneManager.hpp` and `.cpp`
+- [x] Store map of scene name → Scene object
+- [x] Store active scene pointer
+- [x] Implement `loadScene(name)`: unload current, load new, set as active
+- [x] Implement `unloadScene(name)`: destroy scene and all entities
+- [x] Implement `loadSceneAdditive(name)`: load scene without unloading current (for UI overlays)
+- [x] Implement `getActiveScene()`: return currently active scene
+- [x] Implement `update(deltaTime)`: call update on all active scenes
+- [x] Implement `loadSceneFromFile(filepath)`: délègue à `SceneSerializer::deserialize()`, stocke le résultat dans `_scenes`, active la scène — point d'entrée unique pour charger une scène depuis un fichier
+- [x] Support async scene loading: load in background, switch when ready
+- [x] Scene transition callbacks: onSceneUnload, onSceneLoaded
 
-- [ ] **Intégration** : Enregistrer `SceneManager` dans `ServiceLocator`, appeler `SceneManager::update(deltaTime)` depuis `Engine::run()`
+- [x] **Intégration** : Enregistrer `SceneManager` dans `ServiceLocator`, appeler `SceneManager::update(deltaTime)` depuis `Engine::run()`
 
 **Why this matters:** Games have menus, levels, cutscenes. SceneManager handles transitions.
 
 ### 3.7 Scene Serialization
 **Purpose:** Save and load scenes from disk for persistence
 
-- [ ] Add nlohmann/json to `vcpkg.json`
-- [ ] Create `src/Scene/SceneSerializer.hpp` and `.cpp`
-- [ ] Implement `serialize(scene, filepath)`:
+- [x] Add nlohmann/json to `vcpkg.json`
+- [x] Create `src/Scene/SceneSerializer.hpp` and `.cpp`
+- [x] Implement `serialize(scene, filepath)`:
   - Iterate all entities in scene
   - For each entity, serialize all components as JSON
   - Store parent-child hierarchy
-  - Store asset references as GUID (not path)
+  - Store asset references as **path** (migration vers GUID reportée en 4.4 — l'AssetManager n'existe pas encore à ce stade)
   - Write to file
-- [ ] Implement `deserialize(filepath)`:
+- [x] Implement `deserialize(filepath)`:
   - Parse JSON
   - Create entities
   - Recreate components from JSON data
   - Restore hierarchy
   - Resolve asset GUIDs to loaded assets
   - Return loaded scene
-- [ ] Support component polymorphism: save component type name, factory pattern to recreate
-- [ ] Validate scene file version for compatibility
+- [x] Support component polymorphism: save component type name, factory pattern to recreate
+- [x] Validate scene file version for compatibility
 
 **Why this matters:** Scenes created in editor must be saved. Saved scenes loaded at runtime.
 
@@ -635,7 +689,19 @@
 
 **Why this matters:** Single source of truth for all resources. Prevents duplicate loads.
 
-### 4.4 Asset Import Pipeline
+### 4.4 Migration des Managers Phase 2 vers AssetManager
+**Purpose:** Éliminer le double cache en faisant déléguer les Managers à l'AssetManager
+
+- [ ] Refactoriser `ShaderManager` : `load()` délègue à `AssetManager::load<ShaderAsset>()`
+- [ ] Refactoriser `MeshManager` : `load()` délègue à `AssetManager::load<MeshAsset>()`
+- [ ] Refactoriser `MaterialManager` : `load()` délègue à `AssetManager::load<MaterialAsset>()`
+- [ ] Supprimer les maps internes de cache des Managers (AssetManager devient l'unique cache)
+- [ ] Garder les APIs publiques des Managers identiques — seule l'implémentation change
+- [ ] Migrer `SceneSerializer` (3.7) : remplacer les références par chemin par des GUIDs (AssetManager désormais stable, les `.meta` files existent)
+
+> **Pourquoi ici :** Sans cette migration, tu auras deux caches qui s'ignorent : un mesh chargé deux fois, une fois par chemin, une fois par GUID. La migration doit se faire dès que l'AssetManager est stable.
+
+### 4.5 Asset Import Pipeline
 **Purpose:** Convert external files into engine-optimized formats
 
 - [ ] Detect file type by extension (.png → TextureAsset, .obj → MeshAsset)
@@ -661,7 +727,7 @@
 
 **Why this matters:** Artists provide raw assets. Import pipeline optimizes for runtime. .meta files track GUIDs.
 
-### 4.5 Hot-Reload System
+### 4.6 Hot-Reload System
 **Purpose:** Automatically reload assets when files change during development
 
 - [ ] Implement file watcher (platform-specific):
@@ -681,7 +747,7 @@
 
 **Why this matters:** Edit texture in Photoshop, save, instantly see in engine. Massive workflow improvement.
 
-### 4.6 Asset Database
+### 4.7 Asset Database
 **Purpose:** Persistent mapping of GUIDs to file paths
 
 - [ ] Create `assets/AssetDatabase.json`
@@ -699,6 +765,9 @@
 ## Phase 5: Advanced Systems
 
 **Goal:** Complete core engine features for production-ready games
+
+> **Reporté depuis 3.4 (RenderSystem) :**
+> - [ ] Frustum culling dans `RenderSystem::update()` : extraire les 6 plans du frustum depuis la matrice view-projection de la caméra principale (Gribb-Hartmann), tester l'AABB (`boundsMin`/`boundsMax`) de chaque `MeshRenderer` contre ces plans, skip si hors frustum. Nécessite accès au `CameraManager` dans `RenderSystem`. Implémentation complète (hiérarchique + debug visuel + spatial partitioning) → **Phase 10.2**.
 
 > **Reporté depuis 2.6 (Camera avancée) :**
 > - [ ] Store viewport rectangle: x, y, width, height (normalized 0-1 or pixel coordinates)
@@ -1595,6 +1664,8 @@
 
 **Goal:** Enable multiplayer gameplay with client-server architecture
 
+> **⚠️ Scope :** Phase 9 est un projet complet en soi — prediction, lag compensation, replication, lobby représentent chacun plusieurs semaines. Ne commencer que si le mini-jeu cible requiert explicitement du multijoueur.
+
 ### 9.1 Network Architecture
 **Purpose:** Foundation for networked multiplayer games
 
@@ -1782,6 +1853,10 @@
 ## Phase 10: Optimization & Polish
 
 **Goal:** Performance improvements and developer experience enhancements
+
+> **Reporté depuis 3.4 (Systems) — rebuild-each-frame :**
+> - [ ] `CameraManager` : remplacer `clearCameras()` + rebuild par un système incrémental basé sur des événements (entité créée/détruite avec composant `Camera`). Évite les allocations inutiles chaque frame.
+> - [ ] `RenderManager` : même refacto — remplacer le `clear()` + rebuild des draw calls par une approche dirty-flag ou event-driven. Mesurer d'abord avec Tracy (10.1) pour confirmer que c'est un vrai bottleneck.
 
 ### 10.1 Profiling
 **Purpose:** Measure performance to identify bottlenecks
@@ -1977,6 +2052,7 @@
   - Utilise `VOXEL_MAIN(MyGame)`
 - [ ] Répertoire `assets/` avec assets d'exemple
 - [ ] README expliquant les étapes pour compiler et lancer
+- [ ] Script d'installation one-liner pour Linux/macOS/Windows
 
 **Why this matters:** Sans template, chaque utilisateur passe 2h à configurer CMake. Avec template, ça prend 5 minutes.
 
@@ -1998,8 +2074,29 @@
   - Builder et lancer le jeu
 - [ ] Héberger la doc en GitHub Pages ou site statique
 - [ ] Changelog versionné pour suivre les breaking changes d'API
+- [ ] Badges README : build status, test coverage, version actuelle
 
 **Why this matters:** Une API non documentée est inutilisable. Les exemples sont plus importants que la référence exhaustive.
+
+### 11.6 Projet Démo
+**Purpose:** Démontrer les capacités du moteur avec un exemple jouable
+
+- [ ] Créer un petit jeu fonctionnel dans `demo/` (ex: cube qui se déplace avec WASD)
+- [ ] Le démo doit utiliser tous les systèmes principaux (ECS, Input, Render, Audio)
+- [ ] Documenter le code du démo comme exemple pour les nouveaux utilisateurs
+- [ ] Packager le démo comme release GitHub
+
+**Why this matters:** Un moteur sans démo jouable n'est pas convaincant. Le démo est la meilleure doc.
+
+### 11.7 Robustesse API
+**Purpose:** Rendre les erreurs compréhensibles pour les utilisateurs du moteur
+
+- [ ] Messages d'erreur explicites pour les erreurs courantes (shader manquant, handle invalide, etc.)
+- [ ] Mode debug verbose : logs détaillés activables avec `VOXEL_VERBOSE`
+- [ ] Validation des paramètres aux frontières publiques de l'API
+- [ ] Guide de migration entre versions (breaking changes documentés)
+
+**Why this matters:** Les messages d'erreur sont l'interface cachée du moteur. Des erreurs claires = moins de frustration.
 
 ---
 
@@ -2103,11 +2200,11 @@
   - `make test_core` runs core tests only
   - `make test_performance` runs benchmarks
 
-- [ ] Continuous Integration:
-  - GitHub Actions workflow
-  - Run tests on every commit
-  - Run on multiple platforms (Linux, Windows, macOS)
-  - Block merge if tests fail
+- [ ] Continuous Integration *(étend la CI build-only de 0.7)* :
+  - Ajouter run des tests unitaires sur chaque commit
+  - Ajouter run sur multiple platforms (Linux, Windows, macOS)
+  - Ajouter déploiement automatique de la doc sur GitHub Pages
+  - Bloquer les merges si les tests échouent
 
 - [ ] Test coverage:
   - Generate coverage reports (gcov/lcov)
@@ -2315,47 +2412,8 @@
 61. **Documentation API** - Doxygen + guides de démarrage
 62. **Projet démo** - Un petit jeu fonctionnel comme exemple
 63. **CMake consumer-friendly** - `find_package(VoxelEngine)` ou submodule propre
-64. **GitHub Actions CI** - Build + tests automatiques sur chaque PR
+64. **CI complète** - Étendre la CI minimale de 0.7 : ajouter run des tests + déploiement doc sur GitHub Pages
 65. **Gestion d'erreurs user-friendly** - Messages clairs pour les devs qui utilisent le moteur
-
----
-
-## Phase 11: Developer Experience
-
-**Goal:** Rendre VoxelEngine utilisable par d'autres développeurs
-
-### 11.1 Documentation
-- [ ] Générer l'API reference avec Doxygen
-- [ ] Écrire un guide de démarrage (Getting Started)
-- [ ] Documenter chaque manager avec des exemples d'utilisation
-- [ ] Écrire un guide de contribution (CONTRIBUTING.md)
-- [ ] Documenter les conventions de code (namespace, préfixes, etc.)
-
-### 11.2 Projet Démo
-- [ ] Créer un petit jeu fonctionnel dans `demo/` (ex: cube qui se déplace avec WASD)
-- [ ] Le démo doit utiliser tous les systèmes principaux (ECS, Input, Render, Audio)
-- [ ] Documenter le code du démo comme exemple pour les nouveaux utilisateurs
-- [ ] Packager le démo comme release GitHub
-
-### 11.3 Intégration Facile
-- [ ] Support `find_package(VoxelEngine CONFIG)` via CMake
-- [ ] Support ajout comme git submodule avec CMake minimal
-- [ ] Template de projet starter : structure de dossiers + CMakeLists.txt prêt à l'emploi
-- [ ] Script d'installation one-liner (Linux/macOS/Windows)
-
-### 11.4 CI/CD
-- [ ] GitHub Actions : build automatique sur Linux, Windows, macOS à chaque push
-- [ ] GitHub Actions : run des tests unitaires sur chaque PR
-- [ ] GitHub Actions : génération et déploiement de la doc sur GitHub Pages
-- [ ] Badges README : build status, test coverage, version
-
-### 11.5 Robustesse
-- [ ] Messages d'erreur explicites pour les erreurs courantes (shader manquant, handle invalide, etc.)
-- [ ] Mode debug verbose : logs détaillés activables avec `VOXEL_VERBOSE`
-- [ ] Validation des paramètres aux frontières publiques de l'API
-- [ ] Guide de migration entre versions (breaking changes documentés)
-
-**Why this matters:** Un moteur sans doc ni exemples ne sera utilisé que par son créateur. La DX (Developer Experience) est ce qui fait la différence entre un projet personnel et un projet open-source viable.
 
 ---
 
@@ -2426,7 +2484,7 @@
 - **Const correctness** - Mark methods const where possible
 - **No raw pointers** - Use smart pointers or handles
 - **Single responsibility** - Each class does one thing
-- **Dependency injection** - Prefer passing dependencies over globals
+- **Service Locator assumed** - L'accès global aux managers via ServiceLocator est le pattern choisi pour ce moteur. La DI explicite est réservée aux sous-systèmes testables (ex: passer un `entt::registry&` à un System plutôt que le récupérer via SL).
 
 ### Performance Tips
 - **Measure first** - Profile before optimizing

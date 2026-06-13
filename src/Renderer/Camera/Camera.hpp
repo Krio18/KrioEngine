@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Math/Transform.hpp"
+#include "../../Math/MathTransform.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -14,7 +14,7 @@ namespace Voxel {
 
     struct Camera {
         glm::vec3 position = glm::vec3(0.0f);
-        glm::quat orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+        glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 
         ProjectionType projectionType = ProjectionType::Perspective;
         float fovDegrees = 60.0f;

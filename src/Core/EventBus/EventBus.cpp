@@ -11,7 +11,7 @@ namespace Voxel {
     void EventBus::dispatchEvents()
     {
         while (!this->_eventQueue.empty()) {
-            auto& queuedEvent = this->_eventQueue.front();
+            auto queuedEvent = this->_eventQueue.front();
 
             this->_cleanupDeadSubscribers(queuedEvent.type);
 

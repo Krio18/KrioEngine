@@ -18,7 +18,9 @@ namespace Voxel
         return *this;
     }
 
-    Mesh::Mesh() : _vbh(BGFX_INVALID_HANDLE), _ibh(BGFX_INVALID_HANDLE), _indexCount(0) {}
+    Mesh::Mesh() :
+        _vbh(BGFX_INVALID_HANDLE), _ibh(BGFX_INVALID_HANDLE), _indexCount(0),
+        _minX(0.0f), _minY(0.0f), _minZ(0.0f), _maxX(0.0f), _maxY(0.0f), _maxZ(0.0f) {}
 
     Mesh::Mesh(Mesh&& other) noexcept {
         _vbh = other._vbh;
@@ -44,6 +46,13 @@ namespace Voxel
         if (bgfx::isValid(_ibh))
             bgfx::setIndexBuffer(_ibh);
 
+        uint64_t state = BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A
+               | BGFX_STATE_WRITE_Z
+               | BGFX_STATE_DEPTH_TEST_LESS
+               | BGFX_STATE_CULL_CCW
+               | BGFX_STATE_MSAA;
+        bgfx::setState(state);
+
         bgfx::submit(viewId, program);
     }
 
@@ -52,15 +61,18 @@ namespace Voxel
     }
 
     bgfx::VertexLayout Mesh::_vertexLayout;
+    std::once_flag Mesh::_layoutInitFlag;
 
     void Mesh::init() {
-        _vertexLayout
-            .begin()
-            .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
-            .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)
-            .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
-            .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
-            .end();
+        std::call_once(Mesh::_layoutInitFlag, []() {
+            _vertexLayout
+                .begin()
+                .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+                .add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)
+                .add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
+                .add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true)
+                .end();
+        });
     }
 
     Mesh Mesh::createTriangle() {

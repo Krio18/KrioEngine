@@ -14,11 +14,11 @@ namespace Voxel {
         float t = std::clamp(this->_damping * deltaTime, 0.0f, 1.0f);
         this->_camera.position = glm::mix(current, targetPosition, t);
 
-        this->_camera.orientation = glm::quatLookAt(glm::normalize((*this->_target) - this->_camera.position), glm::vec3(0.0f, 1.0f, 0.0f));
+        this->_camera.rotation = glm::quatLookAt(glm::normalize((*this->_target) - this->_camera.position), glm::vec3(0.0f, 1.0f, 0.0f));
     }
 
-    void FollowCameraController::setTarget(glm::vec3* target) {
-        this->_target = target;
+    void FollowCameraController::setTarget(std::shared_ptr<glm::vec3> target) {
+        this->_target = std::move(target);
     }
 
     void FollowCameraController::setOffset(const glm::vec3& offset) {
