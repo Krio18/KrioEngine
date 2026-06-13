@@ -44,4 +44,9 @@ namespace Voxel {
         }
         return true;
     }
+
+    void CameraManager::clearCameras() {
+        this->_cameras.clear();
+        this->_mainCamera = nullptr;
+    }
 }

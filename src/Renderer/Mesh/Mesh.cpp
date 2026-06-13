@@ -46,6 +46,13 @@ namespace Voxel
         if (bgfx::isValid(_ibh))
             bgfx::setIndexBuffer(_ibh);
 
+        uint64_t state = BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A
+               | BGFX_STATE_WRITE_Z
+               | BGFX_STATE_DEPTH_TEST_LESS
+               | BGFX_STATE_CULL_CCW
+               | BGFX_STATE_MSAA;
+        bgfx::setState(state);
+
         bgfx::submit(viewId, program);
     }
 

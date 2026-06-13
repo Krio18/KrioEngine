@@ -47,4 +47,30 @@ namespace Voxel {
         this->_isDirty = true;
     }
 
+    glm::vec3 Transform::getPosition() const {
+        return this->_position;
+    }
+
+    glm::quat Transform::getRotation() const {
+        return this->_rotation;
+    }
+
+    glm::vec3 Transform::getScale() const {
+        return this->_scale;
+    }
+
+    void Transform::setPosition(const glm::vec3& position) {
+        this->_position = position;
+        this->_isDirty = true;
+    }
+
+    void Transform::setRotation(const glm::quat& rotation) {
+        this->_rotation = rotation;
+        this->_isDirty = true;
+    }
+
+    void Transform::setScale(const glm::vec3& scale) {
+        this->_scale = scale;
+        this->_isDirty = true;
+    }
 }

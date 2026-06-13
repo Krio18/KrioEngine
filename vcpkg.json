@@ -9,6 +9,9 @@
         {
             "name": "sdl2",
             "version>=": "2.0"
+        },
+        {
+            "name": "nlohmann-json"
         }
     ],
     "builtin-baseline": "latest"

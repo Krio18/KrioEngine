@@ -30,7 +30,7 @@ namespace Voxel {
         offset.z = this->_distance * cos(pitchRad) * cos(yawRad);
 
         this->_camera.position = this->_target + offset;
-        this->_camera.orientation = glm::quatLookAt(glm::normalize(this->_target - this->_camera.position), glm::vec3(0.0f, 1.0f, 0.0f));
+        this->_camera.rotation = glm::quatLookAt(glm::normalize(this->_target - this->_camera.position), glm::vec3(0.0f, 1.0f, 0.0f));
     }
 
     void OrbitCameraController::setTarget(const glm::vec3& target) {
